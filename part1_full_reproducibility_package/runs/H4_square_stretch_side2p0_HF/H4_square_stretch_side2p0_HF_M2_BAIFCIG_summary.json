@@ -1,0 +1,33 @@
+{
+  "method_code": "M2_BAIFCIG",
+  "method_name": "M2: BAI-FC-IG",
+  "case_id": "H4_square_stretch_side2p0_HF",
+  "state": "HF",
+  "target": "winner identification, per-gradient FC grouping, no sharing",
+  "z": 3.101861833740095,
+  "delta_family_wise": 0.05,
+  "n_rounds": 7,
+  "n_remaining_arms": 1,
+  "selected_arms": [
+    25
+  ],
+  "final_radius": 0.008324316725510372,
+  "total_context_shots": 422746,
+  "conventions": {
+    "fc_grouping": "deterministic greedy first-fit fully commuting grouping",
+    "pauli_ordering": "sort by decreasing Pauli weight, then lexicographic",
+    "tie_breaking": "first group that accepts the Pauli string",
+    "random_seed": null,
+    "note": "the grouping is deterministic, so no seed is used"
+  },
+  "environment": {
+    "python": "3.10.12",
+    "packages": {
+      "numpy": "2.2.6",
+      "scipy": "1.15.3",
+      "pandas": "2.3.3",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    }
+  }
+}

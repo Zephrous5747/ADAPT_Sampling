@@ -1,0 +1,30 @@
+{
+  "method_code": "NOSHARE",
+  "method_name": "Baseline: no sharing, no elimination",
+  "case_id": "H4_square_stretch_side2p0_CISD",
+  "state": "CISD",
+  "target": "identification",
+  "target_description": "every generator measured in its own FC grouping and resolved to one common radius; no shared contexts and no elimination",
+  "confidence_radius": 0.025929503780124166,
+  "z": 3.101861833740095,
+  "delta_family_wise": 0.05,
+  "n_generators": 26,
+  "total_context_shots": 180604,
+  "conventions": {
+    "fc_grouping": "deterministic greedy first-fit fully commuting grouping",
+    "pauli_ordering": "sort by decreasing Pauli weight, then lexicographic",
+    "tie_breaking": "first group that accepts the Pauli string",
+    "random_seed": null,
+    "note": "the grouping is deterministic, so no seed is used"
+  },
+  "environment": {
+    "python": "3.10.12",
+    "packages": {
+      "numpy": "2.2.6",
+      "scipy": "1.15.3",
+      "pandas": "2.3.3",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    }
+  }
+}

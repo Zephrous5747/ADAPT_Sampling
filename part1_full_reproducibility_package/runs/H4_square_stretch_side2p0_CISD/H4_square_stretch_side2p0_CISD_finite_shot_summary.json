@@ -1,0 +1,80 @@
+{
+  "case_id": "H4_square_stretch_side2p0_CISD",
+  "n_trials": 200,
+  "delta_family_wise": 0.05,
+  "tolerance": 0.012964751890062083,
+  "seed": 0,
+  "noise_model": "normal-limit estimator fluctuations with exact fragment variances; shots accumulate across rounds; fluctuations drawn independently per generator, which is exact for the baseline and M2 and neglects within-context correlation for M1 and M3",
+  "results": [
+    {
+      "case_id": "H4_square_stretch_side2p0_CISD",
+      "method": "noshare",
+      "n_trials": 200,
+      "delta": 0.05,
+      "tolerance": 0.012964751890062083,
+      "correct_rate": 1.0,
+      "within_tolerance_rate": 1.0,
+      "planning_bound": 180604.0,
+      "shots_mean": 180603.6878814593,
+      "shots_median": 180603.68788145928,
+      "shots_p90": 180603.68788145928,
+      "inflation_vs_bound": 0.9999982718071544,
+      "runtime_seconds": 0.3899679690000539
+    },
+    {
+      "case_id": "H4_square_stretch_side2p0_CISD",
+      "method": "m1",
+      "n_trials": 200,
+      "delta": 0.05,
+      "tolerance": 0.012964751890062083,
+      "correct_rate": 1.0,
+      "within_tolerance_rate": 1.0,
+      "planning_bound": 58068.0,
+      "shots_mean": 58067.34988043317,
+      "shots_median": 58067.34988043317,
+      "shots_p90": 58067.34988043317,
+      "inflation_vs_bound": 0.9999888041680989,
+      "runtime_seconds": 1.7609682199999952
+    },
+    {
+      "case_id": "H4_square_stretch_side2p0_CISD",
+      "method": "m2",
+      "n_trials": 200,
+      "delta": 0.05,
+      "tolerance": 0.012964751890062083,
+      "correct_rate": 1.0,
+      "within_tolerance_rate": 1.0,
+      "planning_bound": 86857.0,
+      "shots_mean": 240466.729358273,
+      "shots_median": 263364.25516649126,
+      "shots_p90": 333788.81143059535,
+      "inflation_vs_bound": 2.7685359770458686,
+      "runtime_seconds": 0.11290678600005322
+    },
+    {
+      "case_id": "H4_square_stretch_side2p0_CISD",
+      "method": "m3",
+      "n_trials": 200,
+      "delta": 0.05,
+      "tolerance": 0.012964751890062083,
+      "correct_rate": 1.0,
+      "within_tolerance_rate": 1.0,
+      "planning_bound": 33432.0,
+      "shots_mean": 98777.88351746123,
+      "shots_median": 126930.01158537267,
+      "shots_p90": 144166.66385959394,
+      "inflation_vs_bound": 2.95459091641126,
+      "runtime_seconds": 1.1967551989999947
+    }
+  ],
+  "environment": {
+    "python": "3.10.12",
+    "packages": {
+      "numpy": "2.2.6",
+      "scipy": "1.15.3",
+      "pandas": "2.3.3",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    }
+  }
+}

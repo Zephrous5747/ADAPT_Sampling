@@ -1,0 +1,20 @@
+Part I full reproducibility package
+
+Core commands:
+  ./run_cached_reproduction.sh
+  python scripts/run_part1_from_scratch.py --case LiH_R3p0_HF --out from_scratch_runs
+
+Main files:
+  README.md
+  requirements.txt
+  configs/part1_cases.json
+  scripts/rebuild_part1_tables_from_cached.py
+  scripts/validate_cached_outputs.py
+  scripts/make_part1_report_from_tables.py
+  scripts/run_part1_from_scratch.py
+  src/pauli_fc.py
+  src/shot_models.py
+  report/part1_fixed_gradient_measurement_report.tex
+  report/part1_fixed_gradient_measurement_report.pdf
+  data/cached/...
+  reproduced_tables/...

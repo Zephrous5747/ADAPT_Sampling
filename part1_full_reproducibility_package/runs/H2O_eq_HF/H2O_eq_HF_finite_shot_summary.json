@@ -1,0 +1,50 @@
+{
+  "case_id": "H2O_eq_HF",
+  "n_trials": 40,
+  "delta_family_wise": 0.05,
+  "tolerance": 0.025272622744492747,
+  "seed": 0,
+  "noise_model": "normal-limit estimator fluctuations with exact fragment variances; shots accumulate across rounds; fluctuations drawn independently per generator, which is exact for the baseline and M2 and neglects within-context correlation for M1 and M3",
+  "results": [
+    {
+      "case_id": "H2O_eq_HF",
+      "method": "m2",
+      "n_trials": 40,
+      "delta": 0.05,
+      "tolerance": 0.025272622744492747,
+      "correct_rate": 1.0,
+      "within_tolerance_rate": 1.0,
+      "planning_bound": 25096606.0,
+      "shots_mean": 78909152.6516687,
+      "shots_median": 90311303.17492619,
+      "shots_p90": 91429082.02503133,
+      "inflation_vs_bound": 3.144216100442773,
+      "runtime_seconds": 35.19575165100002
+    },
+    {
+      "case_id": "H2O_eq_HF",
+      "method": "m3",
+      "n_trials": 40,
+      "delta": 0.05,
+      "tolerance": 0.025272622744492747,
+      "correct_rate": 1.0,
+      "within_tolerance_rate": 1.0,
+      "planning_bound": 22130852.0,
+      "shots_mean": 34283291.31055601,
+      "shots_median": 31692796.08680653,
+      "shots_p90": 50873551.20886979,
+      "inflation_vs_bound": 1.5491175536556843,
+      "runtime_seconds": 45.39302533199998
+    }
+  ],
+  "environment": {
+    "python": "3.10.12",
+    "packages": {
+      "numpy": "2.2.6",
+      "scipy": "1.15.3",
+      "pandas": "2.3.3",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    }
+  }
+}

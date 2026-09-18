@@ -1,0 +1,52 @@
+{
+  "case_id": "H2O_eq_CISD",
+  "state": "CISD",
+  "n_qubits": 14,
+  "state_energy_hartree": -75.01170131535437,
+  "universal_commutator_pauli_terms": 81566,
+  "parent_fc_contexts": 2366,
+  "nonzero_gradients": 48,
+  "nonzero_gradients_by_threshold": {
+    "0.0001": 40,
+    "1e-06": 48,
+    "1e-08": 48,
+    "1e-09": 48
+  },
+  "top_generator": "D 4,5 -> 12,13",
+  "top_abs_gradient": 0.006925435625955473,
+  "second_abs_gradient": 0.0048611695672603475,
+  "top_gap_abs_gradient": 0.0020642660586951255,
+  "delta_family_wise": 0.05,
+  "n_electrons": 10,
+  "n_spatial_orbitals": 7,
+  "pool_size": 140,
+  "hamiltonian_pauli_terms": 1086,
+  "rhf_energy_hartree": -74.96292824643282,
+  "validation": {
+    "rhf_energy_hartree": -74.96292824643282,
+    "jw_hf_energy_hartree": -74.96292824643282,
+    "hf_energy_error": 0.0,
+    "jw_fci_energy_hartree": -75.01240365883298,
+    "pyscf_fci_energy_hartree": -75.01240365883184,
+    "fci_energy_error": 1.1368683772161603e-12
+  },
+  "basis": "sto-3g",
+  "mapping": "Jordan-Wigner",
+  "frozen_core": false,
+  "M1_FCUG": 411524732152,
+  "M1_target": "identification",
+  "M1_confidence_radius": 0.0010321330293475628,
+  "M1_FCUG_full_vector": 1646098928606,
+  "M3_BAIFCUG": 44971732317,
+  "M3_selected": [
+    "D 4,5 -> 12,13"
+  ],
+  "runtime_seconds": 36.772156670000015,
+  "M2_BAIFCIG": 46457815707,
+  "M2_selected": [
+    "D 4,5 -> 12,13"
+  ],
+  "M1_over_M2": 8.8580301481973,
+  "M2_over_M3": 1.0330448331303936,
+  "NOSHARE": 485001056522
+}

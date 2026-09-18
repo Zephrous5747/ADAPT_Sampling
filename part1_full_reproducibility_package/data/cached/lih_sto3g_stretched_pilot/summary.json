@@ -1,0 +1,407 @@
+{
+  "system": "LiH/STO-3G",
+  "R_Angstrom": 3.0,
+  "geometry_assumption": "Li-H bond length 3.0 Angstrom, stretched but not dissociated",
+  "nelec": 4,
+  "n_spatial_orbitals": 6,
+  "n_qubits": 12,
+  "mapping": "Jordan-Wigner",
+  "pool": "spin-conserving UCCSD singles+doubles from RHF occupied to virtual spin orbitals",
+  "pool_size": 92,
+  "RHF_energy_Ha": -7.710829924324767,
+  "JW_HF_energy_Ha": -7.710829924343354,
+  "H_pauli_terms_including_identity": 631,
+  "nonzero_gradients_gt_1e-9": 26,
+  "universal_gradient_paulis": 30196,
+  "parent_FC_groups_greedy": 980,
+  "largest_parent_group_sizes": [
+    186,
+    170,
+    134,
+    124,
+    122,
+    120,
+    116,
+    113,
+    111,
+    105
+  ],
+  "per_gradient_stats": {
+    "commutator_terms_min": 286,
+    "commutator_terms_median": 1600.0,
+    "commutator_terms_max": 1648,
+    "individual_FC_groups_min": 28,
+    "individual_FC_groups_median": 66.0,
+    "individual_FC_groups_max": 101,
+    "parent_contexts_touched_min": 162,
+    "parent_contexts_touched_median": 561.5,
+    "parent_contexts_touched_max": 627
+  },
+  "winner": {
+    "pool_index": 91,
+    "label": "D 2,3->10,11",
+    "gradient": 0.243187338286613,
+    "abs_gradient": 0.243187338286613
+  },
+  "runner_up": {
+    "pool_index": 79,
+    "label": "D 2,3->4,11",
+    "gradient": 0.14679901528666847,
+    "abs_gradient": 0.14679901528666847,
+    "absolute_gap": 0.09638832299994451
+  },
+  "shot_model": {
+    "confidence": "normal approx using exact state variances; family-wise delta=0.05; no hardware noise/readout/no finite-shot Monte Carlo",
+    "Delta_good_enough_Ha": 0.005
+  },
+  "results": {
+    "naive_individual_all_gradients_uniform_context_shots": {
+      "m_per_individual_gradient_context": 6603,
+      "total_context_shots": 37927632
+    },
+    "parent_FC_all_gradients_uniform_context_shots": {
+      "m_per_parent_context": 2131,
+      "total_context_shots": 2088380
+    },
+    "independent_BAI": {
+      "remaining": 1,
+      "active": [
+        91
+      ],
+      "m_final_per_active_gradient": 3892.3712155579333,
+      "total_context_shots_est": 7368553,
+      "history_first": [
+        {
+          "m_per_active_gradient": 47.100156126337666,
+          "active": 91,
+          "eliminated": 1,
+          "cumulative_context_shots": 270543.2967896836
+        },
+        {
+          "m_per_active_gradient": 50.46687546997257,
+          "active": 90,
+          "eliminated": 1,
+          "cumulative_context_shots": 289780.73111921345
+        },
+        {
+          "m_per_active_gradient": 54.52718546687766,
+          "active": 89,
+          "eliminated": 1,
+          "cumulative_context_shots": 312863.5934516189
+        },
+        {
+          "m_per_active_gradient": 55.90575930385868,
+          "active": 88,
+          "eliminated": 1,
+          "cumulative_context_shots": 320659.4284997466
+        },
+        {
+          "m_per_active_gradient": 56.90575930385868,
+          "active": 87,
+          "eliminated": 1,
+          "cumulative_context_shots": 326254.4284997466
+        }
+      ],
+      "history_last": [
+        {
+          "m_per_active_gradient": 3888.3712155579333,
+          "active": 6,
+          "eliminated": 1,
+          "cumulative_context_shots": 7367534.710911784
+        },
+        {
+          "m_per_active_gradient": 3889.3712155579333,
+          "active": 5,
+          "eliminated": 1,
+          "cumulative_context_shots": 7367899.710911784
+        },
+        {
+          "m_per_active_gradient": 3890.3712155579333,
+          "active": 4,
+          "eliminated": 1,
+          "cumulative_context_shots": 7368186.710911784
+        },
+        {
+          "m_per_active_gradient": 3891.3712155579333,
+          "active": 2,
+          "eliminated": 2,
+          "cumulative_context_shots": 7368426.710911784
+        },
+        {
+          "m_per_active_gradient": 3892.3712155579333,
+          "active": 1,
+          "eliminated": 1,
+          "cumulative_context_shots": 7368552.710911784
+        }
+      ]
+    },
+    "independent_BAI_Delta_0p005": {
+      "remaining": 1,
+      "active": [
+        91
+      ],
+      "m_final_per_active_gradient": 3737.2785529430407,
+      "total_context_shots_est": 7070522,
+      "history_first": [
+        {
+          "m_per_active_gradient": 45.22150611628129,
+          "active": 91,
+          "eliminated": 1,
+          "cumulative_context_shots": 259752.33113191972
+        },
+        {
+          "m_per_active_gradient": 48.45393954986929,
+          "active": 90,
+          "eliminated": 1,
+          "cumulative_context_shots": 278222.4557714416
+        },
+        {
+          "m_per_active_gradient": 52.35229888482159,
+          "active": 89,
+          "eliminated": 1,
+          "cumulative_context_shots": 300384.62859064544
+        },
+        {
+          "m_per_active_gradient": 53.67588654087491,
+          "active": 88,
+          "eliminated": 1,
+          "cumulative_context_shots": 307869.51678562694
+        },
+        {
+          "m_per_active_gradient": 54.67588654087491,
+          "active": 87,
+          "eliminated": 1,
+          "cumulative_context_shots": 313464.51678562694
+        }
+      ],
+      "history_last": [
+        {
+          "m_per_active_gradient": 3733.2785529430407,
+          "active": 6,
+          "eliminated": 1,
+          "cumulative_context_shots": 7069503.683967131
+        },
+        {
+          "m_per_active_gradient": 3734.2785529430407,
+          "active": 5,
+          "eliminated": 1,
+          "cumulative_context_shots": 7069868.683967131
+        },
+        {
+          "m_per_active_gradient": 3735.2785529430407,
+          "active": 4,
+          "eliminated": 1,
+          "cumulative_context_shots": 7070155.683967131
+        },
+        {
+          "m_per_active_gradient": 3736.2785529430407,
+          "active": 2,
+          "eliminated": 2,
+          "cumulative_context_shots": 7070395.683967131
+        },
+        {
+          "m_per_active_gradient": 3737.2785529430407,
+          "active": 1,
+          "eliminated": 1,
+          "cumulative_context_shots": 7070521.683967131
+        }
+      ]
+    },
+    "new_fixed_parent_grouped_BAI": {
+      "remaining": 1,
+      "active": [
+        91
+      ],
+      "contexts_ever_sampled": "not tracked in approximate event model",
+      "m_final_per_active_parent_context": 1325.1722967838546,
+      "total_context_shots_est": 1267508,
+      "history_first": [
+        {
+          "m_per_active_parent_context": 43.3264153408888,
+          "active_contexts": 980,
+          "active": 91,
+          "eliminated": 1,
+          "cumulative_context_shots": 42459.88703407103
+        },
+        {
+          "m_per_active_parent_context": 43.53714902977407,
+          "active_contexts": 980,
+          "active": 90,
+          "eliminated": 1,
+          "cumulative_context_shots": 42666.40604917859
+        },
+        {
+          "m_per_active_parent_context": 45.595646510808095,
+          "active_contexts": 980,
+          "active": 89,
+          "eliminated": 1,
+          "cumulative_context_shots": 44683.733580591936
+        },
+        {
+          "m_per_active_parent_context": 46.0010147669723,
+          "active_contexts": 980,
+          "active": 88,
+          "eliminated": 1,
+          "cumulative_context_shots": 45080.994471632854
+        },
+        {
+          "m_per_active_parent_context": 47.44485282191997,
+          "active_contexts": 980,
+          "active": 87,
+          "eliminated": 1,
+          "cumulative_context_shots": 46495.95576548157
+        }
+      ],
+      "history_last": [
+        {
+          "m_per_active_parent_context": 1055.4874798510054,
+          "active_contexts": 947,
+          "active": 6,
+          "eliminated": 1,
+          "cumulative_context_shots": 1026999.7848707949
+        },
+        {
+          "m_per_active_parent_context": 1056.4874798510054,
+          "active_contexts": 943,
+          "active": 4,
+          "eliminated": 2,
+          "cumulative_context_shots": 1027942.7848707949
+        },
+        {
+          "m_per_active_parent_context": 1201.1250043396933,
+          "active_contexts": 899,
+          "active": 3,
+          "eliminated": 1,
+          "cumulative_context_shots": 1157971.9193861252
+        },
+        {
+          "m_per_active_parent_context": 1324.1722967838546,
+          "active_contexts": 884,
+          "active": 2,
+          "eliminated": 1,
+          "cumulative_context_shots": 1266745.7259067637
+        },
+        {
+          "m_per_active_parent_context": 1325.1722967838546,
+          "active_contexts": 762,
+          "active": 1,
+          "eliminated": 1,
+          "cumulative_context_shots": 1267507.7259067637
+        }
+      ],
+      "note": "fast approximate; fixed parent contexts with shrinking active context cost, no pairwise covariance optimization"
+    },
+    "new_fixed_parent_grouped_BAI_Delta_0p005": {
+      "remaining": 1,
+      "active": [
+        91
+      ],
+      "contexts_ever_sampled": "not tracked in approximate event model",
+      "m_final_per_active_parent_context": 1266.3496142550694,
+      "total_context_shots_est": 1211656,
+      "history_first": [
+        {
+          "m_per_active_parent_context": 41.59828581202823,
+          "active_contexts": 980,
+          "active": 91,
+          "eliminated": 1,
+          "cumulative_context_shots": 40766.32009578767
+        },
+        {
+          "m_per_active_parent_context": 41.80061411801665,
+          "active_contexts": 980,
+          "active": 90,
+          "eliminated": 1,
+          "cumulative_context_shots": 40964.601835656315
+        },
+        {
+          "m_per_active_parent_context": 43.77700579237197,
+          "active_contexts": 980,
+          "active": 89,
+          "eliminated": 1,
+          "cumulative_context_shots": 42901.46567652454
+        },
+        {
+          "m_per_active_parent_context": 44.16620541681281,
+          "active_contexts": 980,
+          "active": 88,
+          "eliminated": 1,
+          "cumulative_context_shots": 43282.88130847656
+        },
+        {
+          "m_per_active_parent_context": 45.55245414298689,
+          "active_contexts": 980,
+          "active": 87,
+          "eliminated": 1,
+          "cumulative_context_shots": 44641.40506012716
+        }
+      ],
+      "history_last": [
+        {
+          "m_per_active_parent_context": 1012.730539795949,
+          "active_contexts": 947,
+          "active": 6,
+          "eliminated": 1,
+          "cumulative_context_shots": 985409.5612335473
+        },
+        {
+          "m_per_active_parent_context": 1013.730539795949,
+          "active_contexts": 943,
+          "active": 4,
+          "eliminated": 2,
+          "cumulative_context_shots": 986352.5612335473
+        },
+        {
+          "m_per_active_parent_context": 1152.2168422168804,
+          "active_contexts": 899,
+          "active": 3,
+          "eliminated": 1,
+          "cumulative_context_shots": 1110851.7471099647
+        },
+        {
+          "m_per_active_parent_context": 1265.3496142550694,
+          "active_contexts": 884,
+          "active": 2,
+          "eliminated": 1,
+          "cumulative_context_shots": 1210861.1175917238
+        },
+        {
+          "m_per_active_parent_context": 1266.3496142550694,
+          "active_contexts": 794,
+          "active": 1,
+          "eliminated": 1,
+          "cumulative_context_shots": 1211655.1175917238
+        }
+      ],
+      "note": "fast approximate; fixed parent contexts with shrinking active context cost, no pairwise covariance optimization"
+    }
+  },
+  "caveats": [
+    "First-selection pilot only from RHF reference, not a full multi-iteration ADAPT-VQE run.",
+    "Greedy FC grouping is not guaranteed optimal.",
+    "Shot estimates are analytic normal-CI estimates, not hardware experiments.",
+    "All-electron 12-qubit LiH, no frozen core/tapering/orbital optimization."
+  ],
+  "runtime_seconds": 20.484952211380005,
+  "energetics": {
+    "FCI_energy_Ha": -7.7988431666877185,
+    "HF_energy_Ha": -7.710829924343358,
+    "correlation_energy_Ha": -0.0880132423443607,
+    "error_HF_vs_FCI_Ha": 0.0880132423443607,
+    "selected_first_operator_index": 91,
+    "selected_first_operator_label": "D 2,3->10,11",
+    "selected_first_gradient": 0.243187338286613,
+    "one_dim_opt_theta": -0.2682885304206323,
+    "one_dim_opt_energy_Ha": -7.744258025695696,
+    "one_dim_energy_lowering_Ha": -0.03342810135233787,
+    "error_after_one_operator_vs_FCI_Ha": 0.05458514099202283,
+    "runner_first_operator_index": 79,
+    "runner_label": "D 2,3->4,11",
+    "runner_gradient": 0.14679901528666847,
+    "runner_one_dim_theta": -0.2108823605938901,
+    "runner_one_dim_energy_Ha": -7.726542193257101,
+    "runner_energy_lowering_Ha": -0.015712268913743443,
+    "runner_error_vs_FCI_Ha": 0.07230097343061725,
+    "determinant_dimension_Ne4": 495
+  }
+}

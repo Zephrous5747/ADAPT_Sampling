@@ -1,0 +1,469 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsfonts,bm}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{microtype}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    citecolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+\newcommand{\ket}[1]{\left|#1\right\rangle}
+\newcommand{\bra}[1]{\left\langle #1\right|}
+\newcommand{\braket}[2]{\left\langle #1\middle|#2\right\rangle}
+\newcommand{\expect}[1]{\left\langle #1\right\rangle}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\R}{\mathbb{R}}
+
+\title{Part II: Variance-Aware Universal Operators for Grouped Best-Arm Identification in ADAPT-VQE Gradient Measurements}
+\author{Project description / work order}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note describes the second part of a project on improving gradient measurements in ADAPT-VQE. Part I formulates generator selection as a shared-observable best-arm-identification (BAI) problem and compares grouped measurement of all gradients with BAI-style adaptive elimination. The present Part II adds a variance-aware layer: the universal operators used to reconstruct ADAPT gradients should not be chosen only from algebraic support or fully commuting (FC) group counts. They should also be optimized using variance and covariance information accumulated from the quantum measurements themselves. The central idea is to use overlapping FC measurement contexts and coefficient splitting so that shared Pauli products can be assigned to the measurement contexts where they reduce the uncertainty of the gradient comparisons most relevant to the current BAI active set.
+\end{abstract}
+
+\section{Motivation}
+
+In gradient-based ADAPT-VQE, at ADAPT iteration $k$ the current state is
+\begin{equation}
+    \ket{\psi_k}=\prod_{m=1}^{k} e^{\theta_m G_m}\ket{\psi_0},
+\end{equation}
+where $\ket{\psi_0}$ is usually the Hartree--Fock determinant and $G_m$ are anti-Hermitian generators selected from a pool. The next generator is commonly selected by estimating
+\begin{equation}
+    g_i = \bra{\psi_k}[H,G_i]\ket{\psi_k},
+    \label{eq:adapt-gradient}
+\end{equation}
+for each candidate $G_i$ and choosing the largest $|g_i|$. The measurement cost of this selection step is a known bottleneck for ADAPT-VQE, motivating both grouped gradient measurements and BAI-style generator selection \cite{Anastasiou2023ReallyMeasure,HuangIzmaylov2025QuantumGambling}.
+
+Part I of this project treats all gradients as linear functions of shared Pauli expectation values,
+\begin{equation}
+    g_i = \sum_{\ell} A_{i\ell}\mu_\ell,
+    \qquad
+    \mu_\ell = \expect{R_\ell}_{\psi_k},
+    \label{eq:g-Amu}
+\end{equation}
+where $\{R_\ell\}$ is the union of Pauli products appearing in the commutators $[H,G_i]$. This gives a universal-coordinate representation
+\begin{equation}
+    \bm g = A\bm\mu.
+\end{equation}
+
+However, a purely algebraic universal basis is not enough. Counting Pauli products or FC groups does not determine the number of shots required. The actual statistical cost depends on variances and covariances of the measured observables on the current state $\ket{\psi_k}$. Therefore, Part II asks:
+
+\begin{quote}
+Can the universal operators used to reconstruct ADAPT gradients be chosen, repartitioned, and coefficient-split using accumulated measurement estimates of variances and covariances, so that fewer shots are needed to identify a useful generator?
+\end{quote}
+
+This note deliberately separates this variance-aware layer from Part III. Part III uses structural knowledge about the constructed wavefunction $\ket{\psi_k}$ to symmetry-filter and taper gradient operators before the Part I/II measurement protocols are applied.
+
+
+\section{Interface with Part III symmetry filtering and tapering}
+
+When Part II is used without Part III, the input gradient operators are the raw commutators
+\begin{equation}
+    C_i=[H,G_i].
+\end{equation}
+When Part II is combined with Part III, the input operators are instead the symmetry-filtered and tapered commutators
+\begin{equation}
+    C_{i,\mathrm{tap}}^{\parallel,k}
+    =\mathrm{Taper}_{\mathcal R_k}\left(\Pi_{\mathcal R_k}([H,G_i])\right),
+    \label{eq:part3-input}
+\end{equation}
+where $\mathcal R_k$ is the current residual stabilizer group of the ADAPT state after $k$ selected generators. Thus the Part II construction should be understood as acting on a generic set of gradient operators $D_i$:
+\begin{equation}
+    D_i = C_i \quad \text{for Parts I/II alone},
+    \qquad
+    D_i = C_{i,\mathrm{tap}}^{\parallel,k} \quad \text{when Part III is active}.
+\end{equation}
+All universal bases, overlapping fully commuting covers, covariance matrices, and coefficient-splitting variables in this document are constructed from $D_i$. This keeps exact symmetry-zero filtering and tapering separate from statistical variance optimization.
+
+\section{From universal Pauli coordinates to universal operators}
+
+The simplest universal basis is the raw Pauli-coordinate set of the current input operators $D_i$:
+\begin{equation}
+    \mathcal B_0 = \bigcup_{i\in\mathcal A_0} \supp(D_i),
+    \label{eq:parent-basis}
+\end{equation}
+where $\mathcal A_0$ is the initial active generator pool at a given ADAPT iteration. In this representation each gradient is given by Eq.~\eqref{eq:g-Amu}, with the coefficient matrix $A$ obtained by expanding $D_i$.
+
+For measurement, the Pauli products are grouped into FC measurement contexts
+\begin{equation}
+    \mathcal M_1,\ldots,\mathcal M_K.
+\end{equation}
+A context $\mathcal M_\alpha$ is a set of mutually commuting Pauli products that can be measured in a common basis, possibly after applying a Clifford diagonalization circuit. In a partition, each Pauli product belongs to exactly one context. For variance-aware coefficient splitting, we instead allow an overlapping cover,
+\begin{equation}
+    \mathcal B_0 \subseteq \bigcup_{\alpha=1}^{K} \mathcal M_\alpha,
+    \qquad
+    R_\ell \text{ may belong to more than one } \mathcal M_\alpha.
+\end{equation}
+
+The measured objects are no longer forced to be individual Pauli expectations. We may define context-specific universal operators or fragments
+\begin{equation}
+    O_{q}^{(\alpha)} = \sum_{\ell\in\mathcal M_\alpha} c^{(\alpha)}_{q\ell} R_\ell.
+\end{equation}
+The goal is not merely to reduce the number of contexts. The goal is to construct fragment estimators whose variances are small for the gradient comparisons relevant to BAI.
+
+\section{Coefficient splitting over overlapping FC contexts}
+
+Suppose gradient $g_i$ contains coefficient $A_{i\ell}$ multiplying Pauli product $R_\ell$. If $R_\ell$ can be measured in several contexts, its coefficient may be split across those contexts:
+\begin{equation}
+    A_{i\ell} = \sum_{\alpha:\,R_\ell\in\mathcal M_\alpha} A^{(\alpha)}_{i\ell}.
+    \label{eq:split-constraint}
+\end{equation}
+This constraint preserves unbiasedness. The gradient estimator is then
+\begin{equation}
+    \widehat g_i
+    =
+    \sum_{\alpha=1}^{K}
+    \sum_{\ell\in\mathcal M_\alpha}
+    A^{(\alpha)}_{i\ell}\,\widehat\mu^{(\alpha)}_\ell,
+    \label{eq:split-estimator}
+\end{equation}
+where $\widehat\mu^{(\alpha)}_\ell$ is the estimate of $\expect{R_\ell}$ from shots taken in context $\mathcal M_\alpha$.
+
+The freedom in Eq.~\eqref{eq:split-constraint} is the mathematical basis for variance-aware universal operators. Different choices of $A^{(\alpha)}_{i\ell}$ give the same expectation value in the infinite-shot limit, but can have different finite-shot variances.
+
+\subsection{Minimal example}
+
+Consider
+\begin{equation}
+    g = a\expect{X_1X_2}+d\expect{Z_1Z_2}+b\expect{Z_1}.
+\end{equation}
+Assume $X_1X_2$ and $Z_1$ cannot be measured in one FC context, but $Z_1Z_2$ can be measured with either. Use two contexts,
+\begin{equation}
+    \mathcal M_1=\{X_1X_2,Z_1Z_2\},
+    \qquad
+    \mathcal M_2=\{Z_1Z_2,Z_1\}.
+\end{equation}
+Define
+\begin{equation}
+    O_1 = aX_1X_2+cZ_1Z_2,
+    \qquad
+    O_2 = (d-c)Z_1Z_2+bZ_1.
+\end{equation}
+Then
+\begin{equation}
+    \widehat g(c)=\widehat{\expect{O_1}}_{\mathcal M_1}+\widehat{\expect{O_2}}_{\mathcal M_2}
+\end{equation}
+is unbiased for any $c$, because the total coefficient of $Z_1Z_2$ is $c+(d-c)=d$.
+
+Let $m_1$ and $m_2$ be the numbers of shots assigned to the two contexts. Writing
+\begin{equation}
+    X=X_1X_2,
+    \qquad
+    Z=Z_1Z_2,
+    \qquad
+    Y=Z_1,
+\end{equation}
+the estimator variance is
+\begin{align}
+    V(c)
+    &=
+    \frac{1}{m_1}\Var_{\mathcal M_1}(aX+cZ)
+    +
+    \frac{1}{m_2}\Var_{\mathcal M_2}((d-c)Z+bY) \\
+    &=
+    \frac{1}{m_1}
+    \left(a^2\sigma^{(1)}_{XX}+c^2\sigma^{(1)}_{ZZ}+2ac\sigma^{(1)}_{XZ}\right)
+    +
+    \frac{1}{m_2}
+    \left((d-c)^2\sigma^{(2)}_{ZZ}+b^2\sigma^{(2)}_{YY}+2(d-c)b\sigma^{(2)}_{ZY}\right),
+\end{align}
+where $\sigma^{(\alpha)}_{PQ}=\Cov_{\mathcal M_\alpha}(P,Q)$. The optimal splitting coefficient is
+\begin{equation}
+    c^\star
+    =
+    \frac{
+    m_1\left(d\sigma^{(2)}_{ZZ}+b\sigma^{(2)}_{ZY}\right)
+    -
+    m_2 a\sigma^{(1)}_{XZ}
+    }{
+    m_2\sigma^{(1)}_{ZZ}+m_1\sigma^{(2)}_{ZZ}
+    }.
+    \label{eq:two-context-cstar}
+\end{equation}
+If covariances are ignored and the variance of $Z$ is assumed equal in the two contexts, Eq.~\eqref{eq:two-context-cstar} reduces to
+\begin{equation}
+    c^\star = d\frac{m_1}{m_1+m_2},
+    \qquad
+    d-c^\star = d\frac{m_2}{m_1+m_2}.
+\end{equation}
+With nonzero covariances, however, the best split can differ substantially. For example, if $Z$ is strongly anticorrelated with $X$ in $\mathcal M_1$, it can be advantageous to put more of the $Z$ coefficient into $O_1$.
+
+\section{Covariance matrices from measured bitstrings}
+
+For each FC context $\mathcal M_\alpha=\{R_{\alpha 1},\ldots,R_{\alpha k_\alpha}\}$, one shot produces a vector of simultaneous eigenvalue samples
+\begin{equation}
+    \bm x_\alpha^{(s)} =
+    \left(x_{\alpha 1}^{(s)},\ldots,x_{\alpha k_\alpha}^{(s)}\right),
+    \qquad
+    x_{\alpha\ell}^{(s)}\in\{\pm 1\}.
+\end{equation}
+From $m_\alpha$ shots, estimate
+\begin{equation}
+    \widehat\mu_{\alpha\ell}
+    =
+    \frac{1}{m_\alpha}\sum_{s=1}^{m_\alpha}x_{\alpha\ell}^{(s)},
+\end{equation}
+and
+\begin{equation}
+    \widehat\Sigma_{\alpha,\ell m}
+    =
+    \frac{1}{m_\alpha-1}\sum_{s=1}^{m_\alpha}
+    \left(x_{\alpha\ell}^{(s)}-\widehat\mu_{\alpha\ell}\right)
+    \left(x_{\alpha m}^{(s)}-\widehat\mu_{\alpha m}\right).
+    \label{eq:empirical-covariance}
+\end{equation}
+The algorithm should store raw bitstrings or, at minimum, Pauli-level sufficient statistics within each context. It should not store only the scalar values of previously chosen fragments. Otherwise, changing the coefficient split later would make old data unusable.
+
+
+\paragraph{Adaptive-update safeguard.}
+Coefficient splits may be updated using accumulated measurement data, but the update rule must be recorded. A conservative implementation should use data available through BAI round $r$ only to choose coefficient splits and measurement allocations for round $r+1$. If the final gradient estimate is recomputed from all data using a coefficient split that was itself chosen from the same noisy data, the possible adaptive-estimator bias must be derived, tested by Monte Carlo, or avoided by sample splitting. The simplest reproducible rule is therefore batchwise predictable updating: coefficients used for a batch are fixed before that batch is measured, and the run log stores the coefficients used for every batch.
+
+A regularized covariance estimate may be used early in the run,
+\begin{equation}
+    \widehat\Sigma^{\rm reg}_\alpha
+    =
+    \lambda_\alpha\Sigma^{\rm prior}_\alpha
+    +
+    (1-\lambda_\alpha)\widehat\Sigma^{\rm meas}_\alpha,
+    \label{eq:regularized-covariance}
+\end{equation}
+where $\Sigma^{\rm prior}_\alpha$ may come from Hartree--Fock, CISD, selected CI, matrix-product-state data, or previous ADAPT iterations. The weight $\lambda_\alpha$ should decrease as $m_\alpha$ increases.
+
+\section{Variance objective for BAI}
+
+For estimating a single gradient $g_i$, the variance under coefficient splitting is
+\begin{equation}
+    \Var(\widehat g_i)
+    =
+    \sum_{\alpha=1}^{K}
+    \frac{1}{m_\alpha}
+    \left(\bm A_i^{(\alpha)}\right)^T
+    \Sigma_\alpha
+    \bm A_i^{(\alpha)}.
+    \label{eq:gradient-variance}
+\end{equation}
+However, ADAPT generator selection does not require all gradients to be accurately estimated. It requires identifying a generator with large $|g_i|$. Therefore, the key statistical objects are pairwise comparison variances,
+\begin{equation}
+    \Var(\widehat g_i-\widehat g_j)
+    =
+    \sum_{\alpha=1}^{K}
+    \frac{1}{m_\alpha}
+    \left(\bm A_i^{(\alpha)}-\bm A_j^{(\alpha)}\right)^T
+    \Sigma_\alpha
+    \left(\bm A_i^{(\alpha)}-\bm A_j^{(\alpha)}\right).
+    \label{eq:pairwise-variance}
+\end{equation}
+
+At BAI round $r$, let $\mathcal A_r$ be the surviving set of generator candidates. The coefficient splitting should be optimized for $\mathcal A_r$, not for the full original pool. A useful objective is
+\begin{equation}
+    \min_{\{A^{(\alpha)}\}}
+    \max_{i,j\in\mathcal A_r}
+    \Var(\widehat g_i-\widehat g_j),
+    \label{eq:minimax-objective}
+\end{equation}
+subject to the unbiasedness constraints in Eq.~\eqref{eq:split-constraint}. A smoother alternative is a weighted objective,
+\begin{equation}
+    \min_{\{A^{(\alpha)}\}}
+    \sum_{i,j\in\mathcal A_r}w_{ij}^{(r)}
+    \Var(\widehat g_i-\widehat g_j),
+    \label{eq:weighted-objective}
+\end{equation}
+where $w_{ij}^{(r)}$ is larger for pairs that are difficult to distinguish, especially pairs near the current best estimated $|g|$.
+
+\section{Nested compatibility with BAI}
+
+The variance-aware universal operators must remain compatible with the BAI elimination process. At a fixed ADAPT iteration, begin with the parent active set $\mathcal A_0$ and parent Pauli support $\mathcal B_0$ defined in Eq.~\eqref{eq:parent-basis}. As BAI eliminates candidates,
+\begin{equation}
+    \mathcal A_0 \supset \mathcal A_1 \supset \mathcal A_2 \supset \cdots,
+\end{equation}
+the corresponding active Pauli supports are
+\begin{equation}
+    \mathcal B_r
+    =
+    \bigcup_{i\in\mathcal A_r}\supp(D_i),
+    \qquad
+    \mathcal B_0 \supset \mathcal B_1 \supset \mathcal B_2 \supset \cdots.
+\end{equation}
+
+To preserve measurement reuse, the parent measurement contexts should be fixed at the beginning of the ADAPT iteration. At BAI round $r$, use restricted contexts
+\begin{equation}
+    \mathcal M^{(r)}_\alpha
+    =
+    \mathcal M_\alpha\cap\mathcal B_r.
+\end{equation}
+The coefficients in the universal fragments can be reoptimized as $\mathcal A_r$ shrinks and as covariance estimates improve, but the underlying measurement contexts remain compatible with earlier shots.
+
+This gives the main rule:
+\begin{quote}
+BAI may eliminate generator candidates and remove Pauli terms from the active reconstruction problem, but it should not discard measurement information. Compatibility is enforced by fixed parent measurement contexts, nested active restrictions, and storage of raw outcomes or context-level sufficient statistics.
+\end{quote}
+
+\section{Choosing the next measurement context}
+
+After updating $\widehat\mu_\alpha$ and $\widehat\Sigma_\alpha$, the algorithm should decide which context to measure next. A simple greedy rule is to choose the context that gives the largest predicted reduction in the current active-set uncertainty,
+\begin{equation}
+    \alpha^\star
+    =
+    \argmax_{\alpha}
+    \Delta_\alpha^{(r)},
+\end{equation}
+where
+\begin{equation}
+    \Delta_\alpha^{(r)}
+    =
+    \mathcal U^{(r)}(m_1,\ldots,m_\alpha,\ldots,m_K)
+    -
+    \mathcal U^{(r)}(m_1,\ldots,m_\alpha+\delta m,\ldots,m_K),
+\end{equation}
+and $\mathcal U^{(r)}$ is an uncertainty metric such as the minimax objective in Eq.~\eqref{eq:minimax-objective} or the weighted objective in Eq.~\eqref{eq:weighted-objective}. The batch size $\delta m$ may be fixed, for example $50$ or $100$ shots, or chosen adaptively.
+
+This changes the BAI question from
+\begin{quote}
+Which generator should receive more measurements?
+\end{quote}
+to
+\begin{quote}
+Which fully commuting context should receive more shots to best distinguish the surviving generators?
+\end{quote}
+
+\section{Elimination and stopping rules}
+
+Using the current estimates $\widehat g_i$ and uncertainty radii, eliminate candidates that cannot plausibly be the best. A conservative interval rule is
+\begin{equation}
+    i \text{ eliminated if }
+    |\widehat g_i| + r_i
+    <
+    \max_{j\in\mathcal A_r}\left(|\widehat g_j|-r_j\right).
+\end{equation}
+A sharper covariance-aware rule uses pairwise radii,
+\begin{equation}
+    i \text{ eliminated if there exists } j\in\mathcal A_r
+    \text{ such that }
+    |\widehat g_j|-|\widehat g_i| > r_{ij},
+\end{equation}
+where
+\begin{equation}
+    r_{ij} = z_\delta
+    \sqrt{\widehat\Var(\widehat g_i-\widehat g_j)}.
+\end{equation}
+Here $z_\delta$ is a confidence factor chosen to control the probability of incorrect elimination. The algorithm may stop when one candidate remains, or when a good-enough candidate is identified:
+\begin{equation}
+    |g_i|\ge \max_j |g_j|-\Delta,
+\end{equation}
+where $\Delta$ is an ADAPT-selection tolerance. This approximate-selection criterion avoids wasting shots distinguishing nearly tied generators.
+
+\section{Proposed algorithm}
+
+\begin{algorithm}[h]
+\caption{Variance-aware universal operators within grouped BAI}
+\begin{algorithmic}[1]
+\Require Hamiltonian $H$, current ADAPT state $\ket{\psi_k}$, generator pool $\mathcal A_0$, confidence level $\delta$, good-enough tolerance $\Delta$.
+\State Build commutators $C_i=[H,G_i]$ for all $G_i\in\mathcal A_0$.
+\State Expand $C_i=\sum_\ell A_{i\ell}R_\ell$ and form the parent Pauli basis $\mathcal B_0=\bigcup_i\supp(C_i)$.
+\State Construct parent FC measurement contexts $\mathcal M_1,\ldots,\mathcal M_K$; preferably use an overlapping cover to allow coefficient splitting.
+\State Initialize $\widehat\Sigma_\alpha$ using a classical prior, pilot quantum measurements, previous ADAPT data, or a regularized combination.
+\State Set active generator set $\mathcal A\leftarrow\mathcal A_0$.
+\While{no stopping criterion is satisfied}
+    \State Define active Pauli support $\mathcal B=\bigcup_{i\in\mathcal A}\supp(C_i)$ and restricted contexts $\mathcal M_\alpha\cap\mathcal B$.
+    \State Optimize coefficient splits $A^{(\alpha)}_{i\ell}$ for the active set using Eq.~\eqref{eq:minimax-objective} or Eq.~\eqref{eq:weighted-objective}.
+    \State Choose the next context $\mathcal M_{\alpha^\star}$ to measure based on predicted reduction of active-set comparison uncertainty.
+    \State Collect an additional batch of shots in context $\mathcal M_{\alpha^\star}$.
+    \State Update $\widehat\mu_{\alpha^\star}$ and $\widehat\Sigma_{\alpha^\star}$ from raw bitstrings or sufficient statistics.
+    \State Reconstruct $\widehat g_i$ and pairwise uncertainty estimates for all $i\in\mathcal A$.
+    \State Eliminate candidates that fail the confidence rule.
+\EndWhile
+\State \Return selected generator $G_{i^\star}$.
+\end{algorithmic}
+\end{algorithm}
+
+\section{Benchmarks and deliverables}
+
+The first implementation should compare the following levels. These are Part II names; when matching Part I tables, B1 corresponds to M1: FC-UG without BAI, B2 corresponds to M3: BAI-FC-UG without variance-aware splitting, and B3 is the variance-aware extension of M3:
+\begin{enumerate}[label=\textbf{B\arabic*.}]
+    \item \textbf{Fixed Pauli basis without coefficient splitting.} Use a non-overlapping FC partition and reconstruct all gradients.
+    \item \textbf{Grouped BAI without variance-aware splitting.} Use fixed parent contexts, nested active restrictions, and BAI elimination, but keep the original coefficients fixed.
+    \item \textbf{Variance-aware grouped BAI with coefficient splitting.} Use overlapping FC contexts, empirical covariance estimates, and adaptive coefficient splitting.
+    \item \textbf{Ablations.} Compare classical covariance priors only, measured covariance only, and regularized prior-plus-measured covariance.
+\end{enumerate}
+
+For each benchmark system and ADAPT iteration, report:
+\begin{itemize}[leftmargin=2em]
+    \item number of Pauli products in $\mathcal B_0$;
+    \item number of parent FC contexts;
+    \item amount of overlap in the FC cover;
+    \item total context-shots used;
+    \item probability of choosing the exact largest-gradient generator;
+    \item probability of choosing a generator within tolerance $\Delta$;
+    \item pairwise uncertainty diagnostics for leading gradients;
+    \item improvement from coefficient splitting relative to fixed coefficients;
+    \item final ADAPT energy impact after appending the selected generator.
+\end{itemize}
+
+The first molecular test should be a small system where exact simulation and repeated shot-noise experiments are easy, such as LiH/STO-3G at a stretched but not dissociated geometry. The generator pool should be specified carefully: the usual spin-orbital UCCSD pool conserves $N_e$ and $S_z$, but not generally $S^2$.
+
+\section{Expected scientific contribution}
+
+The expected contribution is a variance-aware extension of grouped BAI for ADAPT-VQE generator selection. Existing grouped-measurement approaches emphasize simultaneous measurement of commuting gradient terms, while BAI emphasizes avoiding unnecessary precision for losing generators \cite{Anastasiou2023ReallyMeasure,HuangIzmaylov2025QuantumGambling}. This Part II adds the missing statistical design layer:
+\begin{quote}
+Use accumulated measurement estimates of variances and covariances to choose the universal fragment operators themselves, by splitting shared Pauli coefficients over overlapping FC measurement contexts and optimizing the uncertainty of active BAI comparisons.
+\end{quote}
+
+A successful implementation should show that the universal basis is not merely a static union of Pauli products. It is a measurement-adapted coordinate system whose fragments can be reweighted during BAI while remaining compatible with all previously collected data.
+
+\section{References}
+
+\begin{thebibliography}{99}
+
+\bibitem{Rossi2026RSe}
+Emanuele Rossi, Erik Rosendahl Kjellgren, Artur F. Izmaylov, Stephan P. A. Sauer, Karl Michael Ziems, and Sonia Coriani,
+\textit{Resource-efficient energy-based operator selection in fermionic ADAPT-VQE via exact Hamiltonian transformation},
+arXiv:2606.04786 (2026).
+
+\bibitem{Anastasiou2023ReallyMeasure}
+Panagiotis G. Anastasiou, Nicholas J. Mayhall, Edwin Barnes, and Sophia E. Economou,
+\textit{How to really measure operator gradients in ADAPT-VQE},
+arXiv:2306.03227 (2023).
+
+\bibitem{Shkolnikov2023Avoiding}
+V. O. Shkolnikov, Nicholas J. Mayhall, Sophia E. Economou, and Edwin Barnes,
+\textit{Avoiding symmetry roadblocks and minimizing the measurement overhead of adaptive variational quantum eigensolvers},
+Quantum \textbf{7}, 1040 (2023).
+
+\bibitem{HuangIzmaylov2025QuantumGambling}
+Rick Huang and Artur F. Izmaylov,
+\textit{Quantum Gambling: Best-Arm Strategies for Generator Selection in Adaptive Variational Algorithms},
+arXiv:2509.14917 (2025); J. Chem. Theory Comput. (2026).
+
+\bibitem{Crawford2021CSE}
+Ophelia Crawford, Barnaby van Straaten, Daochen Wang, Thomas Parks, Earl Campbell, and Stephen Brierley,
+\textit{Efficient quantum measurement of Pauli operators in the presence of finite sampling error},
+Quantum \textbf{5}, 385 (2021).
+
+\bibitem{Gokhale2020O(N3)}
+Pranav Gokhale, Olivia Angiuli, Yongshan Ding, Kaiwen Gui, Teague Tomesh, Martin Suchara, Margaret Martonosi, and Frederic T. Chong,
+\textit{O($N^3$) Measurement Cost for Variational Quantum Eigensolver on Molecular Hamiltonians},
+IEEE Transactions on Quantum Engineering \textbf{1}, 1--24 (2020).
+
+\end{thebibliography}
+
+\end{document}

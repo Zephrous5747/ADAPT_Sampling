@@ -1,0 +1,80 @@
+{
+  "case_id": "LiH_R3p0_HF",
+  "n_trials": 200,
+  "delta_family_wise": 0.05,
+  "tolerance": 0.024097067191256302,
+  "seed": 0,
+  "noise_model": "normal-limit estimator fluctuations with exact fragment variances; shots accumulate across rounds; fluctuations drawn independently per generator, which is exact for the baseline and M2 and neglects within-context correlation for M1 and M3",
+  "results": [
+    {
+      "case_id": "LiH_R3p0_HF",
+      "method": "noshare",
+      "n_trials": 200,
+      "delta": 0.05,
+      "tolerance": 0.024097067191256302,
+      "correct_rate": 1.0,
+      "within_tolerance_rate": 1.0,
+      "planning_bound": 6819980.0,
+      "shots_mean": 6819979.8008808065,
+      "shots_median": 6819979.800880808,
+      "shots_p90": 6819979.800880808,
+      "inflation_vs_bound": 0.9999999708035517,
+      "runtime_seconds": 4.590289301999974
+    },
+    {
+      "case_id": "LiH_R3p0_HF",
+      "method": "m1",
+      "n_trials": 200,
+      "delta": 0.05,
+      "tolerance": 0.024097067191256302,
+      "correct_rate": 1.0,
+      "within_tolerance_rate": 1.0,
+      "planning_bound": 3563904.0,
+      "shots_mean": 3563903.585339466,
+      "shots_median": 3563903.5853394666,
+      "shots_p90": 3563903.5853394666,
+      "inflation_vs_bound": 0.9999998836499149,
+      "runtime_seconds": 20.457120765000013
+    },
+    {
+      "case_id": "LiH_R3p0_HF",
+      "method": "m2",
+      "n_trials": 200,
+      "delta": 0.05,
+      "tolerance": 0.024097067191256302,
+      "correct_rate": 1.0,
+      "within_tolerance_rate": 1.0,
+      "planning_bound": 1140583.0,
+      "shots_mean": 3599625.787705549,
+      "shots_median": 4309091.402881271,
+      "shots_p90": 4336655.400722685,
+      "inflation_vs_bound": 3.1559525152536456,
+      "runtime_seconds": 4.530667311999991
+    },
+    {
+      "case_id": "LiH_R3p0_HF",
+      "method": "m3",
+      "n_trials": 200,
+      "delta": 0.05,
+      "tolerance": 0.024097067191256302,
+      "correct_rate": 1.0,
+      "within_tolerance_rate": 1.0,
+      "planning_bound": 638423.0,
+      "shots_mean": 882017.9148737551,
+      "shots_median": 796155.4368391233,
+      "shots_p90": 1297729.5554576342,
+      "inflation_vs_bound": 1.3815572353655101,
+      "runtime_seconds": 12.366469037000002
+    }
+  ],
+  "environment": {
+    "python": "3.10.12",
+    "packages": {
+      "numpy": "2.2.6",
+      "scipy": "1.15.3",
+      "pandas": "2.3.3",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    }
+  }
+}

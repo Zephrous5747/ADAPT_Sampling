@@ -1,0 +1,34 @@
+{
+  "method_code": "M1_FCUG",
+  "method_name": "M1: FC-UG",
+  "case_id": "H2O_eq_HF",
+  "state": "HF",
+  "target": "identification",
+  "target_description": "one common confidence radius over the whole pool, tight enough to identify the largest-gradient generator",
+  "confidence_radius": 0.050545245488985494,
+  "epsilon_one_standard_error": 0.0141588023604193,
+  "z": 3.5698814209232768,
+  "delta_family_wise": 0.05,
+  "n_parent_fc_contexts": 2366,
+  "n_contexts_receiving_shots": 2366,
+  "total_context_shots": 172147028,
+  "max_reconstruction_std": 0.014158802360419309,
+  "constraint_satisfied": true,
+  "conventions": {
+    "fc_grouping": "deterministic greedy first-fit fully commuting grouping",
+    "pauli_ordering": "sort by decreasing Pauli weight, then lexicographic",
+    "tie_breaking": "first group that accepts the Pauli string",
+    "random_seed": null,
+    "note": "the grouping is deterministic, so no seed is used"
+  },
+  "environment": {
+    "python": "3.10.12",
+    "packages": {
+      "numpy": "2.2.6",
+      "scipy": "1.15.3",
+      "pandas": "2.3.3",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    }
+  }
+}

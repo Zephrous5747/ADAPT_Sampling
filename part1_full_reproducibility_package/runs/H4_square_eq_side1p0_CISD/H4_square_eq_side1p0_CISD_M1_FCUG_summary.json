@@ -1,0 +1,34 @@
+{
+  "method_code": "M1_FCUG",
+  "method_name": "M1: FC-UG",
+  "case_id": "H4_square_eq_side1p0_CISD",
+  "state": "CISD",
+  "target": "identification",
+  "target_description": "one common confidence radius over the whole pool, tight enough to identify the largest-gradient generator",
+  "confidence_radius": 0.059040670060171885,
+  "epsilon_one_standard_error": 0.019033945812145705,
+  "z": 3.101861833740095,
+  "delta_family_wise": 0.05,
+  "n_parent_fc_contexts": 53,
+  "n_contexts_receiving_shots": 53,
+  "total_context_shots": 59642,
+  "max_reconstruction_std": 0.0190339458121457,
+  "constraint_satisfied": true,
+  "conventions": {
+    "fc_grouping": "deterministic greedy first-fit fully commuting grouping",
+    "pauli_ordering": "sort by decreasing Pauli weight, then lexicographic",
+    "tie_breaking": "first group that accepts the Pauli string",
+    "random_seed": null,
+    "note": "the grouping is deterministic, so no seed is used"
+  },
+  "environment": {
+    "python": "3.10.12",
+    "packages": {
+      "numpy": "2.2.6",
+      "scipy": "1.15.3",
+      "pandas": "2.3.3",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    }
+  }
+}

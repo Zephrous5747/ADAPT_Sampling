@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+.venv/
+
+# LaTeX build products
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Superseded drafts kept locally for reference
+reports/_superseded/
+
+# Cached gradient problems (large pickles, rebuilt on demand)
+.cache/
+*.pickle
+
+# Generated run outputs.
+#
+# Summaries, per-context shot counts, per-arm costs, BAI histories, gradients,
+# finite-shot results and the grouping-routine sweeps are all kept: together they
+# are the auditable record behind every table, and they total a few megabytes.
+#
+# The three bulky derivatives below are excluded. They are large (the fragment
+# standard deviations alone are ~55 MB) and every one of them is regenerated
+# exactly by the documented commands, so tracking them would cost a great deal of
+# repository size for no reproducibility that the scripts do not already provide.
+**/runs/**/*_fragment_sigmas.csv
+**/runs/**/*_groups.csv
+**/runs/**/*_commutators.jsonl
+
+# Handoff note for the next commit, not part of the project
+COMMIT_MESSAGE.txt
+
+# Desktop-app delivery folder (duplicates of files already tracked elsewhere)
+Claude outputs/
+
+# Accidental duplicate: byte-identical to the current report despite its name
+reports/part1_fixed_gradient_measurement_report_original.tex

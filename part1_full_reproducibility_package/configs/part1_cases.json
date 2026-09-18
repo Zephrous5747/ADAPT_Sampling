@@ -1,0 +1,89 @@
+{
+  "description": "Part I oracle ADAPT-VQE gradient-measurement diagnostics. Cached outputs reproduce the report tables. From-scratch scripts require PySCF/OpenFermion and may differ slightly unless identical versions and greedy FC ordering are used.",
+  "global_settings": {
+    "basis": "sto-3g",
+    "mapping": "Jordan-Wigner",
+    "pool": "standard spin-orbital UCCSD conserving Ne and Sz, not S^2",
+    "frozen_core": false,
+    "tapering": false,
+    "part2_variance_splitting": false,
+    "delta": 0.05,
+    "good_enough_delta_Eh": 0.005,
+    "nonzero_gradient_threshold": 1e-9,
+    "fc_grouping": "deterministic greedy fully-commuting grouping; sort Pauli strings lexicographically unless overridden"
+  },
+  "cases": [
+    {
+      "case_id": "LiH_R3p0_HF",
+      "molecule": "LiH",
+      "geometry_bohr_or_angstrom": "Angstrom",
+      "atoms": [["Li", [0.0,0.0,0.0]], ["H", [0.0,0.0,3.0]]],
+      "state": "HF",
+      "cached_dir": "data/cached/lih_sto3g_stretched_pilot"
+    },
+    {
+      "case_id": "H4_square_eq_side1p0_HF",
+      "molecule": "H4",
+      "geometry_bohr_or_angstrom": "Angstrom",
+      "atoms": [["H", [0.0,0.0,0.0]], ["H", [1.0,0.0,0.0]], ["H", [0.0,1.0,0.0]], ["H", [1.0,1.0,0.0]]],
+      "state": "HF",
+      "cached_prefix": "H4_square_eq_side1.0A_HF"
+    },
+    {
+      "case_id": "H4_square_eq_side1p0_CISD",
+      "molecule": "H4",
+      "geometry_bohr_or_angstrom": "Angstrom",
+      "atoms": [["H", [0.0,0.0,0.0]], ["H", [1.0,0.0,0.0]], ["H", [0.0,1.0,0.0]], ["H", [1.0,1.0,0.0]]],
+      "state": "CISD",
+      "cached_prefix": "H4_square_eq_side1.0A_CISD"
+    },
+    {
+      "case_id": "H4_square_stretch_side2p0_HF",
+      "molecule": "H4",
+      "geometry_bohr_or_angstrom": "Angstrom",
+      "atoms": [["H", [0.0,0.0,0.0]], ["H", [2.0,0.0,0.0]], ["H", [0.0,2.0,0.0]], ["H", [2.0,2.0,0.0]]],
+      "state": "HF",
+      "cached_prefix": "H4_square_stretch_side2.0A_HF"
+    },
+    {
+      "case_id": "H4_square_stretch_side2p0_CISD",
+      "molecule": "H4",
+      "geometry_bohr_or_angstrom": "Angstrom",
+      "atoms": [["H", [0.0,0.0,0.0]], ["H", [2.0,0.0,0.0]], ["H", [0.0,2.0,0.0]], ["H", [2.0,2.0,0.0]]],
+      "state": "CISD",
+      "cached_prefix": "H4_square_stretch_side2.0A_CISD"
+    },
+    {
+      "case_id": "H2O_eq_HF",
+      "molecule": "H2O",
+      "geometry_bohr_or_angstrom": "Angstrom",
+      "description": "O-H = 0.9572 A, HOH = 104.52 deg; O at origin; water in xz plane.",
+      "state": "HF",
+      "cached_prefix": "H2O_eq_R0.9572A_angle104.52_HF"
+    },
+    {
+      "case_id": "H2O_eq_CISD",
+      "molecule": "H2O",
+      "geometry_bohr_or_angstrom": "Angstrom",
+      "description": "O-H = 0.9572 A, HOH = 104.52 deg; O at origin; water in xz plane.",
+      "state": "CISD",
+      "cached_prefix": "H2O_eq_R0.9572A_angle104.52_CISD"
+    },
+    {
+      "case_id": "H2O_stretch_HF",
+      "molecule": "H2O",
+      "geometry_bohr_or_angstrom": "Angstrom",
+      "description": "O-H = 1.75 A, HOH = 104.52 deg; O at origin; water in xz plane.",
+      "state": "HF",
+      "cached_prefix": "H2O_stretch_R1.75A_angle104.52_HF"
+    },
+    {
+      "case_id": "H2O_stretch_CISD",
+      "molecule": "H2O",
+      "geometry_bohr_or_angstrom": "Angstrom",
+      "description": "O-H = 1.75 A, HOH = 104.52 deg; O at origin; water in xz plane.",
+      "state": "CISD",
+      "cached_prefix": "H2O_stretch_R1.75A_angle104.52_CISD"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# Minimal requirements for cached-data reproduction
+numpy>=1.26
+pandas>=2.0
+matplotlib>=3.8
+
+# Additional requirements for from-scratch quantum-chemistry regeneration.
+# These are not installed in the ChatGPT sandbox used to prepare this package.
+pyscf>=2.6
+openfermion>=1.6
+networkx>=3.0
+scipy>=1.11

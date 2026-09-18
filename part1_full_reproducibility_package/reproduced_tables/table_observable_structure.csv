@@ -1,0 +1,10 @@
+case,state,qubits,pool,universal_terms,fc_ug_contexts,nonzero_gradients
+"LiH, R=3.0 A",HF,12,92,30196,980,26
+"H4 square, side=1.0 A",HF,8,26,1276,356,10
+"H4 square, side=1.0 A",CISD,8,26,1276,356,10
+"H4 square, side=2.0 A",HF,8,26,1276,356,10
+"H4 square, side=2.0 A",CISD,8,26,1276,356,10
+"H2O eq., R(OH)=0.9572 A",HF,14,140,81566,9874,40
+"H2O eq., R(OH)=0.9572 A",CISD,14,140,81566,9874,48
+"H2O stretch, R(OH)=1.75 A",HF,14,140,81566,9874,46
+"H2O stretch, R(OH)=1.75 A",CISD,14,140,81566,9874,48

@@ -1,0 +1,648 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{booktabs,array,longtable,float}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    citecolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+\newcommand{\ket}[1]{\left|#1\right\rangle}
+\newcommand{\bra}[1]{\left\langle#1\right|}
+\newcommand{\braket}[2]{\left\langle #1 \middle| #2 \right\rangle}
+\newcommand{\ev}[1]{\left\langle #1 \right\rangle}
+\newcommand{\comm}[2]{\left[#1,#2\right]}
+\newcommand{\acomm}[2]{\left\{#1,#2\right\}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\Comm}{\operatorname{Comm}}
+\newcommand{\nelec}{N_{\mathrm e}}
+\newcommand{\sz}{S_z}
+\newcommand{\uccsd}{\mathcal G_{\mathrm{UCCSD}}}
+\newcommand{\stagepool}{\mathcal G^{(s)}}
+\newcommand{\symgrp}{\mathcal S^{(s)}}
+\newcommand{\minsym}{\mathcal S_{\min}^{(s)}}
+\newcommand{\resgrp}{\mathcal R_k}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\status}[1]{\textsf{#1}}
+\newcommand{\unresolved}[1]{\par\noindent\textcolor{red!70!black}{\textbf{[REMAINING AUTHOR CHOICE:} #1\textbf{]}}\par}
+
+\title{Part III Project Description: Symmetry-Staged ADAPT-VQE with Residual Stabilizer Tapering}
+\author{Updated draft incorporating residual-symmetry transition logic}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note describes Part III of a project on reducing the measurement cost of generator selection in ADAPT-VQE. Parts I and II reduce the cost of measuring gradients for a fixed ADAPT state: Part I compares fully commuting universal grouping, BAI over individually grouped gradients, and BAI over fixed parent universal groups; Part II adds variance and covariance information to optimize overlapping universal operators and coefficient splitting. Part III changes the ADAPT trajectory itself. The state is built by gradually breaking local Pauli symmetries inherited from the Hartree--Fock determinant. A named stage defines the minimum symmetries that candidate generators must preserve, but gradient filtering and tapering use the larger current residual stabilizer group whenever earlier occupation, seniority, or block symmetries have not yet been broken by the actually selected generators. These residual symmetries imply exact zero rules for Pauli terms in gradient commutators and allow tapering of symmetry-fixed qubits before applying the Part I or Part II measurement strategies. The target metric is total oracle gradient-selection shot proxy required to reach a fixed energy error.
+\end{abstract}
+
+\section{Problem, target metric, and intended claim}
+
+\paragraph{Problem.}
+In ADAPT-VQE, selecting the next generator requires estimating many gradients
+\begin{equation}
+    g_i(\psi) = \bra{\psi}\comm{H}{G_i}\ket{\psi},
+\end{equation}
+where $H$ is the qubit Hamiltonian and $G_i$ is a candidate anti-Hermitian generator. The project asks whether known local symmetries of the \emph{currently constructed} ADAPT state can be used to remove zero-contribution Pauli terms, taper symmetry-fixed qubits, and reduce the total gradient-measurement cost to reach a target energy error.
+
+\paragraph{Primary target metric.}
+Success is measured by the total oracle gradient-selection shot proxy needed to reach a fixed energy error. Secondary diagnostics such as the number of Pauli terms, number of fully commuting (FC) contexts, and simulation wall time should be reported, but they are not the primary metric.
+
+\paragraph{Hypothesis.}
+A staged ADAPT procedure that first optimizes within highly symmetric manifolds and only later enlarges the generator pool can reduce gradient-measurement cost because preserved local symmetries imply exact Pauli-term filtering and allow qubit tapering during early and intermediate stages.
+
+\paragraph{Minimal useful claim.}
+The project does not need to prove that staged ADAPT is always better than full-pool ADAPT. The narrow useful claim is that, for at least one stretched small molecule, staged ADAPT reaches the same energy error as ordinary full-pool ADAPT with lower total gradient-selection measurement cost, after accounting for any additional ADAPT iterations required by the staged path.
+
+\paragraph{Current status.}
+This is now a mostly executable work order. The scientific construction has been fixed by the AFI comments. Remaining choices are listed explicitly in Sec.~\ref{sec:remaining}. The most important unresolved item is not the algorithm but the precise numerical transition and success thresholds for a confirmatory, rather than exploratory, benchmark.
+
+\section{Generator universe and ordinary ADAPT baseline}
+
+Let the electronic Hamiltonian be mapped to qubits as
+\begin{equation}
+    H = \sum_p h_p P_p,
+\end{equation}
+where each $P_p$ is a Pauli product. The ordinary ADAPT state after $k$ selected generators is
+\begin{equation}
+    \ket{\psi^{(k)}(\bm\theta)}
+    = e^{\theta_k G_{i_k}}\cdots e^{\theta_1 G_{i_1}}\ket{\mathrm{HF}}.
+\end{equation}
+The next generator is selected by estimating
+\begin{equation}
+    g_i^{(k)} = \bra{\psi^{(k)}}\comm{H}{G_i}\ket{\psi^{(k)}}
+\end{equation}
+for all active candidates and choosing a generator with large $|g_i^{(k)}|$.
+
+The total generator universe for Part III is the standard spin-orbital UCCSD generator pool,
+\begin{equation}
+    \uccsd = \{ a_a^\dagger a_i - a_i^\dagger a_a \}
+    \cup
+    \{ a_a^\dagger a_b^\dagger a_j a_i
+       - a_i^\dagger a_j^\dagger a_b a_a \},
+\end{equation}
+with the same spin-orbital ordering and reference determinant convention used in Parts I and II. This pool conserves electron number $\nelec$ and $\sz$, but it is not assumed to be an $S^2$-adapted singlet pool. In this document, the standard UCCSD universe means singles and doubles defined relative to the Hartree--Fock occupied/virtual partition. A generalized occupied/virtual-unrestricted singles/doubles pool would be a different benchmark and must be labeled separately. At each named symmetry stage, the active pool is not a new chemically curated pool; it is the subset of this UCCSD universe that commutes with the \emph{nominal minimum} Pauli symmetries for that stage:
+\begin{equation}
+    \stagepool
+    = \{G\in \uccsd : [G,S]=0\quad \forall S\in \minsym\}.
+    \label{eq:stagepool}
+\end{equation}
+The nominal minimum symmetries define what a newly selected generator is allowed to break. They are not necessarily the full set of symmetries available for measurement reduction at a given iteration. Additional occupation, seniority, or block-parity symmetries that have not yet been broken by previously selected generators are retained in the current residual stabilizer group introduced below.
+
+\section{Key symmetry filtering principle}
+
+Suppose the current ADAPT state is an eigenstate of a Pauli-product symmetry $S$:
+\begin{equation}
+    S\ket{\psi}=s\ket{\psi},\qquad s=\pm 1.
+\end{equation}
+If a Pauli product $Q$ anticommutes with $S$,
+\begin{equation}
+    \acomm{S}{Q}=0,
+\end{equation}
+then
+\begin{equation}
+    \bra{\psi}Q\ket{\psi}=0,
+\end{equation}
+because
+\begin{align}
+    \bra{\psi}Q\ket{\psi}
+    &= \bra{\psi}S^2 Q\ket{\psi} \\
+    &= s^2 \bra{\psi}SQS\ket{\psi} \\
+    &= -\bra{\psi}Q\ket{\psi}.
+\end{align}
+Therefore, if
+\begin{equation}
+    C=\sum_\ell c_\ell Q_\ell,
+\end{equation}
+we define the symmetry-allowed projection
+\begin{equation}
+    \Pi_{\mc S}(C)
+    = \sum_{\ell:\,[Q_\ell,S]=0\ \forall S\in\mc S} c_\ell Q_\ell.
+\end{equation}
+For a state in the symmetry sector of $\mc S$,
+\begin{equation}
+    \bra{\psi}C\ket{\psi}
+    = \bra{\psi}\Pi_{\mc S}(C)\ket{\psi}.
+\end{equation}
+Thus, for each ADAPT gradient commutator
+\begin{equation}
+    C_i=[H,G_i],
+\end{equation}
+the measured operator can be replaced exactly by
+\begin{equation}
+    C_i^{\parallel,\mc S}=\Pi_{\mc S}(C_i)
+\end{equation}
+when the current state is known to remain in the symmetry sector of $\mc S$. In the staged algorithm below, the relevant choice for actual measurement is $\mc S=\mathcal R_k$, the current residual stabilizer group.
+
+Operationally, at each stage the Pauli symmetries are mapped by a Clifford transformation to single-qubit $Z$ operators. The fixed product part of the wavefunction is then integrated out by substituting the known $Z$ eigenvalues, and only the effective operator acting on the untapered, entangled qubits is measured.
+
+\section{Nominal stage symmetries versus current residual symmetries}
+\label{sec:residual}
+
+A named stage defines a \emph{minimum} symmetry group $\minsym$ that all candidate generators in that stage must preserve. However, the current ADAPT state can have more Pauli symmetries than $\minsym$ because only the generators actually selected so far can break symmetries. The measurement reduction should therefore use the current residual stabilizer group, not only the nominal stage group.
+
+Let $\mathcal R_0$ be the Pauli stabilizer group generated by all spin-orbital occupation parities of the HF determinant,
+\begin{equation}
+    \mathcal R_0=\langle Z_{p\sigma}:\text{all spin orbitals }p\sigma\rangle .
+\end{equation}
+After $k$ selected generators $G_{i_1},\ldots,G_{i_k}$, define the residual group as
+\begin{equation}
+    \mathcal R_k
+    =\{S\in\mathcal R_0:[S,G_{i_t}]=0\quad \text{for every }t=1,\ldots,k\}.
+    \label{eq:residual-group}
+\end{equation}
+Equivalently, $\mathcal R_k$ is the subgroup of HF Pauli stabilizers that still stabilizes the actually prepared ADAPT state,
+\begin{equation}
+    S\ket{\psi^{(k)}}=s_S\ket{\psi^{(k)}}\qquad \forall S\in\mathcal R_k .
+\end{equation}
+This definition must be applied to the stabilizer group or binary row space, not merely to a convenient generating set. Otherwise one can accidentally discard products of broken-looking generators that remain conserved. For example, a generator may break $P_p$ and $P_q$ separately but preserve their product $P_pP_q$.
+
+At ADAPT iteration $k$ inside nominal stage $s$, candidate generators are selected from Eq.~\eqref{eq:stagepool}, but gradient filtering and tapering use $\mathcal R_k$:
+\begin{equation}
+    C_i^{\parallel,k}=\Pi_{\mathcal R_k}([H,G_i]),
+    \qquad
+    C_{i,\mathrm{tap}}^{\parallel,k}
+    =\mathrm{Taper}_{\mathcal R_k}(C_i^{\parallel,k}).
+    \label{eq:residual-filter-taper}
+\end{equation}
+After selecting and applying $G_{i_{k+1}}$, the residual group is updated as
+\begin{equation}
+    \mathcal R_{k+1}
+    =\{S\in\mathcal R_k:[S,G_{i_{k+1}}]=0\},
+    \label{eq:residual-update}
+\end{equation}
+again with closure under multiplication retained. This is the transition logic: entering Stage 1 permits generators that can break individual occupation parities, but any occupation parities not broken by the first few selected pair-like generators remain valid for filtering and tapering. Entering Stage 2 permits seniority-breaking generators, but any seniority parities not yet broken by the selected quartet-compatible generators remain valid in the same way.
+
+Thus there are two nested structures:
+\begin{align}
+    &\text{nominal stage groups:}\qquad
+    \mathcal S_{\min}^{(1)}\supseteq\mathcal S_{\min}^{(2)}\supseteq\cdots,\\
+    &\text{actual residual groups along the ADAPT trajectory:}\qquad
+    \mathcal R_0\supseteq\mathcal R_1\supseteq\mathcal R_2\supseteq\cdots .
+\end{align}
+The first sequence controls which generators are allowed in a stage. The second sequence controls which qubits and Pauli terms can be eliminated at the current iteration.
+
+\section{Generator compatibility with block-parity symmetries}
+\label{sec:compatibility}
+
+The compatibility test for singles and doubles can be implemented without hand-curating each stage. Let a block $B$ be a set of spatial orbitals and define the block parity
+\begin{equation}
+    S_B=(-1)^{N_B},\qquad
+    N_B=\sum_{p\in B}\sum_{\sigma\in\{\alpha,\beta\}} \hat n_{p\sigma}.
+\end{equation}
+For an excitation monomial
+\begin{equation}
+    T=a_{r_1}^{\dagger}\cdots a_{r_m}^{\dagger}
+      a_{s_m}\cdots a_{s_1},
+\end{equation}
+define its electron-number change in block $B$ as
+\begin{equation}
+    \Delta_B(T)=
+    \#\{r_j\in B\}-\#\{s_j\in B\}.
+\end{equation}
+The anti-Hermitian generator $G=T-T^{\dagger}$ commutes with $S_B$ if and only if
+\begin{equation}
+    \Delta_B(T)=0\pmod 2.
+    \label{eq:block-parity-rule}
+\end{equation}
+This parity rule is the recommended code-level test for whether a UCCSD single or double is allowed in a given stage.
+
+For Stage 1, the blocks are individual spatial orbitals, $B=\{p\}$. The simplest allowed generators are pair transfers,
+\begin{equation}
+    G_{p\rightarrow q}^{\mathrm{pair}}
+    =a_{q\alpha}^{\dagger}a_{q\beta}^{\dagger}a_{p\beta}a_{p\alpha}
+     -a_{p\alpha}^{\dagger}a_{p\beta}^{\dagger}a_{q\beta}a_{q\alpha},
+    \label{eq:pair-generator-explicit}
+\end{equation}
+which change $N_p$ and $N_q$ by $\mp 2$ and therefore preserve every orbital seniority parity $P_p$. Other doubles are also allowed if they satisfy Eq.~\eqref{eq:block-parity-rule} for every one-orbital block. For example, an exchange-like double acting inside two spatial orbitals,
+\begin{equation}
+    G_{pq}^{\mathrm{exch}}
+    =a_{q\alpha}^{\dagger}a_{p\beta}^{\dagger}a_{q\beta}a_{p\alpha}
+     -a_{p\alpha}^{\dagger}a_{q\beta}^{\dagger}a_{p\beta}a_{q\alpha},
+\end{equation}
+preserves $P_p$ and $P_q$ because it changes neither total occupation parity. The implementation should not rely on these examples as the complete pool; it should apply Eq.~\eqref{eq:block-parity-rule} to every generator in the chosen spin-orbital singles/doubles universe.
+
+For Stage 2, the blocks are neighboring two-orbital quartets, $B_r=\{2r-1,2r\}$. A single excitation within one quartet block,
+\begin{equation}
+    G_{p\sigma,q\sigma}^{\mathrm{intra\text{-}quartet}}
+    =a_{q\sigma}^{\dagger}a_{p\sigma}
+     -a_{p\sigma}^{\dagger}a_{q\sigma},
+    \qquad p,q\in B_r,
+    \label{eq:intra-quartet-single}
+\end{equation}
+breaks $P_p$ and $P_q$ separately but preserves the quartet parity $P_pP_q$. Quartet-compatible doubles are defined by the same even-block-change condition, $\Delta_{B_r}(T)=0\pmod 2$ for every quartet block $B_r$. Examples include pair transfers between blocks and double excitations moving two electrons out of one quartet block and two into another; these may break individual seniorities while preserving all current quartet block parities.
+
+
+\section{Stage 0: Hartree--Fock occupation symmetries}
+
+The initial state is the Hartree--Fock Slater determinant,
+\begin{equation}
+    \ket{\psi^{(0)}}=\ket{\mathrm{HF}}.
+\end{equation}
+We use the convention
+\begin{equation}
+    \hat n_{p\sigma}=\frac{1-Z_{p\sigma}}{2},
+    \qquad
+    Z_{p\sigma}=(-1)^{\hat n_{p\sigma}}.
+\end{equation}
+Thus an unoccupied spin orbital has $Z=+1$ and an occupied spin orbital has $Z=-1$. For the HF determinant,
+\begin{equation}
+    \hat n_{p\sigma}\ket{\mathrm{HF}}=n_{p\sigma}\ket{\mathrm{HF}},
+    \qquad n_{p\sigma}\in\{0,1\},
+\end{equation}
+so
+\begin{equation}
+    Z_{p\sigma}\ket{\mathrm{HF}}=(-1)^{n_{p\sigma}}\ket{\mathrm{HF}}.
+\end{equation}
+All Pauli products containing $X$ or $Y$ on any qubit have zero expectation value on $\ket{\mathrm{HF}}$. Only $Z$-only strings contribute to
+\begin{equation}
+    \bra{\mathrm{HF}}[H,G_i]\ket{\mathrm{HF}}.
+\end{equation}
+Consequently, Stage 0 gradients are computed classically and are excluded from the quantum measurement resource accounting. Quantum measurements are counted only when the current state has entanglement on untapered degrees of freedom.
+
+\section{Stage 1: orbital seniority parity}
+
+For each spatial orbital $p$, define the orbital seniority parity
+\begin{equation}
+    P_p=(-1)^{\hat n_{p\alpha}+\hat n_{p\beta}}
+    = Z_{p\alpha}Z_{p\beta}.
+\end{equation}
+Also define the local seniority indicator $O_p$ by
+\begin{equation}
+    P_p = 1-2O_p,
+\end{equation}
+where $O_p=1$ if spatial orbital $p$ is singly occupied and $O_p=0$ if it is empty or doubly occupied. For a closed-shell HF determinant, every spatial orbital is empty or doubly occupied, hence
+\begin{equation}
+    P_p\ket{\mathrm{HF}}=+\ket{\mathrm{HF}}
+\end{equation}
+for all $p$.
+
+Stage 1 uses all UCCSD generators that commute with every orbital seniority parity:
+\begin{equation}
+    \mathcal G^{(1)}
+    = \{G\in\uccsd:[G,P_p]=0\quad \forall p\}.
+\end{equation}
+This rule includes pair-transfer generators of the form
+\begin{equation}
+    G_{pq}^{\mathrm{pair}}
+    = E_{p\alpha,q\alpha}E_{p\beta,q\beta}
+    - E_{q\alpha,p\alpha}E_{q\beta,p\beta},
+    \qquad
+    E_{p\sigma,q\sigma}=a_{p\sigma}^{\dagger}a_{q\sigma},
+\end{equation}
+but the implementation should use the commutation rule, not a hand-curated list of pair rotations. Thus there is no additional occupied--virtual-pair restriction beyond membership in the chosen UCCSD generator universe and the commutation condition.
+
+After any product of Stage 1 generators,
+\begin{equation}
+    \ket{\psi^{(1)}}=\prod_r e^{\theta_r G_r^{(1)}}\ket{\mathrm{HF}},
+\end{equation}
+the state remains in the fixed sector
+\begin{equation}
+    P_p\ket{\psi^{(1)}}=+\ket{\psi^{(1)}}
+\end{equation}
+for all spatial orbitals. Individual spin-orbital occupation symmetries are generally broken, but orbital seniority parities are preserved.
+
+The nominal Stage 1 minimum symmetry group is
+\begin{equation}
+    \mathcal S_{\min}^{(1)}=\langle P_1,P_2,\ldots,P_M\rangle,
+\end{equation}
+where $M$ is the number of spatial orbitals. During Stage 1, however, the filtered commutator used for measurement is the residual-symmetry object of Eq.~\eqref{eq:residual-filter-taper}, not only the projection onto $\mathcal S_{\min}^{(1)}$. Early in Stage 1, this can retain unbroken spin-orbital occupation parities in addition to all seniority parities.
+
+\section{Tapering with the residual stabilizer group}
+
+At ADAPT iteration $k$, choose any reproducible Clifford construction that maps an independent generating set of the current residual group $\resgrp$ to single-qubit $Z$ operators:
+\begin{equation}
+    U_{\mathrm C}^{(k)} S_a U_{\mathrm C}^{(k)\dagger}=Z_a',
+    \qquad S_a\in\resgrp .
+\end{equation}
+A generic binary-symplectic stabilizer Gaussian-elimination routine is an appropriate default. The only requirements are that the qubit ordering, Pauli convention, stabilizer row operations, and substituted eigenvalues are recorded. Because $\resgrp$ can be larger than the nominal stage group, this tapering can remove more qubits early in a stage than a stage-level tapering estimate would suggest.
+
+The operator lineage for gradient measurement is
+\begin{equation}
+    C_i
+    \longrightarrow C_i^{\parallel,k}=\Pi_{\resgrp}(C_i)
+    \longrightarrow \widetilde C_i^{\parallel,k}
+       = U_{\mathrm C}^{(k)}C_i^{\parallel,k}U_{\mathrm C}^{(k)\dagger}
+    \longrightarrow C_{i,\mathrm{tap}}^{\parallel,k},
+\end{equation}
+where $C_{i,\mathrm{tap}}^{\parallel,k}$ is obtained by substituting the known eigenvalues of the mapped $Z_a'$ qubits. Only $C_{i,\mathrm{tap}}^{\parallel,k}$ enters FC grouping, BAI, or variance-aware universal-operator construction.
+
+The primary resource accounting counts tapering savings for gradient-measurement circuits. If an implementation directly prepares intermediate staged states in a reduced/tapered encoding, that should be reported as an additional implementation-dependent advantage, not as the primary claim, because the final fully symmetry-broken ansatz may require the full encoding.
+
+
+\section{Preliminary LiH post-taper smoke test}
+\label{sec:lih-smoke-test}
+
+A first explicit smoke test was carried out for LiH/STO-3G at $R_{\mathrm{Li-H}}=3.0\,\text{\AA}$ at the initial Hartree--Fock selection step. The purpose of this calculation was not to complete the full staged-ADAPT trajectory. It was to verify that the residual-symmetry/tapering pipeline can substantially reduce the actual FC grouping problem after explicit Pauli filtering, Clifford tapering, eigenvalue substitution, coefficient merging, and greedy FC regrouping.
+
+The calculation used one deterministic greedy per-gradient FC grouping routine for all rows in Table~\ref{tab:lih-post-taper}. The full-pool row is the ordinary UCCSD pre-taper reference. The Stage 1 row uses the nominal seniority-parity tapering. The residual row uses the larger residual stabilizer group after the first selected pair generator $D\,2,3\to10,11$.
+
+\begin{table}[H]
+\centering
+\small
+\caption{LiH/STO-3G $R=3.0$ \AA\ first-step post-taper smoke test. These are per-gradient greedy FC group counts after explicit processing, not finite-shot or oracle-variance shot counts.}
+\label{tab:lih-post-taper}
+\begin{tabular}{lrrrrr}
+\toprule
+Case & Pool size & Active qubits & Processed Pauli terms & Per-gradient FC groups & Reduction \\
+\midrule
+Full UCCSD, pre-taper & 92 & 12 & 120,384 & 4,476 & 1.0 \\
+Stage 1 seniority, post-taper & 8 & 6 & 120 & 24 & 186.5 \\
+Stage 1 residual after first pair, post-taper & 8 & 2 & 11 & 10 & 447.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This smoke test supports the structural mechanism of Part III: staged restrictions and residual-symmetry tapering can reduce the measured operator problem far beyond the pool-size reduction alone. However, Table~\ref{tab:lih-post-taper} is not yet the primary metric of this project, because the primary metric is total oracle gradient-selection shot proxy to reach a fixed energy error. To obtain that metric, the next calculation must compute oracle variances of the post-taper FC fragments and then run the selected Part I measurement protocol on the complete staged ADAPT trajectory.
+
+\section{Stage 2: quartet-preserving generators}
+
+After Stage 1 is exhausted, the pool is enlarged by coarsening the preserved symmetries. Neighboring spatial orbitals are paired into non-overlapping quartet blocks. For spatial orbitals ordered as $1,2,\ldots,M$, define
+\begin{equation}
+    Q_{r}=P_{2r-1}P_{2r}
+    = Z_{(2r-1)\alpha}Z_{(2r-1)\beta}
+      Z_{(2r)\alpha}Z_{(2r)\beta},
+    \qquad r=1,\ldots,\left\lfloor \frac{M}{2}\right\rfloor.
+\end{equation}
+If $M$ is odd, the last spatial orbital remains as a residual seniority-parity block at this stage:
+\begin{equation}
+    P_M=Z_{M\alpha}Z_{M\beta}.
+\end{equation}
+The nominal Stage 2 minimum symmetry group is the group generated by these non-overlapping quartet parities and any residual block:
+\begin{equation}
+    \mathcal S_{\min}^{(2)}=\langle Q_1,Q_2,\ldots,Q_{\lfloor M/2\rfloor},\ P_M\ \mathrm{if}\ M\ \mathrm{is\ odd}\rangle.
+\end{equation}
+
+The Stage 2 pool is again defined by commutation with the nominal minimum symmetry group:
+\begin{equation}
+    \mathcal G^{(2)}
+    =\{G\in\uccsd:[G,S]=0\quad \forall S\in\mathcal S_{\min}^{(2)}\}.
+\end{equation}
+This contains Stage 1 generators and additional UCCSD generators that may break individual seniority parities $P_p$ while preserving the appropriate quartet products. The stage is not split into alternative partitions in the first implementation; the neighboring-orbital partition is fixed for reproducibility. During the first few Stage 2 selections, not all seniority parities need be broken. The implementation must therefore continue to use the actual residual group $\mathcal R_k$, which may include unbroken seniorities, for filtering and tapering.
+
+\section{Later stages: doubling block parities and full-pool limit}
+
+The hierarchy proceeds by doubling the number of spin orbitals included in the exponent of the parity symmetries. Stage 1 has blocks of one spatial orbital, i.e., two spin orbitals. Stage 2 has blocks of two spatial orbitals, i.e., four spin orbitals. Stage 3 has blocks of four spatial orbitals, i.e., eight spin orbitals. In general, stage $s$ uses non-overlapping blocks of $2^{s-1}$ spatial orbitals, or $2^s$ spin orbitals, with residual end blocks retained if the number of orbitals is not divisible by the current block size.
+
+Let $\mathcal P^{(s)}=\{B_1^{(s)},B_2^{(s)},\ldots\}$ be the corresponding fixed neighboring-block partition of the spatial orbitals. For each block,
+\begin{equation}
+    S_B=\prod_{p\in B}P_p
+    =(-1)^{\sum_{p\in B}(\hat n_{p\alpha}+\hat n_{p\beta})}.
+\end{equation}
+The nominal minimum stage symmetry group is
+\begin{equation}
+    \mathcal S_{\min}^{(s)}=\langle S_B:B\in\mathcal P^{(s)}\rangle.
+\end{equation}
+The nested hierarchy is
+\begin{equation}
+    \mathcal S^{(1)}\supseteq\mathcal S^{(2)}\supseteq\cdots,
+    \qquad
+    \mathcal G^{(1)}\subseteq\mathcal G^{(2)}\subseteq\cdots\subseteq\uccsd.
+\end{equation}
+The final stage is the full $\nelec,\sz$-conserving UCCSD pool, with only the global symmetries required by the qubit representation and particle/spin projection retained.
+
+\section{Stage transition and exploratory thresholds}
+\label{sec:transition}
+
+The first implementation should proceed without a single predeclared pass/fail threshold. Instead, it should generate exploratory curves of energy error versus total oracle gradient-selection shot proxy for several reasonable stage-transition thresholds. This avoids tuning a single threshold after seeing the result while still making the calculation executable.
+
+The default stage-transition rule is gradient exhaustion:
+\begin{equation}
+    \max_{G_i\in\mathcal G^{(s)}} |g_i^{(k)}| < \epsilon_s.
+\end{equation}
+When this condition is met, the calculation moves from stage $s$ to stage $s+1$. For the exploratory pass, run at least the following threshold choices:
+\begin{equation}
+    \epsilon_s\in\{10^{-2},10^{-3},10^{-4}\}\ E_h
+\end{equation}
+for all stages, unless the same threshold already causes immediate transition or excessive iterations. These are not final success thresholds; they are scan values to reveal whether the staged mechanism is promising.
+
+The final ADAPT stopping condition should be reported as an energy-error target against exact diagonalization for small systems. Recommended reporting targets are chemical accuracy, $1\,\mathrm{kcal/mol}\approx 1.6\times 10^{-3}E_h$, and a stricter numerical target such as $10^{-5}E_h$ when attainable. The confirmatory threshold for ``success'' should be set only after the exploratory small-system scan.
+
+\section{Amplitude optimization and resource boundary}
+
+After a generator is selected, amplitudes are optimized using full ansatz reoptimization:
+\begin{equation}
+    \min_{\theta_1,\ldots,\theta_k}
+    \bra{\psi^{(k)}(\bm\theta)}H\ket{\psi^{(k)}(\bm\theta)}.
+\end{equation}
+No separate orbital-optimization layer is included in Part III. However, single excitation--de-excitation generators in the spin-orbital UCCSD pool are allowed; these play the role of orbital rotations within the unitary ansatz.
+
+The primary resource accounting counts only gradient-selection measurements. VQE reoptimization measurements are excluded from the headline measurement-cost metric and must be reported as an explicit limitation. This convention isolates the mechanism being tested: whether staged symmetries reduce the cost of choosing the next generator.
+
+\section{Measurement pipeline inside each stage}
+
+At ADAPT iteration $k$ in nominal stage $s$, the pipeline is:
+\begin{enumerate}[label=\textbf{Step \arabic*.},leftmargin=2.4em]
+    \item \textbf{Current residual symmetries.} The current state $\ket{\psi^{(k)}}$ is known by construction to lie in the symmetry sector of $\resgrp$, which can be larger than the nominal minimum group $\minsym$ for the current stage.
+    \item \textbf{Active generator pool.} Construct $\stagepool$ using Eq.~\eqref{eq:stagepool}, i.e., require candidate generators to preserve $\minsym$ but not necessarily every still-unbroken symmetry in $\resgrp$. This allows the next generator to break additional residual symmetries within the stage.
+    \item \textbf{Raw commutators.} For every $G_i\in\stagepool$, construct
+    \begin{equation}
+        C_i=[H,G_i].
+    \end{equation}
+    \item \textbf{Symmetry filtering.} Remove all Pauli products that anticommute with at least one stabilizer in $\resgrp$:
+    \begin{equation}
+        C_i^{\parallel,k}=\Pi_{\resgrp}(C_i).
+    \end{equation}
+    \item \textbf{Tapering.} Map independent stabilizers in $\resgrp$ to single-qubit $Z$ operators and substitute their known eigenvalues to obtain $C_{i,\mathrm{tap}}^{\parallel,k}$.
+    \item \textbf{Measurement strategy.} Apply one of the project measurement methods to the filtered tapered commutators:
+    \begin{description}[leftmargin=2.4em]
+        \item[FC-UG.] Fully Commuting Universal Groups: globally FC-group the union of all filtered tapered commutator Pauli terms and estimate the full gradient vector.
+        \item[BAI-FC-IG.] Best-Arm Identification with Fully Commuting Individual Gradients: run BAI over generator gradients, with each individual filtered tapered gradient internally FC-grouped. This does not exploit cross-gradient universal sharing.
+        \item[BAI-FC-UG.] Best-Arm Identification with Fully Commuting Universal Groups: run BAI over generator gradients using fixed parent universal FC groups for the filtered tapered universal Pauli support.
+        \item[Variance-aware BAI-FC-UG.] Part II extension: use measured variances and covariances inside overlapping FC contexts to optimize coefficient splitting and context sampling.
+    \end{description}
+    \item \textbf{Selection.} Select the generator with the largest, or approximately largest, $|g_i|$ under the chosen BAI/gradient-estimation stopping rule.
+    \item \textbf{Update.} Append the selected generator, fully reoptimize all amplitudes, verify preservation of $\minsym$, and update the residual stabilizer group using Eq.~\eqref{eq:residual-update}. Then continue in the same stage or move to the next stage according to Sec.~\ref{sec:transition}.
+\end{enumerate}
+
+\section{Connection to Parts I and II}
+
+Part III does not replace the measurement methods of Parts I and II. It supplies a smaller symmetry-reduced gradient-measurement problem to them. In Part I, the universal observable basis for a fixed ADAPT state was
+\begin{equation}
+    \mathcal B_0=\bigcup_i \supp(C_i).
+\end{equation}
+In Part III at ADAPT iteration $k$ within nominal stage $s$, this becomes
+\begin{equation}
+    \mathcal B_0^{(k,s)}
+    =\bigcup_{G_i\in\stagepool}\supp(C_{i,\mathrm{tap}}^{\parallel,k}).
+\end{equation}
+The reduction order is fixed as
+\begin{equation}
+    \text{symmetry filtering and tapering}
+    \longrightarrow
+    \text{FC-UG/BAI-FC-IG/BAI-FC-UG}
+    \longrightarrow
+    \text{variance-aware coefficient splitting if Part II is included}.
+\end{equation}
+This ordering keeps exact zero filtering separate from statistical variance optimization.
+
+\section{Benchmarks and outputs}
+
+The first benchmark matrix uses the same small systems as Parts I and II:
+\begin{equation}
+    \mathrm{LiH},\qquad \mathrm H_4,
+    \qquad \mathrm H_2\mathrm O
+\end{equation}
+in STO-3G at equilibrium and stretched geometries. These systems are small enough for exact diagonalization and Pauli-level bookkeeping, while stretched geometries test whether staged symmetry breaking delays or helps recovery of strong correlation.
+
+The confirmed starting geometries are:
+\begin{itemize}[leftmargin=2.0em]
+    \item LiH equilibrium and stretched $R_{\mathrm{Li-H}}=3.0\,\text{\AA}$.
+    \item H$_2$O equilibrium with $R_{\mathrm{OH}}=0.9572\,\text{\AA}$ and angle $104.52^\circ$; stretched H$_2$O with symmetric stretch $R_{\mathrm{OH}}=1.75\,\text{\AA}$ and the same angle.
+    \item H$_4$ should include all small configurations useful for generating strongly correlated regimes, beginning with linear chain, square, and rectangular geometries.
+\end{itemize}
+
+For every system, geometry, stage, and ADAPT iteration, the student should report:
+\begin{enumerate}[label=(\roman*),leftmargin=2.4em]
+    \item number of qubits before and after tapering;
+    \item number of spatial orbitals and electrons;
+    \item nominal stage symmetries $|\mathcal S_{\min}^{(s)}|$, current residual symmetries $|\mathcal R_k|$, and all eigenvalues used for tapering;
+    \item active pool size $|\mathcal G^{(s)}|$;
+    \item number of nonzero gradients;
+    \item total raw Pauli support $\sum_i |\supp(C_i)|$;
+    \item total filtered support $\sum_i |\supp(C_i^{\parallel,k})|$;
+    \item universal filtered tapered support $|\mathcal B_0^{(k,s)}|$;
+    \item number of FC-UG contexts;
+    \item oracle shot proxies for FC-UG, BAI-FC-IG, and BAI-FC-UG;
+    \item selected generators and top-gradient gaps;
+    \item ADAPT energy after each selected generator;
+    \item total gradient-selection measurement cost to reach each energy threshold.
+\end{enumerate}
+
+\section{Fair comparisons}
+
+The main comparison is between ordinary full-pool ADAPT and symmetry-staged ADAPT. The fair baseline uses the same Hamiltonian, qubit mapping, UCCSD generator universe, full reoptimization, final energy target, and gradient-measurement strategy, but without staged symmetry restrictions.
+
+In this document, ``staged pool'' means both of the following:
+\begin{enumerate}[label=(\roman*),leftmargin=2.4em]
+    \item the active generator pool is restricted by commutation with the nominal minimum stage group $\minsym$;
+    \item the corresponding gradient commutators are filtered and tapered with the current residual group $\resgrp$, which may retain additional unbroken symmetries.
+\end{enumerate}
+Thus separate ablations labelled ``staged without filtering'' or ``staged with filtering but no tapering'' are not mandatory for the first student project. The mandatory comparison is:
+\begin{equation}
+    \text{ordinary full-pool ADAPT}
+    \quad\text{vs.}\quad
+    \text{symmetry-staged ADAPT}
+\end{equation}
+under the same measurement method. The first implementation should compare at least FC-UG and BAI-FC-UG; BAI-FC-IG is included when the per-gradient FC grouping machinery is available from Part I. The variance-aware BAI-FC-UG version is a Part II/Part III combined extension and should be treated as a later layer rather than required for the first staged-ADAPT smoke test.
+
+\section{Validation and falsifiers}
+
+The following checks are required before interpreting performance numbers.
+
+\paragraph{Symmetry-preservation check.}
+For every selected generator $G$ in nominal stage $s$,
+\begin{equation}
+    [G,S]=0\qquad \forall S\in\minsym.
+\end{equation}
+After ansatz update and full reoptimization, verify numerically that
+\begin{equation}
+    \bra{\psi^{(k)}}S\ket{\psi^{(k)}}=s_S
+\end{equation}
+within tolerance for every symmetry retained in $\resgrp$. This check must explicitly show which occupation, seniority, quartet, or larger block symmetries have survived after each selected generator.
+
+\paragraph{Filtering check.}
+For small systems, verify by statevector evaluation that
+\begin{equation}
+    \bra{\psi^{(k)}}C_i\ket{\psi^{(k)}}
+    =\bra{\psi^{(k)}}\Pi_{\mathcal R_k}(C_i)\ket{\psi^{(k)}}
+\end{equation}
+for every candidate gradient in the active pool.
+
+\paragraph{Tapering check.}
+Verify that filtered gradients computed before and after tapering agree:
+\begin{equation}
+    \bra{\psi}C_i^{\parallel,k}\ket{\psi}
+    =\bra{\psi_{\mathrm{tap}}}C_{i,\mathrm{tap}}^{\parallel,k}\ket{\psi_{\mathrm{tap}}}.
+\end{equation}
+
+\paragraph{Falsifiers.}
+The central hypothesis is weakened or falsified if:
+\begin{enumerate}[label=(\roman*),leftmargin=2.4em]
+    \item staged ADAPT needs so many additional iterations that total gradient-selection measurement cost exceeds full-pool ADAPT at the same energy error;
+    \item the useful early gradients in stretched systems are mostly outside Stage 1, so seniority-preserving optimization contributes little energy lowering;
+    \item symmetry filtering removes many Pauli terms but does not reduce FC contexts or oracle shot proxies;
+    \item tapering savings are offset by a much larger number of staged iterations;
+    \item the apparent advantage holds only for oracle variances and disappears under empirical finite-shot variance estimation.
+\end{enumerate}
+
+\section{Reproducibility package}
+
+For each system, geometry, stage, and ADAPT iteration, the student should produce:
+\begin{enumerate}[label=(\roman*),leftmargin=2.4em]
+    \item molecular geometry file and integral-generation metadata;
+    \item Hamiltonian Pauli file before tapering;
+    \item nominal stage stabilizer list $\mathcal S_{\min}^{(s)}$ and residual stabilizer list $\mathcal R_k$ with eigenvalues;
+    \item generator-pool file with labels and commutation flags;
+    \item raw commutator Pauli expansions $C_i$;
+    \item filtered commutator expansions $C_i^{\parallel,k}$;
+    \item tapered filtered commutator expansions $C_{i,\mathrm{tap}}^{\parallel,k}$;
+    \item FC group files for FC-UG and, where applicable, per-gradient FC groups for BAI-FC-IG;
+    \item selected-generator log;
+    \item energy trajectory;
+    \item resource tables and plots;
+    \item validation log for symmetry preservation, filtering equality, and tapering equality.
+\end{enumerate}
+All files must record the software environment, package versions, qubit ordering, spin-orbital ordering, Pauli-string convention, random seeds, and command used to generate the data. The FC grouping routine, Pauli ordering, graph-coloring order, tie-breaking rule, and random seed must be fixed. Pre-taper and post-taper FC counts are comparable only when produced by the same deterministic grouping algorithm. A student may choose the code base, but the choice must be fixed and documented before production runs. If this is executed by an AI workflow, use a single reproducible stack and do not mix conventions across systems.
+
+\section{Remaining choices before confirmatory execution}
+\label{sec:remaining}
+
+The following choices remain unresolved or intentionally exploratory:
+\begin{enumerate}[label=(\arabic*),leftmargin=2.4em]
+    \item \textbf{Stage-transition threshold.} The first pass may scan $\epsilon_s$ values as in Sec.~\ref{sec:transition}; a final confirmatory threshold must be chosen before claiming success.
+    \item \textbf{Pass/fail criterion.} The exact required improvement factor, e.g., $2\times$ reduction in total oracle shot proxy, is not fixed yet. The first small-system results should be used to decide whether such a threshold is realistic.
+    \item \textbf{H$_4$ coordinate set.} The project should include H$_4$ configurations that create strong correlation. The exact coordinate files for linear, square, and rectangular H$_4$ should be frozen before production benchmarking.
+    \item \textbf{Generator-universe convention.} The document defines $\uccsd$ as the standard spin-orbital UCCSD generator universe. If a generalized occupied/virtual-unrestricted excitation pool is used instead, that is a different benchmark and must be labeled separately.
+\end{enumerate}
+
+\section{Executive summary for the student}
+
+Implement a staged ADAPT workflow in which each stage is defined by a set of preserved Pauli-product symmetries. At each stage, the active generator pool is the subset of the standard $\nelec,\sz$-conserving spin-orbital UCCSD pool that commutes with those symmetries. The current symmetry group determines which Pauli terms in each gradient commutator can have nonzero expectation value. Terms forbidden by the current symmetries are removed exactly, and the remaining operators are tapered by mapping symmetry generators to single-qubit $Z$ operators and substituting their known eigenvalues. The resulting smaller gradient-measurement problem is then passed to FC-UG, BAI-FC-IG, BAI-FC-UG, or the later variance-aware BAI-FC-UG method.
+
+The decisive question is whether this staged route lowers the \emph{total} gradient-selection measurement cost to reach a fixed energy error. If it only lowers the cost per iteration but requires many more iterations, the idea is not successful. If it preserves chemically useful correlation while retaining local symmetries long enough to reduce measurement cost, it becomes a promising third component of the ADAPT measurement-reduction project.
+
+\begin{thebibliography}{99}
+
+\bibitem{Grimsley2019ADAPT}
+H. R. Grimsley, S. E. Economou, E. Barnes, and N. J. Mayhall,
+``An adaptive variational algorithm for exact molecular simulations on a quantum computer,''
+\emph{Nature Communications} \textbf{10}, 3007 (2019).
+\url{https://doi.org/10.1038/s41467-019-10988-2}
+
+\bibitem{Shkolnikov2023Symmetry}
+V. O. Shkolnikov, N. J. Mayhall, S. E. Economou, and E. Barnes,
+``Avoiding symmetry roadblocks and minimizing the measurement overhead of adaptive variational quantum eigensolvers,''
+\emph{Quantum} \textbf{7}, 1040 (2023).
+\url{https://doi.org/10.22331/q-2023-06-12-1040}
+
+\bibitem{Anastasiou2023Gradients}
+P. Anastasiou, N. J. Mayhall, E. Barnes, and S. E. Economou,
+``How to really measure operator gradients in ADAPT-VQE,''
+\emph{arXiv:2306.03227} (2023).
+\url{https://arxiv.org/abs/2306.03227}
+
+\bibitem{BAI2025}
+Y. Huang and A. F. Izmaylov,
+``Quantum Gambling: Best-Arm Strategies for Generator Selection in Adaptive Variational Algorithms,''
+\emph{arXiv:2509.14917} (2025).
+\url{https://arxiv.org/abs/2509.14917}
+
+\bibitem{Rossi2026RSe}
+E. Rossi, E. R. Kjellgren, A. F. Izmaylov, S. P. A. Sauer, K. M. Ziems, and S. Coriani,
+``Resource-efficient energy-based operator selection in fermionic ADAPT-VQE via exact Hamiltonian transformation,''
+\emph{arXiv:2606.04786} (2026).
+\url{https://arxiv.org/abs/2606.04786}
+
+\end{thebibliography}
+
+\end{document}
