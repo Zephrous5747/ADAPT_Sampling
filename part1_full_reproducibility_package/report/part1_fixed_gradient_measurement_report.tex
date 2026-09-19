@@ -30,7 +30,7 @@
 \newcommand{\supp}{\operatorname{supp}}
 
 \title{Part I: Measurement Cost of Generator Selection in\\Fixed-State ADAPT-VQE}
-\author{Linjun Wang\\ \small University of Toronto}
+\author{[AUTHOR: names and affiliations]}
 \date{September 2026}
 
 \begin{document}
@@ -64,7 +64,7 @@ Here $g_i$ is the derivative of the energy with respect to the variational param
 
 \textbf{Relation to previous work.} ADAPT-VQE and the spin-orbital UCCSD pool used here are those of Ref.~\cite{Grimsley2019ADAPT}. Two lines of work attack the selection-step measurement cost separately. Ref.~\cite{Anastasiou2023ReallyMeasure} attacks it by \emph{sharing}: it partitions the gradient observables into commuting sets using Hamiltonian terms as pivots, reducing the pool-gradient cost to a small multiple of one energy measurement, and Ref.~\cite{Shkolnikov2023Avoiding} pursues a related reduction alongside symmetry considerations. Ref.~\cite{Huang2025QuantumGambling} attacks it by \emph{elimination}: it recasts generator selection as best-arm identification and applies successive elimination, discarding unpromising candidates early. Ref.~\cite{Rossi2026RSe} changes the selection criterion itself.
 
-The two mechanisms have not, to our knowledge, been measured against each other on one cost criterion, and it is not obvious that they compose. This report supplies the missing comparison rather than a new algorithm. Its contributions are: the $2\times2$ factorial of sharing and elimination, completed by a no-sharing baseline so that each mechanism and their \emph{interaction} are separately attributable (Sec.~\ref{sec:baseline}); a single shot criterion with no free schedule or precision parameter, applied identically to all four constructions; and the finding that the two mechanisms are substitutes rather than complements, with elimination carrying the result. M1 stands in for the sharing line, M2 for the elimination line, and M3 for their combination.
+The two mechanisms have not, to our knowledge, been measured against each other on one cost criterion, and it is not obvious that they compose. This report supplies the missing comparison rather than a new algorithm. Its contributions are: the $2\times2$ factorial of sharing and elimination, completed by a no-sharing baseline so that each mechanism and their \emph{interaction} are separately attributable (Sec.~\ref{sec:baseline}); a single shot criterion with no free schedule or precision parameter, applied identically to all four constructions; and the finding that, at the level of the planning bounds, the two mechanisms are substitutes rather than complements, with elimination carrying the result. M1 stands in for the sharing line, M2 for the elimination line, and M3 for their combination.
 
 \section{Fixed method names}
 
@@ -206,7 +206,7 @@ so a method asked for radius $r$ must reach $\epsilon=r/z_\delta$, and $\epsilon
   \qquad N=|\{G_i\}| ,
   \label{eq:zdelta}
 \end{equation}
-with $N$ the \emph{full} pool size --- $26$, $92$, $140$ --- not the non-zero count and not the active set, and no correction over rounds. At $\delta=0.05$ this is $z_\delta=3.10$, $3.46$ and $3.57$, applied identically to all four constructions so that it cancels from every planning-bound ratio (Sec.~\ref{sec:sensitivity}). $\delta=0.05$ is the conventional level; Bonferroni is chosen because it is the only family-wise correction needing no assumption about how the arms are correlated, which matters here because M1 and M3 read several arms off the same shots. The price is conservatism, and Sec.~\ref{sec:calibration} measures it: the construction does not control the realised selection-error rate, so it is a convention rather than a guarantee.
+with $N$ the \emph{full} pool size --- $26$, $92$, $140$ --- not the non-zero count and not the active set, and no correction over rounds. At $\delta=0.05$ this is $z_\delta=3.10$, $3.46$ and $3.57$, applied identically to all four constructions so that it cancels from every planning-bound ratio (Sec.~\ref{sec:sensitivity}). $\delta=0.05$ is the conventional level; Bonferroni is chosen as the simplest family-wise correction valid under arbitrary dependence between the arms, which matters here because M1 and M3 read several arms off the same shots; Holm's step-down procedure is equally valid and uniformly more powerful, and would be the better default. The price is conservatism, and Sec.~\ref{sec:calibration} measures it: the construction does not control the realised selection-error rate, so it is a convention rather than a guarantee.
 
 Eq.~\eqref{eq:single-gradient-shot} is applied separately inside each gradient arm, because M2 measures each arm in its own contexts. M1 and M3 instead share contexts between generators, so the allocation over contexts is not separable and is obtained by solving the convex programme
 \begin{equation}
@@ -229,7 +229,7 @@ Because these formulae depend on the exact grouping and fragment variances, ever
 
 \subsection{Molecular input}
 
-All cases use the minimal STO-3G basis, charge $0$, and a closed-shell singlet restricted Hartree--Fock reference, with no frozen core and no qubit tapering. Water is placed in the $xz$ plane with the oxygen at the origin and the bond angle held at $104.52^\circ$ while $R(\mathrm{OH})$ is varied, so the stretch is symmetric. The set is chosen to vary pool size at fixed basis and method --- $26$, $92$ and $140$ generators on $8$, $12$ and $14$ qubits --- while staying small enough that the exact FCI energy and exact fragment variances are available, since every number here depends on having them. The stretched geometries (LiH at $3.0$~\si{\angstrom}, H$_4$ at side $2.0$~\si{\angstrom}, H$_2$O at $1.75$~\si{\angstrom}) put each system in a strongly correlated regime where the leading gradients crowd together and selection is hard, and the two H$_2$O geometries isolate that effect at fixed pool size. Four systems cannot separate size from geometry and state, and no claim in this report about a trend with size should be read as established.
+All cases use the minimal STO-3G basis, charge $0$, and a closed-shell singlet restricted Hartree--Fock reference, with no frozen core and no qubit tapering. Water is placed in the $xz$ plane with the oxygen at the origin and the bond angle held at $104.52^\circ$ while $R(\mathrm{OH})$ is varied, so the stretch is symmetric. The set is chosen to vary pool size at fixed basis and method --- $26$, $92$ and $140$ generators on $8$, $12$ and $14$ qubits --- while staying small enough that the exact FCI energy and exact fragment variances are available, since every number here depends on having them. The stretched geometries (LiH at $3.0$~\si{\angstrom}, H$_4$ at side $2.0$~\si{\angstrom}, H$_2$O at $1.75$~\si{\angstrom}) put each system in a strongly correlated regime. On H$_4$ and H$_2$O this also crowds the leading gradients together and makes selection hard; on LiH it does not, its gap of $0.096$ being among the widest here, and with no LiH equilibrium row there is nothing to compare it against. The two H$_2$O geometries come closest to isolating the effect at fixed pool size, but not cleanly: the orbital reordering documented in Sec.~\ref{sec:structure} means their Pauli-level structures differ. Four systems cannot separate size from geometry and state, and no claim in this report about a trend with size should be read as established.
 
 Geometries, in \si{\angstrom}: LiH is Li at the origin and H at $(0,0,3.0)$,
 $6$ spatial orbitals. H$_4$ is a planar square in the $xy$ plane, H at $(0,0,0)$,
@@ -237,7 +237,7 @@ $(s,0,0)$, $(0,s,0)$, $(s,s,0)$ with $s=1.0$ and $2.0$, $4$ orbitals. H$_2$O has
 O at the origin and H at $(\pm R\sin\tfrac{\theta}{2},0,R\cos\tfrac{\theta}{2})$
 with $\theta=104.52^\circ$ and $R=0.9572$ and $1.75$, $7$ orbitals.
 
-Two states are used per geometry. \textbf{HF} is the closed-shell Hartree--Fock determinant. \textbf{CISD} (configuration interaction with singles and doubles) is the lowest eigenvector of the qubit Hamiltonian restricted to the determinants within double excitation of that reference, in the target $(N_\alpha,N_\beta)$ sector, normalised to unity and embedded in the full $2^{n}$-dimensional space. The CISD state is used as a correlated proxy for a later ADAPT state: it is a correlated wavefunction in the same sector, cheap to construct exactly, and it shifts the gradient spectrum in the direction a converging ADAPT run does --- the top gradient falls by a factor of two to forty-four (Table~\ref{tab:completed}), which is what makes selection expensive late in a trajectory. That is the whole of the justification. It is not a saved trajectory snapshot, and no evidence is offered that its gradient \emph{spectrum} resembles one; testing that needs trajectory data and is listed in Sec.~\ref{sec:remaining}. LiH is run with the HF reference only.
+Two states are used per geometry. \textbf{HF} is the closed-shell Hartree--Fock determinant. \textbf{CISD} (configuration interaction with singles and doubles) is the lowest eigenvector of the qubit Hamiltonian restricted to the determinants within double excitation of that reference, in the target $(N_\alpha,N_\beta)$ sector, normalised to unity and embedded in the full $2^{n}$-dimensional space. The CISD state is used as a correlated proxy for a later ADAPT state: it is a correlated wavefunction in the same sector, cheap to construct exactly, and it shifts the gradient spectrum in the direction a converging ADAPT run does --- the top gradient falls by a factor of $2.1$ to $44$ (the $|g_{(1)}|$ values are listed with Table~\ref{tab:completed}), which is what makes selection expensive late in a trajectory. That is the whole of the justification. It is not a saved trajectory snapshot, and no evidence is offered that its gradient \emph{spectrum} resembles one; testing that needs trajectory data (Sec.~\ref{sec:remaining}). LiH is run with the HF reference only: it was the pilot system, the CISD row was never added, and there is no reason of principle for the omission.
 
 \subsection{Generator pool, conventions and labels}
 
@@ -257,7 +257,7 @@ so that $g_i=\expect{\comm{H}{G_i}}_\psi$ of Eq.~\eqref{eq:gradient} is real and
 
 FC group counts are routine-dependent, and two rows are comparable only if produced by the same deterministic routine with the same Pauli ordering, tie-breaking rule and seed. Every row in the main tables uses one routine: deterministic greedy first-fit grouping, with Pauli strings sorted by decreasing weight (the number of non-identity factors) and ties broken by ascending lexicographic order of the string read left to right from qubit $0$, under the letter order $\mathrm{I}<\mathrm{X}<\mathrm{Y}<\mathrm{Z}$, with each candidate joining the lowest-numbered existing group that accepts it and opening a new group otherwise. No random seed is used. Sec.~\ref{sec:routines} varies this convention deliberately and reports the spread. The counts differ from the previous revision, whose H$_4$ and H$_2$O rows used a different partitioning routine and were not comparable with the LiH row.
 
-Fully commuting grouping is chosen over qubit-wise commuting because it admits strictly more terms per context and so minimises the quantity this report counts. The cost of that choice is a Clifford diagonalisation circuit per context, which the shot metric does not price (Sec.~\ref{sec:assumptions}); a qubit-wise-commuting comparison would trade more contexts for cheaper circuits and is the natural companion study once circuits are priced.
+Fully commuting grouping is chosen over qubit-wise commuting because it admits at least as many terms per context, so it tends to reduce the number of contexts and with it the quantity this report counts --- though not necessarily, since positive covariance between terms inside a context raises that context's variance. The cost of that choice is a Clifford diagonalisation circuit per context, which the shot metric does not price (Sec.~\ref{sec:assumptions}); a qubit-wise-commuting comparison would trade more contexts for cheaper circuits and is the natural companion study once circuits are priced.
 
 \subsection{Validation gate}
 
@@ -357,7 +357,7 @@ the main driver of difficulty.
 \textbf{M1 is given the exact gap, and this favours it.} A non-adaptive method
 cannot know $\mathrm{gap}$ before measuring anything, yet the target radius
 $\mathrm{gap}/2$ is computed from the exact gradients. M1 is therefore charged
-the loosest radius that happens to suffice, the most generous reading available;
+the loosest radius that happens to suffice, the most generous reading available.
 On H$_4$ side $1.0$ HF the M1/M2 ratio moves from $0.66$ to $168$ as the target
 radius $\mathrm{gap}/d$ varies over $d=1,2,4,8,16$, M1 costing $561{,}216$,
 $2{,}244{,}862$, $8{,}979{,}447$, $35{,}917{,}787$ and $143{,}671{,}148$ shots. The same oracle knowledge
@@ -366,22 +366,22 @@ as \emph{M1 at its best}.
 
 \begin{table}[!htbp]
 \centering
-\tiny
-\caption{Oracle context-shot comparison at the winner-identification criterion, $\delta=0.05$. M1/M2 $>1$ means M2 is cheaper than M1; M2/M3 $>1$ means M3 is cheaper than M2. Entries below unity are bold. Distances in \si{\angstrom}; the baseline is the no-sharing diagnostic of Sec.~\ref{sec:baseline}.}
+\scriptsize\setlength{\tabcolsep}{3.2pt}
+\caption{Oracle context-shot comparison at the winner-identification criterion, $\delta=0.05$. M1/M2 $>1$ means M2 is cheaper than M1; M2/M3 $>1$ means M3 is cheaper than M2. Entries below unity are bold. Distances in \si{\angstrom}; the baseline is the no-sharing diagnostic of Sec.~\ref{sec:baseline}. $^\ast$Gap to four significant figures; full values follow the table.}
 \label{tab:completed}
 \begin{tabular}{llrrrrrrrr}
 \toprule
-Case & State & Gap & Baseline & M1 & M2 & M3 & M1/M2 & M2/M3 & M1/M3 \\
+Case & State & Gap$^\ast$ & Baseline & M1 & M2 & M3 & M1/M2 & M2/M3 & M1/M3 \\
 \midrule
-LiH, $R{=}3.0$ & HF & 0.096388 & 6,819,980 & 3,563,904 & 1,140,583 & 638,423 & 3.12 & 1.79 & 5.58 \\
-H$_4$, side $1.0$ & HF & 0.021539 & 4,848,846 & 2,244,862 & 854,629 & 566,951 & 2.63 & 1.51 & 3.96 \\
-H$_4$, side $1.0$ & CISD & 0.118081 & 130,375 & 59,642 & 102,806 & 53,727 & \textbf{0.58} & 1.91 & 1.11 \\
-H$_4$, side $2.0$ & HF & 0.016649 & 2,002,941 & 598,102 & 422,746 & 220,389 & 1.41 & 1.92 & 2.71 \\
-H$_4$, side $2.0$ & CISD & 0.051859 & 180,604 & 58,068 & 86,857 & 33,432 & \textbf{0.67} & 2.60 & 1.74 \\
-H$_2$O eq., $R{=}0.9572$ & HF & 0.101090 & 204,022,319 & 172,147,028 & 25,096,606 & 22,130,852 & 6.86 & 1.13 & 7.78 \\
-H$_2$O eq., $R{=}0.9572$ & CISD & 0.002064 & 485,001,056,522 & 411,524,732,152 & 46,457,815,707 & 44,971,732,317 & 8.86 & 1.03 & 9.15 \\
-H$_2$O str., $R{=}1.75$ & HF & 0.021856 & 4,407,619,149 & 3,864,803,902 & 17,423,631 & 20,163,542 & 221.81 & \textbf{0.86} & 191.67 \\
-H$_2$O str., $R{=}1.75$ & CISD & 0.016957 & 6,317,143,181 & 5,715,348,735 & 168,305,383 & 165,843,674 & 33.96 & 1.01 & 34.46 \\
+LiH, $R{=}3.0$ & HF & 0.0964 & 6,819,980 & 3,563,904 & 1,140,583 & 638,423 & 3.12 & 1.79 & 5.58 \\
+H$_4$, side $1.0$ & HF & 0.0215 & 4,848,846 & 2,244,862 & 854,629 & 566,951 & 2.63 & 1.51 & 3.96 \\
+H$_4$, side $1.0$ & CISD & 0.1181 & 130,375 & 59,642 & 102,806 & 53,727 & \textbf{0.58} & 1.91 & 1.11 \\
+H$_4$, side $2.0$ & HF & 0.0166 & 2,002,941 & 598,102 & 422,746 & 220,389 & 1.41 & 1.92 & 2.71 \\
+H$_4$, side $2.0$ & CISD & 0.0519 & 180,604 & 58,068 & 86,857 & 33,432 & \textbf{0.67} & 2.60 & 1.74 \\
+H$_2$O eq., $R{=}0.9572$ & HF & 0.1011 & 204,022,319 & 172,147,028 & 25,096,606 & 22,130,852 & 6.86 & 1.13 & 7.78 \\
+H$_2$O eq., $R{=}0.9572$ & CISD & 0.00206 & 485,001,056,522 & 411,524,732,152 & 46,457,815,707 & 44,971,732,317 & 8.86 & 1.03 & 9.15 \\
+H$_2$O str., $R{=}1.75$ & HF & 0.0219 & 4,407,619,149 & 3,864,803,902 & 17,423,631 & 20,163,542 & 221.81 & \textbf{0.86} & 191.67 \\
+H$_2$O str., $R{=}1.75$ & CISD & 0.0170 & 6,317,143,181 & 5,715,348,735 & 168,305,383 & 165,843,674 & 33.96 & 1.01 & 34.46 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -687,28 +687,48 @@ accumulated $n_\alpha$, which is the distribution of the estimator built from al
 shots taken so far. The elimination rule of Eq.~\eqref{eq:bai-elim} is then
 applied. A trial ends when one arm remains or the radius falls below
 $10^{-3}\max_i|g_i|$. Every case uses 200 trials at seed $0$; the trial count is
-set so that the standard error on a mean cost is a few per cent, which is the
-resolution the comparisons need. The starting radius and the floor are both taken
+set so that the standard error on a mean cost is a few per cent, the resolution
+the comparisons need. The sweeps below use 250, 300 and 500 trials: those tables
+report \emph{rates} rather than costs, and the counts were raised to tighten the
+Wilson intervals, which at 300 and 500 trials reach $\pm1.3\%$ and $\pm0.8\%$ at
+zero observed errors. The starting radius and the floor are both taken
 from the exact $\max_i|g_i|$ and are therefore oracle quantities, though mild ones:
 a real run would take the starting radius from a cheap pilot estimate of the
 largest gradient, and the floor only prevents a non-terminating run. This is a
-weaker use of oracle knowledge than M1's exact gap (Sec.~\ref{sec:completed}) but
-not none, and it qualifies the statement there that the best-arm methods need no
-such input.
+weaker use of oracle knowledge than M1's exact gap (Sec.~\ref{sec:completed}),
+but it is not none: the best-arm methods discover their \emph{stopping} point
+from the data, not their starting point.
 
-\textbf{Most of the inflation is the schedule, not noise.} The same coarse
-$\gamma=0.5$ overpays by $1.64$ to $3.80$ at the planning level with no noise at
-all (Table~\ref{tab:shrink}), against realised inflations of $1.40$ to $3.16$.
-The two cannot be subtracted --- the noiseless run resolves the leader to
-$\mathrm{gap}/2$ while a trial stops when one arm remains --- but discretisation
-clearly dominates, and a tuned schedule would recover most of the gap to the
-bound. What the schedule does \emph{not} explain is the difference between the
-methods: at $\gamma=0.5$ and no noise the M2/M3 ratio moves by only $-4\%$ to
-$+20\%$, against up to $+125\%$ realised (LiH, $1.79$ to $4.03$), so the
-differential of Sec.~\ref{sec:inflate} is not a schedule artefact. The two
-deliberate approximations, the normal limit and independence between generators,
-are listed in Sec.~\ref{sec:assumptions}; Sec.~\ref{sec:correlation} removes the
-second.
+\textbf{The inflation is mostly the protocol, not noise, and so is the difference
+between the methods.} Running the identical trial loop with the noise draws set to
+zero isolates what the schedule and the stopping rule cost on their own, at
+matched stopping rules, and the remainder is what noise adds
+(Table~\ref{tab:shrink}). Two things follow, and the second corrects a claim made
+in the previous revision.
+
+First, the protocol dominates: schedule-only inflation is $1.74$ to $3.48$ for M2
+and $0.88$ to $2.85$ for M3, while noise multiplies it by only $0.84$ to $1.40$
+and $0.87$ to $2.67$. Several noise factors fall below unity, a lucky fluctuation
+ending a run a round early. M3's noiseless trial cost falls \emph{below} its
+planning bound on three rows, as low as $0.88$, because stopping when one arm
+remains is a weaker criterion than resolving the leader to $\mathrm{gap}/2$. The
+``inflation'' column therefore mixes a weaker stopping criterion, which lowers
+cost, with discretisation and noise, which raise it, and is not a measure of what
+noise costs.
+
+Second, \textbf{the M2/M3 differential is largely an artefact of the protocol}.
+With no noise at all the ratio already moves from $1.79$ to $4.56$ on LiH, from
+$1.13$ to $4.34$ on H$_2$O at equilibrium and from $0.86$ to $1.48$ on H$_2$O
+stretched; adding noise then \emph{reduces} it, to $4.03$, $2.24$ and $1.43$. The
+mechanism is the stopping rule rather than the shrink factor: stopping when one
+arm remains spares M3 the final tightening that dominates its remaining cost on
+breadth-dominated systems, and spares M2 much less. The previous revision claimed
+this differential was not a schedule artefact, on the strength of a comparison
+made under the planning stopping rule; that claim is withdrawn.
+
+The two deliberate approximations, the normal limit and independence between
+generators, are listed in Sec.~\ref{sec:assumptions};
+Sec.~\ref{sec:correlation} removes the second.
 
 \textbf{Columns.} \emph{Bound} is the oracle planning cost of
 Table~\ref{tab:completed}; \emph{Infl.} is the mean total shots over the 200
@@ -742,9 +762,11 @@ Realised means are Bound $\times$ Infl.; the largest is $7.6\times10^{7}$ shots
 for M2 on H$_2$O at equilibrium and the smallest $9.9\times10^{4}$ for M3 on
 H$_4$ side $2.0$ CISD.
 
-The two H$_2$O CISD rows are absent because they have not been simulated; they
-are the most expensive cases and were left out of this round rather than excluded
-for any reason bearing on the result (Sec.~\ref{sec:remaining}).
+The two H$_2$O CISD rows have not been simulated and are absent. The surrogate
+samples estimators rather than individual shots, so their enormous shot totals do
+not make them slow; what they cost is the CISD diagonalisation in the
+$14$-qubit problem build. They were left out of this round for no reason bearing
+on the result (Sec.~\ref{sec:remaining}).
 
 The scatter is not negligible and is the reason the errors are quoted. Repeated runs of the same configuration at different seeds move a realised total by $2$ to $4\%$, which is comparable to some of the differences between adjacent rows and larger than the difference between the bound and realised M2/M3 ratios on the H$_4$ HF rows.
 
@@ -778,8 +800,9 @@ H$_2$O str., $R{=}1.75$ & HF & 3,864,803,902 & 80.7 & 115.3 \\
 \end{table}
 
 On the planning bounds M3 beats M1 on all seven of these rows and M2 on five. On
-realised cost M3 beats M1 on five and M2 on three. Both H$_4$ CISD rows invert for M3, which won them on the bounds; M2 had already
-lost them at bound level and now loses two more, and LiH becomes a tie for M2. The pattern is that elimination pays
+realised cost M3 beats M1 on five and M2 on three. Both H$_4$ CISD rows invert for M3, which won them on the bounds. M2 had already
+lost those two at bound level; under finite shots it also loses H$_4$ side $2.0$
+HF outright and draws level on LiH at $0.99$. The pattern is that elimination pays
 where M1 is expensive --- H$_2$O, where the factor stays between $2$ and $115$ ---
 and loses where M1 is already cheap, which is exactly the regime the planning
 bounds identified in conclusion 4, but the finite-shot penalty moves two more rows
@@ -985,24 +1008,31 @@ than of the method; under a coarse schedule, and under finite shots
 \begin{table}[!htbp]
 \centering
 \scriptsize
-\caption{Cost of the coarse $\gamma=0.5$ schedule at the planning level, with no noise: the factor by which each method overpays against its exact limit, and what that does to their ratio. The schedule is expensive but close to neutral between the methods.}
+\caption{Decomposition of the finite-shot cost at matched stopping rules. \emph{Schedule} is the identical trial loop with the noise draws set to zero, divided by the planning bound; \emph{noise} is the realised mean divided by that; their product is the realised inflation of Table~\ref{tab:finite-shot}. The last three columns track the M2/M3 ratio through the same three stages.}
 \label{tab:shrink}
-\begin{tabular}{lrrrrr}
+\begin{tabular}{llrrrrrrrr}
 \toprule
-Case & M2 $\gamma$/exact & M3 $\gamma$/exact & M2/M3 exact & M2/M3 at $\gamma{=}0.5$ & change \\
+& & \multicolumn{2}{c}{M2} & \multicolumn{2}{c}{M3} & \multicolumn{3}{c}{M2/M3} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-9}
+Case & State & Schedule & Noise & Schedule & Noise & Bound & Schedule & Realised \\
 \midrule
-LiH, $R{=}3.0$, HF      & 3.80 & 3.53 & 1.79 & 1.92 & $+7\%$ \\
-H$_4$, side $1.0$, HF   & 1.75 & 1.64 & 1.51 & 1.61 & $+7\%$ \\
-H$_4$, side $1.0$, CISD & 3.48 & 3.07 & 1.92 & 2.19 & $+14\%$ \\
-H$_4$, side $2.0$, HF   & 2.75 & 2.85 & 1.92 & 1.85 & $-4\%$ \\
-H$_4$, side $2.0$, CISD & 2.28 & 1.91 & 2.60 & 3.11 & $+20\%$ \\
-H$_2$O eq., HF          & 3.61 & 3.44 & 1.13 & 1.19 & $+5\%$ \\
-H$_2$O str., HF         & 3.67 & 3.51 & \textbf{0.86} & \textbf{0.90} & $+5\%$ \\
+LiH, $R{=}3.0$ & HF & 2.25 & 1.40 & \textbf{0.88} & 1.59 & 1.79 & 4.56 & 4.03 \\
+H$_4$, side $1.0$ & HF & 1.74 & 1.27 & 1.62 & 1.44 & 1.51 & 1.62 & 1.43 \\
+H$_4$, side $1.0$ & CISD & 3.48 & 0.86 & 2.16 & 1.27 & 1.91 & 3.09 & 2.09 \\
+H$_4$, side $2.0$ & HF & 2.75 & 0.85 & 2.85 & 0.87 & 1.92 & 1.85 & 1.81 \\
+H$_4$, side $2.0$ & CISD & 2.28 & 1.21 & 1.11 & 2.67 & 2.60 & 5.36 & 2.43 \\
+H$_2$O eq., $R{=}0.9572$ & HF & 3.37 & 0.90 & \textbf{0.88} & 1.74 & 1.13 & 4.34 & 2.24 \\
+H$_2$O str., $R{=}1.75$ & HF & 3.26 & 0.84 & 1.91 & 0.87 & \textbf{0.86} & 1.48 & 1.43 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Refining the schedule converges onto the exact limit as it must: on H$_4$ side
+Bold marks rows where the noiseless trial costs \emph{less} than the planning
+bound. Under the planning stopping rule instead, the same schedule overpays by
+$1.64$ to $3.80$ and moves the M2/M3 ratio by only $-4\%$ to $+20\%$; the
+contrast with the Schedule column measures how much the stopping rule, rather
+than the shrink factor, is doing. Refining the schedule converges onto the exact
+limit as it must:Refining the schedule converges onto the exact limit as it must: on H$_4$ side
 $1.0$ HF, M2 falls $1{,}494{,}274\to1{,}267{,}755\to1{,}080{,}113\to885{,}115$
 and M3 $928{,}366\to872{,}427\to712{,}219\to584{,}142$ at
 $\gamma=0.5,0.7,0.85,0.97$, against exact limits of $854{,}629$ and $566{,}951$.
@@ -1201,7 +1231,7 @@ Sec.~\ref{sec:remaining}.
   \item \textbf{M2 is not always cheaper than M1}: seven bound-level rows of nine, three of seven on realised cost. The counterexamples are wide-gap rows where static estimation is already cheap, but LiH has a comparably wide gap and does not invert, so the gap alone is not the explanation.
   \item \textbf{The two mechanisms are substitutes.} Their interaction against the no-sharing baseline is between $0.57$ and $0.96$ in all nine cases: elimination removes the situation sharing exploits.
   \item \textbf{Elimination dominates in seven rows of nine.} Elimination alone is worth $1.27$ to $252.97$, sharing alone $1.11$ to $3.35$; sharing wins on both H$_4$ CISD rows. The sharing factor is smallest on all four H$_2$O rows, which with four systems is a correlation with system, not a trend with size, and refers to bounds only.
-  \item \textbf{Under finite shots M3 inflates less than M2 on the three largest cases}: M2 by $2.2$ to $3.2$ everywhere, M3 by $2.3$ to $3.0$ on H$_4$ but $1.40$ to $1.66$ on LiH and H$_2$O, where the M2/M3 ratio roughly doubles. Most of each inflation figure is $\gamma=0.5$ discretisation, but the schedule moves the \emph{ratio} by only $-4$ to $+20\%$ against an observed $+125\%$, so the differential is real. No mechanism is established, breadth-dominance having failed on the H$_4$ CISD rows, and two of the three supporting rows are H$_2$O, where conclusion 3 withdraws every verdict.
+  \item \textbf{Under finite shots M3 inflates less than M2 on the three largest cases}: M2 by $2.2$ to $3.2$ everywhere, M3 by $2.3$ to $3.0$ on H$_4$ but $1.40$ to $1.66$ on LiH and H$_2$O, where the M2/M3 ratio roughly doubles. \textbf{Most of this is the protocol, not noise.} Running the same trial loop with the noise set to zero reproduces most of each inflation figure and most of the differential: the noiseless M2/M3 ratio is already $4.56$ on LiH and $4.34$ on H$_2$O at equilibrium, against bounds of $1.79$ and $1.13$, and adding noise \emph{reduces} it. The mechanism is the stopping rule --- halting when one arm remains spares M3 a final tightening it would otherwise dominate --- not measurement noise, and not the breadth-dominance argument, which fails on the H$_4$ CISD rows. Two of the three supporting rows are H$_2$O, where conclusion 3 withdraws every verdict. What survives is that \emph{under this protocol} M3's realised cost is $1.4$ to $1.7$ times its bound on the three largest cases where M2's is $2.8$ to $3.2$; why is not established.
   \item \textbf{The confidence convention does not control the selection-error rate.} Sweeping $\delta$ from $0.05$ to $0.99$ moves the realised rate only within $0$--$0.7\%$; 300 trials bound it below $1.3\%$. Inverting Eq.~\eqref{eq:calibration} for $5\%$ gives $10$ to $12\%$ in simulation. An optimum sits near $z_\delta\approx1.8$--$2.1$ on the one case tested. Invariance of the ratios to $z_\delta$ holds for planning bounds only; the realised M2/M3 ratio moves over $1.36$ to $1.77$.
   \item \textbf{Conclusions 2 to 6 are routine-independent at bound level on H$_4$ side $1.0$ HF and LiH}, the two rows swept: ratios move by at most $1.45$, no ordering changes. No other row, and neither the finite-shot nor the correlated study, is covered.
   \item \textbf{Within-context correlation is a saving on two cases and unexplained on a third.} On both H$_4$ side $1.0$ rows it changes cost by $1$ to $2\%$ and the covariance-aware rule cuts M3's realised cost by $40$ to $43\%$ at $98.8$--$100\%$ correct. On H$_4$ side $2.0$ HF accuracy falls to $75.6\%$ and $51.2\%$; sampler, sign convention, seed noise and orbital phases are all ruled out (App.~\ref{app:anomaly}). That case is unverified and the independent model remains the reported one.
@@ -1219,7 +1249,7 @@ Sec.~\ref{sec:remaining}.
 \# & Claim & Bound & Finite-shot & Swept \\
 \midrule
 2  & M3 $<$ M1                        & 9 of 9  & 5 of 7 & H$_4$ 1.0 HF, LiH \\
-3  & M3 $<$ M2 (resolved on H$_4$, LiH) & 8 of 9  & 7 of 7, 3 unresolved & H$_4$ 1.0 HF, LiH \\
+3  & M3 $<$ M2 (resolved on H$_4$, LiH) & 8 of 9  & 7 of 7, 2 H$_2$O unresolved & H$_4$ 1.0 HF, LiH \\
 4  & M2 $<$ M1                        & 7 of 9  & 3 of 7 & H$_4$ 1.0 HF, LiH \\
 5  & Substitutes, interaction $<1$    & 9 of 9  & ---    & H$_4$ 1.0 HF, LiH \\
 6  & Elimination dominates            & 7 of 9  & ---    & H$_4$ 1.0 HF, LiH \\
@@ -1245,7 +1275,7 @@ so the covariance that helps enters through co-measurement inside a shared conte
 \begin{table}[!htbp]
 \centering
 \scriptsize
-\caption{Separating the two finalists inside the shared parent contexts: resolving only their difference against resolving each of them, both to radius gap/2. All sums are over parent contexts, so these are the $S^{\text{par}}$ of Sec.~\ref{sec:breadth-depth}. The two finalist gradients have the \emph{same} sign in all four cases ($s_{ij}=+1$), so the relevant observable is $C_i-C_j$ and no sign correction applies; the one opposite-sign pair in this study, H$_4$ side $2.0$ HF, is not among them.}
+\caption{Separating the two finalists inside the shared parent contexts: resolving only their difference against resolving each of them, both to radius gap/2. All sums are over parent contexts, so these are the $S^{\text{par}}$ of Sec.~\ref{sec:breadth-depth}. The two finalist gradients have the \emph{same} sign in all four cases ($s_{ij}=+1$), so the relevant observable is $C_i-C_j$ and no sign correction applies; the one pair that is opposite-sign under the orbital phases used here, H$_4$ side $2.0$ HF, is not among them.}
 \label{tab:difference}
 \begin{tabular}{lrrrrr}
 \toprule
@@ -1274,7 +1304,7 @@ and then M1, M2, or M3 is applied to these reduced operators. Part I tables do n
 \label{sec:remaining}
 
 \begin{enumerate}[leftmargin=2em]
-  \item \textbf{Diagnose the H$_4$ side $2.0$ correlated-noise failure} (App.~\ref{app:anomaly}). Sampler, sign convention, seed noise and orbital phases are ruled out; the degenerate runner-up and the anticorrelated leading pair are the live candidates. Until it is settled the correlated model cannot be used for reported numbers.
+  \item \textbf{Diagnose the H$_4$ side $2.0$ correlated-noise failure} (App.~\ref{app:anomaly}). Sampler, sign convention, seed noise and orbital phases are ruled out, and the anticorrelation is quantitatively four orders of magnitude too weak to account for it, so an implementation defect in the correlated trial loop is the leading hypothesis. Next checks: a per-round log of which arm is eliminated when, and a shot-level comparison of the joint draw. Until this is settled the correlated model cannot be used for reported numbers.
   \item \textbf{Extend the routine sweep.} Three H$_2$O rows, three H$_4$ rows, the individual groupings M2 and the baseline depend on, and the finite-shot and correlated studies are all unswept. The single largest gap in the evidence base.
   \item \textbf{Separate schedule from noise} by running the surrogate across several $\gamma$, which would also show how much a tuned schedule recovers.
   \item \textbf{Test the confidence convention and good-enough stopping beyond H$_4$ side $1.0$ HF} before adopting either; the good-enough tolerance also needs defining from a chemical accuracy target rather than the exact gap.
@@ -1320,28 +1350,41 @@ one-generator pool giving $M_1=M_2=M_3$, divergence as $1/\mathrm{gap}^2$,
 symmetry-zero gradients below threshold, invariance under relabelling qubits or
 permuting the pool, pool sizes against the combinatorial formula,
 anti-Hermiticity); a phase-invariance test (flip one orbital's sign and confirm
-every reported number is unchanged); and regression pinning of every table entry
-against a commit hash.
+every reported number is unchanged) together with a check that the square-H$_4$
+SCF solution is the intended one; a per-round elimination log for the correlated
+trial loop; and regression pinning of every table entry against a commit hash.
 
-\textbf{One reproducibility limit, and what it does not explain.} The
-Hartree--Fock orbitals of square H$_4$ are fixed only up to the sign of each
-molecular orbital, and different SCF starting guesses return different signs; the
-orbital energies are non-degenerate at both side lengths, so the solution is
-unique up to those phases. Gradients and covariances always come from the same SCF
-run, and a phase flip changes $g_i$ and the matching row and column of the
-covariance together, leaving $|g_i|$, every fragment variance and
-$s_{ij}\Cov(\widehat g_i,\widehat g_j)$ --- hence $R_{ij}$ of Eq.~\eqref{eq:Rij}
---- invariant. The reported statistics are therefore phase-invariant in
-principle, and phases explain no difference between runs. What they prevent is
-comparing \emph{signed} gradients or raw covariances across runs; a convention
-such as making each orbital's largest-magnitude coefficient positive would remove
-that, and the invariance itself is the untested item listed above.
+\textbf{Square H$_4$ has more than one RHF solution.} The orbital energies are
+non-degenerate at both side lengths, so within a solution the orbitals are fixed
+up to a sign each; but the SCF itself is not unique. From eight perturbed
+starting guesses at side $1.0$~\si{\angstrom}, seven converge to
+$-1.761075054$~Ha and one to $-1.694889592$~Ha; at side $2.0$~\si{\angstrom} all
+eight give the same energy to $4\times10^{-13}$~Ha yet their converged densities
+differ by up to $1.0$ in max-norm, so these are degenerate but physically
+distinct solutions --- symmetry partners of a broken-symmetry state, which
+relabel which spin orbital is which and therefore which generator carries which
+gradient. PySCF's default guess reaches the lowest solution found at both
+geometries, and an internal stability analysis reports it stable. All reported
+numbers use that deterministic guess and are reproducible, but they are
+conditional on it.
+
+This supersedes the previous revision's statement that the solution is unique up
+to phases. \emph{Within} one solution the statistics are phase-invariant:
+gradients and covariances come from the same SCF run, and a sign flip changes
+$g_i$ and the matching row and column of the covariance together, leaving
+$|g_i|$, every fragment variance and $s_{ij}\Cov(\widehat g_i,\widehat g_j)$ ---
+hence $R_{ij}$ of Eq.~\eqref{eq:Rij} --- unchanged. \emph{Across} solutions
+nothing is guaranteed, not even generator labelling, which is why signed
+gradients and raw covariances from different runs must not be compared. Fixing
+both a phase convention and the SCF solution, and testing the invariance by
+flipping an orbital, are the untested items listed above.
 
 The implementation should be regarded as validated at the level these tests reach
 and no further. Two defects of the previous revision were silent and were caught
 only by end-to-end energy comparison (App.~\ref{app:status}).
 
 \section{Reproduction}
+\label{sec:reproduction}
 
 \begin{verbatim}
 python -m pip install -r requirements.txt
@@ -1380,9 +1423,11 @@ part in $10^{6}$.
 which holds every table entry together with the FC groups, fragment standard
 deviations and BAI histories behind it; each run also records its own versions.
 Environment: Python 3.10.12, PySCF 2.14.0, OpenFermion 1.8.1, NumPy 2.2.6, SciPy
-1.15.3, one desktop core. \texttt{requirements.txt} pins NumPy $\ge1.26$, pandas $\ge2.0$ and
-matplotlib $\ge3.8$ for cached reproduction, and PySCF $\ge2.6$, OpenFermion
-$\ge1.6$, NetworkX $\ge3.0$ and SciPy $\ge1.11$ for regeneration from geometry. Wall clock is dominated by
+1.15.3, one desktop core. \texttt{requirements.txt} states minimum versions only (NumPy $\ge1.26$, pandas
+$\ge2.0$, matplotlib $\ge3.8$ for cached reproduction; PySCF $\ge2.6$,
+OpenFermion $\ge1.6$, NetworkX $\ge3.0$, SciPy $\ge1.11$ for regeneration), so it
+does not by itself recreate the environment above; the exact versions listed here
+are the ones to pin. Wall clock is dominated by
 building the gradient problem: about $16$~s for H$_4$, $37$~s for LiH, two to
 three minutes for H$_2$O; each 200-trial run then takes $0.1$ to $40$~s per
 method.
@@ -1502,13 +1547,33 @@ Three things distinguish the case, and any explanation has to use them:
   \item \textbf{The gap is narrow relative to the field}: $\mathrm{gap}/|g_{(1)}|=5\%$ with $\max_i\Delta_i/\mathrm{gap}=18.9$, so a $17\%$ error in the assumed variance of the decisive comparison has room to matter. H$_4$ side $1.0$ CISD also has $R_{ij}>1$, at $1.084$, but its gap is $83\%$ of $|g_{(1)}|$ and nothing goes wrong.
 \end{itemize}
 
-The natural reading is that an anticorrelated, near-degenerate leading pair makes
-the marginal radii anti-conservative, so arms are eliminated on weaker evidence
-than the rule believes. That fits all three observations but is not demonstrated,
-and it does not explain why the \emph{pairwise} rule, which uses $R_{ij}$
-explicitly, is worse rather than better.
+\textbf{The anticorrelation cannot account for it.} The marginal rule separates
+two arms only when their estimates differ by $2r$, and the standard deviation of
+that difference is $\epsilon\sqrt{2R_{ij}}$, so the rule is anti-conservative
+only for $R_{ij}>2$. At $R_{ij}=1.168$ and $z_\delta=3.10$ the probability of a
+false elimination, per pair per round, is
+$\overline\Phi\!\left(z_\delta\sqrt2/\sqrt{R_{ij}}\right)=\overline\Phi(4.06)
+\approx2.5\times10^{-5}$ --- four orders of magnitude too small to produce a
+$24\%$ selection error, even after a union bound over $26$ arms and $11$ rounds.
+The reading offered in the previous revision, that anticorrelated radii let arms
+be eliminated on weak evidence, is therefore withdrawn as quantitatively
+insufficient.
 
-\small
+\textbf{What the trials do.} Instrumenting the 250 correlated marginal trials: no
+trial reaches the round cap; the $189$ correct ones take a median of $8$ rounds
+and $5.3\times10^{5}$ shots, the $61$ wrong ones $11$ rounds and
+$3.4\times10^{7}$, sixty times more; and in $47$ of the $61$ the generator
+returned is one of the two exactly degenerate runners-up. That is the signature
+of the true leader being eliminated early: once it is gone the two survivors have
+identical $|g|$, can never separate, and the run grinds to the radius floor
+before returning one of them.
+
+\textbf{Status.} The failure mode is now characterised but not explained, and the
+rate is inconsistent with the statistics of the rule as written. An
+implementation defect in the correlated trial loop has not been ruled out and is
+the leading hypothesis; Sec.~\ref{sec:remaining} lists the next checks, which are
+a per-round elimination log and a shot-level comparison of the joint draw.
+
 \begin{thebibliography}{9}
 \setlength{\itemsep}{1pt}
 
@@ -1545,12 +1610,12 @@ E. Rossi, E. R. Kjellgren, A. F. Izmaylov, S. P. A. Sauer, K. M. Ziems, and S. C
 \bibitem{PartII}
 L. Wang,
 ``Part II: Variance-Aware Universal Operators for Grouped Best-Arm Identification in ADAPT-VQE Gradient Measurements,''
-internal project note (2026).
+internal project note (2026); source in \texttt{reports/} of the repository cited in Sec.~\ref{sec:reproduction}.
 
 \bibitem{PartIII}
 L. Wang,
 ``Part III: Symmetry-Staged ADAPT-VQE with Residual Stabilizer Tapering,''
-internal project note (2026).
+internal project note (2026); source in \texttt{reports/} of the repository cited in Sec.~\ref{sec:reproduction}.
 
 \end{thebibliography}
 
