@@ -15,11 +15,15 @@
       "correct_rate": 1.0,
       "within_tolerance_rate": 1.0,
       "planning_bound": 2002941.0,
-      "shots_mean": 2002940.0615464451,
-      "shots_median": 2002940.0615464456,
-      "shots_p90": 2002940.0615464456,
-      "inflation_vs_bound": 0.9999995314622074,
-      "runtime_seconds": 0.3765821030000325
+      "shots_mean": 2002940.061546448,
+      "shots_sem": 3.3009853447244314e-11,
+      "shots_median": 2002940.0615464475,
+      "shots_p90": 2002940.0615464475,
+      "inflation_vs_bound": 0.9999995314622088,
+      "inflation_sem": 1.6480691866232862e-17,
+      "correct_low": 0.9811539940816791,
+      "correct_high": 1.0,
+      "runtime_seconds": 0.40936339300060354
     },
     {
       "case_id": "H4_square_stretch_side2p0_HF",
@@ -30,11 +34,15 @@
       "correct_rate": 1.0,
       "within_tolerance_rate": 1.0,
       "planning_bound": 598102.0,
-      "shots_mean": 598101.8400834549,
-      "shots_median": 598101.8400834549,
-      "shots_p90": 598101.8400834549,
-      "inflation_vs_bound": 0.9999997326266337,
-      "runtime_seconds": 1.6071789160000662
+      "shots_mean": 598101.8400834556,
+      "shots_sem": 8.252463361811079e-12,
+      "shots_median": 598101.8400834554,
+      "shots_p90": 598101.8400834554,
+      "inflation_vs_bound": 0.9999997326266349,
+      "inflation_sem": 1.3797752493405938e-17,
+      "correct_low": 0.9811539940816791,
+      "correct_high": 1.0,
+      "runtime_seconds": 3.7202031439992425
     },
     {
       "case_id": "H4_square_stretch_side2p0_HF",
@@ -45,11 +53,15 @@
       "correct_rate": 1.0,
       "within_tolerance_rate": 1.0,
       "planning_bound": 422746.0,
-      "shots_mean": 968208.9270328152,
-      "shots_median": 1147920.2131471257,
-      "shots_p90": 1178053.7137735987,
-      "inflation_vs_bound": 2.2902852470107704,
-      "runtime_seconds": 0.10025633099996867
+      "shots_mean": 986951.1954127264,
+      "shots_sem": 20377.425665927738,
+      "shots_median": 1155888.8234758133,
+      "shots_p90": 1177324.9584752677,
+      "inflation_vs_bound": 2.334619831796697,
+      "inflation_sem": 0.048202527441839164,
+      "correct_low": 0.9811539940816791,
+      "correct_high": 1.0,
+      "runtime_seconds": 0.2507602810001117
     },
     {
       "case_id": "H4_square_stretch_side2p0_HF",
@@ -60,11 +72,15 @@
       "correct_rate": 1.0,
       "within_tolerance_rate": 1.0,
       "planning_bound": 220389.0,
-      "shots_mean": 552263.474847509,
-      "shots_median": 627321.8360444505,
-      "shots_p90": 629869.9535072653,
-      "inflation_vs_bound": 2.5058577099923722,
-      "runtime_seconds": 1.452885316999982
+      "shots_mean": 546252.7664688373,
+      "shots_sem": 11536.163009156942,
+      "shots_median": 628108.2772531054,
+      "shots_p90": 630002.4579347094,
+      "inflation_vs_bound": 2.4785845322082194,
+      "inflation_sem": 0.052344549905652925,
+      "correct_low": 0.9811539940816791,
+      "correct_high": 1.0,
+      "runtime_seconds": 3.641439455001091
     }
   ],
   "environment": {

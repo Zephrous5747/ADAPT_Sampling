@@ -36,6 +36,7 @@ the same data is a further source of cost that is not included here.
 """
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Callable
 
@@ -54,6 +55,25 @@ from shot_models import (
 METHODS = ("noshare", "m1", "m2", "m3")
 MINIMUM_RADIUS_FRACTION = 1e-3
 MAXIMUM_ROUNDS = 200
+
+
+def wilson_interval(successes: int, trials: int, z: float = 1.96) -> tuple[float, float]:
+    """Wilson score interval for a binomial proportion.
+
+    Preferred over the normal approximation because the rates of interest here
+    are at or near zero, where the normal interval collapses to a point and
+    reports a precision the data do not support.
+    """
+    if trials <= 0:
+        return 0.0, 1.0
+    phat = successes / trials
+    denominator = 1.0 + z * z / trials
+    centre = (phat + z * z / (2.0 * trials)) / denominator
+    margin = (
+        z * math.sqrt(phat * (1.0 - phat) / trials + z * z / (4.0 * trials * trials))
+        / denominator
+    )
+    return max(0.0, centre - margin), min(1.0, centre + margin)
 
 
 @dataclass
@@ -79,14 +99,22 @@ class FiniteShotSummary:
     correct_rate: float
     within_tolerance_rate: float
     shots_mean: float
+    shots_sem: float
     shots_median: float
     shots_p90: float
     planning_bound: float
+    correct_low: float = 0.0
+    correct_high: float = 1.0
 
     @property
     def inflation(self) -> float:
         """Realised mean cost divided by the oracle planning bound."""
         return self.shots_mean / self.planning_bound if self.planning_bound else float("nan")
+
+    @property
+    def inflation_sem(self) -> float:
+        """Standard error of the realised inflation factor."""
+        return self.shots_sem / self.planning_bound if self.planning_bound else float("nan")
 
     def as_row(self) -> dict:
         return {
@@ -99,9 +127,13 @@ class FiniteShotSummary:
             "within_tolerance_rate": self.within_tolerance_rate,
             "planning_bound": self.planning_bound,
             "shots_mean": self.shots_mean,
+            "shots_sem": self.shots_sem,
             "shots_median": self.shots_median,
             "shots_p90": self.shots_p90,
             "inflation_vs_bound": self.inflation,
+            "inflation_sem": self.inflation_sem,
+            "correct_low": self.correct_low,
+            "correct_high": self.correct_high,
         }
 
 
@@ -367,7 +399,14 @@ def _sequential_trial(
             for alpha in np.flatnonzero(spent > 0):
                 block += covariances[alpha][index] / spent[alpha]
             diagonal = np.diag(block)
-            pairwise = diagonal[:, None] + diagonal[None, :] - 2.0 * block
+            # The rule compares |g_i| against |g_j|, so the relevant combination
+            # is g_i - s_ij g_j with s_ij the relative sign of the two estimates.
+            # Using the signed difference unconditionally is wrong whenever the
+            # two gradients have opposite signs, which happens at the top of the
+            # spectrum on the symmetric H4 geometries.
+            signs = np.sign(estimates[active])
+            relative = np.outer(signs, signs)
+            pairwise = diagonal[:, None] + diagonal[None, :] - 2.0 * relative * block
             active = _eliminate_pairwise(estimates, pairwise, active, z)
         if stop_at_tolerance and _within_tolerance(estimates, radii, active, tolerance):
             break
@@ -447,6 +486,9 @@ def simulate(
             progress(trial + 1)
 
     shots = np.array([o.shots for o in outcomes])
+    wilson_low, wilson_high = wilson_interval(
+        sum(1 for o in outcomes if o.correct), len(outcomes)
+    )
     return FiniteShotSummary(
         case_id=problem.case_id,
         method=method,
@@ -456,7 +498,10 @@ def simulate(
         correct_rate=float(np.mean([o.correct for o in outcomes])),
         within_tolerance_rate=float(np.mean([o.within_tolerance for o in outcomes])),
         shots_mean=float(shots.mean()),
+        shots_sem=float(shots.std(ddof=1) / math.sqrt(len(shots))) if len(shots) > 1 else 0.0,
         shots_median=float(np.median(shots)),
         shots_p90=float(np.percentile(shots, 90)),
         planning_bound=float(planning_bound),
+        correct_low=wilson_low,
+        correct_high=wilson_high,
     )

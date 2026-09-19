@@ -16,10 +16,14 @@
       "within_tolerance_rate": 1.0,
       "planning_bound": 180604.0,
       "shots_mean": 180603.6878814593,
+      "shots_sem": 2.0631158404527696e-12,
       "shots_median": 180603.68788145928,
       "shots_p90": 180603.68788145928,
       "inflation_vs_bound": 0.9999982718071544,
-      "runtime_seconds": 0.3899679690000539
+      "inflation_sem": 1.1423422739544913e-17,
+      "correct_low": 0.9811539940816791,
+      "correct_high": 1.0,
+      "runtime_seconds": 1.1702207630005432
     },
     {
       "case_id": "H4_square_stretch_side2p0_CISD",
@@ -31,10 +35,14 @@
       "within_tolerance_rate": 1.0,
       "planning_bound": 58068.0,
       "shots_mean": 58067.34988043317,
+      "shots_sem": 0.0,
       "shots_median": 58067.34988043317,
       "shots_p90": 58067.34988043317,
       "inflation_vs_bound": 0.9999888041680989,
-      "runtime_seconds": 1.7609682199999952
+      "inflation_sem": 0.0,
+      "correct_low": 0.9811539940816791,
+      "correct_high": 1.0,
+      "runtime_seconds": 3.799411235999287
     },
     {
       "case_id": "H4_square_stretch_side2p0_CISD",
@@ -46,10 +54,14 @@
       "within_tolerance_rate": 1.0,
       "planning_bound": 86857.0,
       "shots_mean": 240466.729358273,
+      "shots_sem": 5542.708667307294,
       "shots_median": 263364.25516649126,
       "shots_p90": 333788.81143059535,
       "inflation_vs_bound": 2.7685359770458686,
-      "runtime_seconds": 0.11290678600005322
+      "inflation_sem": 0.06381418500877642,
+      "correct_low": 0.9811539940816791,
+      "correct_high": 1.0,
+      "runtime_seconds": 0.1864435900006356
     },
     {
       "case_id": "H4_square_stretch_side2p0_CISD",
@@ -61,10 +73,14 @@
       "within_tolerance_rate": 1.0,
       "planning_bound": 33432.0,
       "shots_mean": 98777.88351746123,
+      "shots_sem": 2845.8429314987984,
       "shots_median": 126930.01158537267,
       "shots_p90": 144166.66385959394,
       "inflation_vs_bound": 2.95459091641126,
-      "runtime_seconds": 1.1967551989999947
+      "inflation_sem": 0.08512332290915287,
+      "correct_low": 0.9811539940816791,
+      "correct_high": 1.0,
+      "runtime_seconds": 2.5510795949994645
     }
   ],
   "environment": {
