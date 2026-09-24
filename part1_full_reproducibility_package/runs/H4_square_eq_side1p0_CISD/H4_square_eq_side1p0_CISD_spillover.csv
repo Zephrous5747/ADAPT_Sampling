@@ -1,0 +1,2 @@
+case_id,breadth_share,baseline,m1,m2,m3_bound,m3_actual,actual_over_bound,m2_over_m3_bound,m2_over_m3_actual,m1_over_m3_actual,interaction_bound,interaction_actual
+H4_square_eq_side1p0_CISD,0.7672123683425628,130375,59642,102806,53403,49729.247363016286,0.9312069989142236,1.9250978409452653,2.06731461768426,1.1993344593498885,0.8806648930366828,0.945724091489355

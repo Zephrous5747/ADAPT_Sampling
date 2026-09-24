@@ -324,3 +324,283 @@ def test_correlated_sampler_reproduces_the_marginal_variances(problem):
         draws[trial] = (column / shots[used]).sum(axis=1)
     ratio = draws.var(axis=0) / target
     assert 0.85 < ratio.min() and ratio.max() < 1.15
+
+
+def test_context_covariances_are_positive_semidefinite():
+    """Each context covariance must be a genuine covariance matrix.
+
+    The polarisation identity Cov = (Var(A+B) - Var(A) - Var(B))/2 is exact in
+    exact arithmetic but cancels catastrophically in the symmetry-forbidden
+    fragments that dominate a parent context.  It used to return matrices with
+    relative eigenvalues as low as -6e264 and correlations as large as 136,
+    which fed negative pairwise variances into Eq. (12).
+    """
+    problem = build_gradient_problem(get_case("H4_square_stretch_side2p0_HF"))
+    matrices = finite_shot.context_covariances(problem, problem.parent_fc_groups())
+    assert matrices is not None
+    for covariance in matrices:
+        scale = max(abs(np.diag(covariance)).max(), 1e-300)
+        eigenvalues = np.linalg.eigvalsh(0.5 * (covariance + covariance.T))
+        assert eigenvalues.min() / scale > -1e-12
+        diagonal = np.diag(covariance)
+        bound = np.sqrt(np.outer(diagonal, diagonal))
+        off = ~np.eye(len(diagonal), dtype=bool)
+        assert np.all(np.abs(covariance[off]) <= bound[off] * (1.0 + 1e-9))
+
+
+def test_pairwise_variances_are_never_negative():
+    """Eq. (12) applied to accumulated data must stay non-negative.
+
+    ``_eliminate_pairwise`` clamps the variance at zero before taking a square
+    root, so a negative value does not raise -- it silently produces a zero
+    confidence radius and eliminates the arm on any lead at all.  That is how the
+    true leader was being eliminated on H4 side 2.0.
+    """
+    for case in ("H4_square_stretch_side2p0_HF", "H4_square_eq_side1p0_HF"):
+        problem = build_gradient_problem(get_case(case))
+        matrices = finite_shot.context_covariances(problem, problem.parent_fc_groups())
+        sigmas = problem.parent_fragment_sigmas()
+        shots = allocate_context_shots(sigmas, 1e-3)
+        used = np.flatnonzero(shots > 0)
+        block = sum(matrices[alpha] / shots[alpha] for alpha in used)
+        diagonal = np.diag(block)
+        for signs in (np.ones(len(diagonal)), np.sign(problem.gradients)):
+            relative = np.outer(signs, signs)
+            pairwise = diagonal[:, None] + diagonal[None, :] - 2.0 * relative * block
+            assert pairwise.min() > -1e-18 * max(diagonal.max(), 1e-300)
+
+
+def test_fragment_variance_is_stable_for_near_eigenstate_fragments():
+    """<F^2> - <F>^2 loses every digit when the state nearly diagonalises F."""
+    problem = build_gradient_problem(get_case("H4_square_stretch_side2p0_HF"))
+    evaluator = problem.evaluator
+    groups = problem.parent_fc_groups()
+    index = {pauli: a for a, group in enumerate(groups) for pauli in group}
+    worst = 0.0
+    for terms in problem.commutator_terms:
+        buckets = {}
+        for pauli, coefficient in terms.items():
+            buckets.setdefault(index[pauli], {})[pauli] = coefficient
+        for fragment in buckets.values():
+            vector = evaluator.fragment_vector(fragment)
+            mean = float(np.vdot(evaluator.state, vector).real)
+            naive = float(np.vdot(vector, vector).real) - mean * mean
+            stable = evaluator.fragment_std(fragment) ** 2
+            if stable > 1e-24:
+                worst = max(worst, abs(naive - stable) / stable)
+            else:
+                # the unstable form returns noise of either sign here
+                assert stable >= 0.0
+    assert worst < 1e-8
+
+
+# --- Brute-force checks against dense linear algebra -------------------------
+
+
+def _dense(terms, n_qubits):
+    """Sparse matrix of sum_l c_l R_l, built independently of PauliEvaluator."""
+    from openfermion import QubitOperator
+    from openfermion.linalg import get_sparse_operator
+
+    operator = QubitOperator()
+    for pauli, coefficient in terms.items():
+        operator += QubitOperator(
+            tuple((q, ch) for q, ch in enumerate(pauli) if ch != "I"), coefficient
+        )
+    return get_sparse_operator(operator, n_qubits=n_qubits).tocsr()
+
+
+@pytest.fixture(scope="module")
+def dense_setup():
+    from openfermion.linalg import get_sparse_operator
+
+    from pool import uccsd_pool
+
+    hamiltonian = build_qubit_hamiltonian(get_case(CASE_ID))
+    n = hamiltonian.n_qubits
+    h = get_sparse_operator(hamiltonian.operator, n_qubits=n).tocsr()
+    generators = [
+        get_sparse_operator(g.qubit_operator, n_qubits=n).tocsr()
+        for g in uccsd_pool(n, hamiltonian.n_electrons)
+    ]
+    return n, h, generators
+
+
+def test_every_commutator_expansion_matches_the_dense_commutator(problem, dense_setup):
+    """C_i = sum_l A_il R_l must equal HG_i - G_iH as a matrix, for every generator."""
+    n, h, generators = dense_setup
+    assert len(generators) == problem.n_generators
+    for i, g in enumerate(generators):
+        exact = (h @ g - g @ h).toarray()
+        rebuilt = _dense(problem.commutator_terms[i], n).toarray()
+        assert np.abs(exact - rebuilt).max() < 1e-10, problem.labels[i]
+
+
+def test_every_gradient_matches_its_energy_derivative(problem, dense_setup):
+    """All gradients, not only the largest, against a central finite difference."""
+    from scipy.linalg import expm
+
+    n, h, generators = dense_setup
+    state = problem.evaluator.state
+    step = 1e-4
+    for i, g in enumerate(generators):
+        dense_g = g.toarray()
+        plus = expm(step * dense_g) @ state
+        minus = expm(-step * dense_g) @ state
+        derivative = (np.vdot(plus, h @ plus).real - np.vdot(minus, h @ minus).real) / (2 * step)
+        assert derivative == pytest.approx(problem.gradients[i], abs=1e-6), problem.labels[i]
+
+
+def test_fragment_variances_and_covariances_match_dense_matrices(problem):
+    """Evaluator variances and context covariances against dense fragment matrices."""
+    n = problem.n_qubits
+    state = problem.evaluator.state
+    groups = problem.parent_fc_groups()
+    sigmas = problem.parent_fragment_sigmas()
+    matrices = finite_shot.context_covariances(problem, groups)
+    index = {pauli: a for a, group in enumerate(groups) for pauli in group}
+    centred: dict[tuple[int, int], np.ndarray] = {}
+    for i, terms in enumerate(problem.commutator_terms):
+        buckets = {}
+        for pauli, coefficient in terms.items():
+            buckets.setdefault(index[pauli], {})[pauli] = coefficient
+        for alpha, fragment in buckets.items():
+            vector = _dense(fragment, n) @ state
+            centred[(i, alpha)] = vector - np.vdot(state, vector) * state
+    for (i, alpha), c in centred.items():
+        variance = float(np.vdot(c, c).real)
+        assert sigmas[i, alpha] ** 2 == pytest.approx(variance, rel=1e-9, abs=1e-14)
+    for (i, alpha), ci in centred.items():
+        for (j, beta), cj in centred.items():
+            if beta == alpha and j > i:
+                covariance = float(np.vdot(ci, cj).real)
+                assert matrices[alpha][i, j] == pytest.approx(covariance, rel=1e-9, abs=1e-14)
+
+
+# --- Grouping validity ----------------------------------------------------------
+
+
+def test_parent_contexts_partition_the_support_into_commuting_sets(problem):
+    groups = problem.parent_fc_groups()
+    flat = [pauli for group in groups for pauli in group]
+    assert len(flat) == len(set(flat)), "a Pauli product appears in two contexts"
+    assert set(flat) == set(problem.universal_support)
+    for group in groups:
+        for a in range(len(group)):
+            for b in range(a + 1, len(group)):
+                assert pauli_commutes(group[a], group[b])
+
+
+def test_individual_groupings_partition_each_commutator(problem):
+    for terms, groups in zip(problem.commutator_terms, problem.individual_fc_groups()):
+        flat = [pauli for group in groups for pauli in group]
+        assert sorted(flat) == sorted(terms)
+        for group in groups:
+            for a in range(len(group)):
+                for b in range(a + 1, len(group)):
+                    assert pauli_commutes(group[a], group[b])
+
+
+# --- Phase invariance -------------------------------------------------------------
+
+
+def test_costs_and_pairwise_variances_are_invariant_under_generator_sign_flips(problem):
+    """An orbital phase flip negates a subset of generators; nothing reported may move.
+
+    Conjugating by Z on one spin orbital maps G_i to -G_i for every generator that
+    touches that orbital an odd number of times, and leaves H and the state
+    physically unchanged.  So negating an arbitrary subset of commutators and their
+    gradients is a superset of every phase convention, and the costs, the absolute
+    gradients and the sign-corrected pairwise variances of Eq. (30) must be
+    unchanged by it.
+    """
+    import dataclasses
+
+    rng = np.random.default_rng(7)
+    flips = np.where(rng.random(problem.n_generators) < 0.5, -1.0, 1.0)
+    flipped = dataclasses.replace(
+        problem,
+        gradients=problem.gradients * flips,
+        commutator_terms=[
+            {pauli: s * c for pauli, c in terms.items()}
+            for s, terms in zip(flips, problem.commutator_terms)
+        ],
+    )
+    assert np.allclose(problem.abs_gradients, flipped.abs_gradients, atol=1e-15)
+    for module in (m1_fcug, m2_baifcig, m3_baifcug, baseline_noshare):
+        assert module.run(problem).total_shots == module.run(flipped).total_shots
+
+    def pairwise(p):
+        matrices = finite_shot.context_covariances(p, p.parent_fc_groups())
+        shots = allocate_context_shots(p.parent_fragment_sigmas(), 1e-3)
+        block = sum(matrices[a] / shots[a] for a in np.flatnonzero(shots > 0))
+        d = np.diag(block)
+        s = np.sign(p.gradients)
+        return d[:, None] + d[None, :] - 2.0 * np.outer(s, s) * block
+
+    before, after = pairwise(problem), pairwise(flipped)
+    scale = np.abs(before).max()
+    assert np.abs(before - after).max() < 1e-12 * scale
+
+
+# --- The RHF solution is pinned ------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "case_id, energy",
+    [
+        ("H4_square_eq_side1p0_HF", -1.7610750541),
+        ("H4_square_stretch_side2p0_HF", -1.5412552626),
+    ],
+)
+def test_square_h4_uses_the_stable_rhf_solution(case_id, energy):
+    """The default guess on square H4 at side 1.0 converges, in some numerical
+    environments, to an internally unstable solution 66 mHa higher whose gradients
+    differ by up to 0.25.  The build must follow the instability to the stable
+    solution the published numbers use, whatever the BLAS build."""
+    hamiltonian = build_qubit_hamiltonian(get_case(case_id))
+    assert hamiltonian.rhf_energy == pytest.approx(energy, abs=1e-8)
+
+
+# --- M3 accounting ------------------------------------------------------------------
+
+
+def test_m3_bound_can_exceed_m1_when_two_breakpoints_nearly_coincide():
+    """M3 <= M1 is not a theorem under the sum-of-maxima accounting of Eq. (14).
+
+    Found by scripts/experiment_m3_vs_m1_adversarial.py and checked against a
+    brute-force optimum of every allocation.  Two runners-up are nearly tied, so the
+    last two breakpoints differ in radius by 0.2%, but dropping arm 3 moves about
+    seventy shots from context A to context B; the per-context maxima then pay for
+    both loadings.
+    """
+    from bai import elimination_thresholds
+
+    absg = np.array([0.4683, 0.8566, 1.3082, 0.8555])
+    sig = np.array([[0.3935, 0.0], [0.5714, 0.0], [0.6418, 2.2803], [2.2768, 0.5]])
+    m1 = allocate_context_shots(sig, (1.3082 - 0.8566) / 2).sum()
+    shots = np.zeros(2)
+    for t in elimination_thresholds(absg):
+        shots = np.maximum(shots, allocate_context_shots(sig[list(t.active)], t.radius))
+    assert shots.sum() / m1 == pytest.approx(1.0914, abs=2e-3)
+
+
+def test_actual_radius_m3_is_the_limit_of_the_noiseless_trial(monkeypatch):
+    """run_actual_radii must agree with the finite-shot loop run without noise on
+    a nearly continuous schedule; the trial overshoots each event by at most one
+    schedule step, so it may only be slightly dearer."""
+    problem = build_gradient_problem(get_case("H4_square_eq_side1p0_CISD"))
+    exact = m3_baifcug.run_actual_radii(problem)["total_shots"]
+
+    class ZeroRNG:
+        def normal(self, loc=0.0, scale=1.0, size=None):
+            a = np.asarray(scale, dtype=float)
+            return np.zeros(a.shape if size is None else size)
+
+        def standard_normal(self, size=None):
+            return np.zeros(() if size is None else size)
+
+    monkeypatch.setattr(finite_shot.np.random, "default_rng", lambda *a, **k: ZeroRNG())
+    trial = finite_shot.simulate(problem, "m3", planning_bound=1.0, n_trials=1,
+                                 shrink=0.99).shots_mean
+    assert exact <= trial <= 1.03 * exact

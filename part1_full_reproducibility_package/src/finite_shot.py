@@ -147,12 +147,23 @@ def context_covariances(
     noise model ignores this; supplying these matrices makes the simulation exact
     for M1 and M3 as well.
 
-    The covariance is obtained from variances alone, via
-    ``Cov(A, B) = (Var(A + B) - Var(A) - Var(B)) / 2``, so it needs no operator
-    products. Cost grows as the number of generator pairs sharing a context, and
-    the function returns ``None`` rather than running for a long time when that
-    exceeds ``max_pairs``; the caller then falls back to the independent model.
+    The covariance is the Gram matrix of the *centred* fragment vectors,
+    ``Cov(F_i, F_j) = Re <c_i | c_j>`` with ``c_i = (F_i - <F_i>)|psi>``.  Being a
+    Gram matrix it is positive semidefinite by construction and its diagonal is
+    exactly the fragment variance, so no pair of generators can be assigned a
+    correlation outside [-1, 1] and no pairwise variance can come out negative.
+
+    The earlier construction obtained the off-diagonal from the polarisation
+    identity ``Cov(A,B) = (Var(A+B) - Var(A) - Var(B)) / 2``.  That is exact in
+    exact arithmetic, but a parent context is dominated by symmetry-forbidden
+    fragments whose variance is zero, and there the identity subtracts three
+    quantities that are individually at the floating-point noise floor.  The
+    result was Cauchy-Schwarz violations by factors of up to 136, indefinite
+    context matrices, and -- through Eq. (12) -- negative pairwise variances that
+    the elimination rule clamped to zero and then eliminated on.  See
+    App.~\ref{app:anomaly}.
     """
+    evaluator = problem.evaluator
     index = {pauli: a for a, group in enumerate(groups) for pauli in group}
     fragments: list[dict[int, dict[str, float]]] = []
     for terms in problem.commutator_terms:
@@ -169,23 +180,18 @@ def context_covariances(
         return None
 
     n = problem.n_generators
+    state = evaluator.state
     matrices = []
-    for alpha, group in enumerate(groups):
+    for alpha, _group in enumerate(groups):
         cov = np.zeros((n, n))
         present = members[alpha]
-        variance = {
-            i: problem.evaluator.fragment_std(fragments[i][alpha]) ** 2 for i in present
-        }
-        for i in present:
-            cov[i, i] = variance[i]
-        for a, i in enumerate(present):
-            for j in present[a + 1:]:
-                combined = dict(fragments[i][alpha])
-                for pauli, coefficient in fragments[j][alpha].items():
-                    combined[pauli] = combined.get(pauli, 0.0) + coefficient
-                joint = problem.evaluator.fragment_std(combined) ** 2
-                value = 0.5 * (joint - variance[i] - variance[j])
-                cov[i, j] = cov[j, i] = value
+        if present:
+            centred = np.empty((len(present), evaluator.dim), dtype=complex)
+            for k, i in enumerate(present):
+                vector = evaluator.fragment_vector(fragments[i][alpha])
+                centred[k] = vector - np.vdot(state, vector) * state
+            gram = (centred.conj() @ centred.T).real
+            cov[np.ix_(present, present)] = 0.5 * (gram + gram.T)
         matrices.append(cov)
     return matrices
 
@@ -334,8 +340,17 @@ def _sequential_trial(
     stop_at_tolerance: bool = False,
     factors: list[np.ndarray] | None = None,
     covariances: list[np.ndarray] | None = None,
+    terminal_radius: float | None = None,
 ) -> TrialOutcome:
-    """M2 and M3: batched successive elimination driven by the estimates."""
+    """M2 and M3: batched successive elimination driven by the estimates.
+
+    ``terminal_radius`` matches the trial's stopping rule to the criterion the
+    planning bound assumes.  The default rule halts as soon as one arm remains,
+    which is *weaker* than resolving the leader to gap/2 and so can stop before
+    the bound's terminal radius; the difference is a protocol artefact that the
+    report's round-4 decomposition found can dominate the M2/M3 ratio.  Setting
+    this to gap/2 makes the realised cost and the planning bound comparable.
+    """
     truth = problem.abs_gradients
     leader = int(np.argmax(truth))
     n = problem.n_generators
@@ -353,7 +368,10 @@ def _sequential_trial(
 
     rounds = 0
     for rounds in range(1, MAXIMUM_ROUNDS + 1):
-        if len(active) <= 1 or radius < floor:
+        if terminal_radius is None:
+            if len(active) <= 1 or radius < floor:
+                break
+        elif radius < terminal_radius or radius < floor:
             break
         epsilon = epsilon_from_radius(radius, z)
         if shared:
@@ -437,6 +455,7 @@ def simulate(
     noise_model: str = "independent",
     rule: str = "marginal",
     m1_radius: float | None = None,
+    match_stopping_rule: bool = False,
     progress: Callable[[int], None] | None = None,
 ) -> FiniteShotSummary:
     """Run ``n_trials`` finite-shot trials of one method on one problem."""
@@ -480,6 +499,7 @@ def simulate(
                 _sequential_trial(
                     problem, sigma_sums, sigmas, z, shrink, tolerance, rng, shared, cache,
                     stop_at_tolerance, factors, covariances,
+                    terminal_radius=(radius if match_stopping_rule else None),
                 )
             )
         if progress is not None and (trial + 1) % 50 == 0:
