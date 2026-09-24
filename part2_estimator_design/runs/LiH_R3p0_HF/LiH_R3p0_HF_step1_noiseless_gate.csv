@@ -1,0 +1,2 @@
+case_id,check,rule,accounting,gamma,part1_shots,part2_shots_real,part2_shots,ratio,integer_ratio,passed
+LiH_R3p0_HF,noiseless,marginal,maxima,0.5,563716.4318383393,563716.4318383392,553671.0,0.9999999999999998,0.9821799910895269,True

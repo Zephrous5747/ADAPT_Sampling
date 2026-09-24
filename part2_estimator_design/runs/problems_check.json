@@ -1,0 +1,91 @@
+{
+  "tolerance": 1e-09,
+  "cases": [
+    {
+      "case_id": "LiH_R3p0_HF",
+      "max_signed_gradient_difference": 1.992850329202156e-14,
+      "max_abs_gradient_difference": 1.992850329202156e-14,
+      "state_energy_difference": 2.6645352591003757e-15,
+      "universal_terms_match": true,
+      "parent_contexts_match": true,
+      "seconds": 15.0
+    },
+    {
+      "case_id": "H4_square_eq_side1p0_HF",
+      "max_signed_gradient_difference": 0.5378631741393309,
+      "max_abs_gradient_difference": 2.7755575615628914e-16,
+      "state_energy_difference": 2.886579864025407e-15,
+      "universal_terms_match": true,
+      "parent_contexts_match": true,
+      "seconds": 0.5
+    },
+    {
+      "case_id": "H4_square_eq_side1p0_CISD",
+      "max_signed_gradient_difference": 0.0487710873228039,
+      "max_abs_gradient_difference": 8.586881206085195e-16,
+      "state_energy_difference": 2.6645352591003757e-15,
+      "universal_terms_match": true,
+      "parent_contexts_match": true,
+      "seconds": 0.0
+    },
+    {
+      "case_id": "H4_square_stretch_side2p0_HF",
+      "max_signed_gradient_difference": 0.5967748633613115,
+      "max_abs_gradient_difference": 2.220446049250313e-16,
+      "state_energy_difference": 6.661338147750939e-16,
+      "universal_terms_match": true,
+      "parent_contexts_match": true,
+      "seconds": 0.5
+    },
+    {
+      "case_id": "H4_square_stretch_side2p0_CISD",
+      "max_signed_gradient_difference": 8.673617379884035e-16,
+      "max_abs_gradient_difference": 8.673617379884035e-16,
+      "state_energy_difference": 1.5543122344752192e-15,
+      "universal_terms_match": true,
+      "parent_contexts_match": true,
+      "seconds": 0.9
+    },
+    {
+      "case_id": "H2O_eq_HF",
+      "max_signed_gradient_difference": 1.201816424156732e-14,
+      "max_abs_gradient_difference": 1.201816424156732e-14,
+      "state_energy_difference": 1.4210854715202004e-14,
+      "universal_terms_match": true,
+      "parent_contexts_match": true,
+      "seconds": 65.6
+    },
+    {
+      "case_id": "H2O_eq_CISD",
+      "max_signed_gradient_difference": 4.116271126036741e-14,
+      "max_abs_gradient_difference": 4.116271126036741e-14,
+      "state_energy_difference": 5.684341886080802e-14,
+      "universal_terms_match": true,
+      "parent_contexts_match": true,
+      "seconds": 69.4
+    },
+    {
+      "case_id": "H2O_stretch_HF",
+      "max_signed_gradient_difference": 2.7243438061042013e-10,
+      "max_abs_gradient_difference": 2.7243438061042013e-10,
+      "state_energy_difference": 4.263256414560601e-14,
+      "universal_terms_match": true,
+      "parent_contexts_match": true,
+      "seconds": 72.2
+    },
+    {
+      "case_id": "H2O_stretch_CISD",
+      "max_signed_gradient_difference": 4.442831519346768e-11,
+      "max_abs_gradient_difference": 4.442831519346768e-11,
+      "state_energy_difference": 1.6910917111090384e-12,
+      "universal_terms_match": true,
+      "parent_contexts_match": true,
+      "seconds": 74.0
+    }
+  ],
+  "failed": [
+    "H4_square_eq_side1p0_HF",
+    "H4_square_eq_side1p0_CISD",
+    "H4_square_stretch_side2p0_HF"
+  ]
+}

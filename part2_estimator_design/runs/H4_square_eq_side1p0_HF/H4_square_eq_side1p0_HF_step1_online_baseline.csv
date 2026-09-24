@@ -1,0 +1,9 @@
+case_id,check,rule,accounting,gamma,part1_shots,part2_shots,ratio,passed,part2_n_trials,part2_correct_rate,part2_correct_low,part2_correct_high,part2_failures,part2_shots_mean,part2_shots_sem,part2_shots_median,part2_shots_q25,part2_shots_q75,part2_shots_p90,part2_rounds_mean,part2_seconds,part1_noise_model,part1_shots_mean,part1_shots_sem,part1_correct_rate,difference_in_sem,part1_seconds
+H4_square_eq_side1p0_HF,noiseless,marginal,maxima,0.5,917731.9696459229,917749.0,1.000018557002088,True,,,,,,,,,,,,,,,,,,,
+H4_square_eq_side1p0_HF,noiseless,pairwise,maxima,0.5,906356.8387248311,906387.0,1.0000332774839669,True,,,,,,,,,,,,,,,,,,,
+H4_square_eq_side1p0_HF,noisy,marginal,maxima,0.5,,,,True,250,1.0,0.9848661527503766,1.0,0,1377895.72,53541.28630972902,920772.0,910946.25,2421332.25,2825859.9,7.26,6.4,correlated,1282875.865966431,48450.30747320314,1.0,1.3159052294120521,5.7
+H4_square_eq_side1p0_HF,noisy,pairwise,maxima,0.5,,,,True,250,1.0,0.9848661527503766,1.0,0,670290.6,18571.909454870376,735676.5,615813.5,900767.75,905927.4,6.776,5.5,correlated,697108.930918876,19615.807958972615,1.0,-0.992797875506185,5.3
+H4_square_eq_side1p0_HF,baseline,pairwise,maxima,0.5,,,,,250,1.0,0.9848661527503766,1.0,0,670290.6,18571.909454870376,735676.5,615813.5,900767.75,905927.4,6.776,5.1,,,,,,
+H4_square_eq_side1p0_HF,baseline,pairwise,topup,0.5,,,,,250,0.992,0.9713048854232084,0.9978034088831621,2,790598.08,65465.664933683554,738349.0,630708.5,902907.0,906475.5,6.82,67.3,,,,,,
+H4_square_eq_side1p0_HF,baseline,pairwise,maxima,0.9,,,,,250,0.992,0.9713048854232084,0.9978034088831621,2,410171.812,64570.85450015158,312979.0,212946.75,415161.75,515599.3,30.284,24.7,,,,,,
+H4_square_eq_side1p0_HF,baseline,pairwise,topup,0.9,,,,,250,1.0,0.9848661527503766,1.0,0,337161.688,11144.129968459734,300179.5,207919.25,457543.25,570779.9,30.132,182.9,,,,,,

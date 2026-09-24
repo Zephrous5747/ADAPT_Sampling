@@ -34,6 +34,10 @@ reports/_superseded/
 **/runs/**/*_fragment_sigmas.csv
 **/runs/**/*_groups.csv
 **/runs/**/*_commutators.jsonl
+# Part II design matrices B and C (up to 4 MB each; step3_oracle_ceiling.py
+# rewrites them, and the per-case CSVs record everything derived from them).
+**/runs/**/*_step3_*_B.npz
+**/runs/**/*_step3_*_C.npz
 
 # Handoff note for the next commit, not part of the project
 COMMIT_MESSAGE.txt
