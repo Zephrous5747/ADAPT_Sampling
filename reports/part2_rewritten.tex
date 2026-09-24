@@ -1,0 +1,326 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs,array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{siunitx}
+
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,citecolor=blue!55!black,urlcolor=blue!55!black}
+\sisetup{group-separator={,},group-minimum-digits=4}
+\setlist{topsep=2pt,itemsep=1pt,parsep=0pt}
+
+\newcommand{\ket}[1]{\left|#1\right\rangle}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{Part II, Steps 0--3: Universal Measurable Estimators\\for ADAPT-VQE Gradient Selection --- Results and Reproduction}
+\author{Part II working note}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We implemented Steps 0--3 of the Part II plan on the nine Part I benchmark cases. These are the measurement infrastructure, a shot-level II-0 baseline, an overlap census, and the oracle ceiling of estimator redesign.
+
+\textbf{Baseline.} All gates against Part I pass. The II-0 baseline uses pairwise elimination, a fine radius schedule and top-up allocation, and every elimination is decided from sampled outcomes. It costs 65--76\% fewer context-shots than Part I's M3 as Part I ran it, with no wrong selections in 1{,}100 trials.
+
+\textbf{Overlap.} Part I's parent grouping is a partition. Even so, 58--75\% of the Pauli products are measured by at least two contexts, because each measurement circuit reads out a whole maximal commuting group.
+
+\textbf{Oracle ceiling.} With exact covariances, splitting coefficients across those contexts (II-A) lowers the M3 cost by 38--54\% on H$_4$, 70--76\% on LiH and 75\% on H$_2$O (equilibrium, CISD).
+
+\textbf{Main caveat.} A design fitted to Hartree--Fock covariances and applied to the correlated (CISD) state is 66--69\% \emph{more} expensive than no redesign. The ceiling is only reachable if the covariances are learned from data, which is Step 4.
+\end{abstract}
+
+%=====================================================================
+\section{Scope}
+
+At one ADAPT-VQE step, with state $\ket{\psi}$ and pool $\{G_i\}$, the task is to identify $\arg\max_i|g_i|$, where $g_i=\langle[H,G_i]\rangle_\psi$, at the least total number of \emph{context-shots}. One context-shot is one state preparation followed by one measurement in one fully commuting (FC) context.
+
+This note covers Steps 0--3 of the plan:
+
+\begin{description}[leftmargin=4.2em,labelwidth=3.8em]
+  \item[Step 0] Infrastructure and its validation.
+  \item[Step 1] The II-0 baseline as a shot-level experiment.
+  \item[Step 2] Overlap census.
+  \item[Step 3] Oracle ceiling of levels II-A (coefficient splitting), II-B (zero-sum ``ghost'' Paulis) and oracle II-D (redesign at every elimination breakpoint).
+\end{description}
+
+\emph{Steps 2--3 are oracle.} Exact covariances drive the designs and exact gradients fix the elimination trajectory. Their numbers are upper bounds on what a level can deliver, not predictions of what it will deliver.
+
+%=====================================================================
+\section{Setup}
+
+\paragraph{Inputs.}
+The problems are the nine Part I cases, rebuilt with the current Part I pipeline:
+\begin{itemize}
+  \item STO-3G, Jordan--Wigner, spin-orbital UCCSD pool;
+  \item HF and CISD states;
+  \item Part I's validation gate and deterministic greedy FC parent grouping of $\mathcal B_0=\bigcup_i\supp(C_i)$.
+\end{itemize}
+The rebuilt $|g_i|$ agree with Part I's committed values to $3\times10^{-10}$. Three H$_4$ rows differ in the \emph{sign} of some $g_i$. This is an orbital-phase convention, and every quantity reported here is invariant under it.
+
+\paragraph{Confidence convention.}
+Radii are $r=z_\delta\,\epsilon$, with a Bonferroni $z_\delta$ over the full pool and $\delta=0.05$, as in Part I.
+
+\paragraph{What a context measures.}
+Measuring a context means applying a Clifford $U_\alpha$ and reading out all $n$ qubits. That yields the eigenvalues of \emph{every} element of the maximal abelian group $\{U_\alpha^\dagger Z^{\bm z}U_\alpha\}$, which has $2^n$ Paulis, not only the strings the context was built from.
+
+Which maximal group is measured depends on how the parent members are completed to $n$ independent commuting generators. We use two completions:
+\begin{itemize}
+  \item \emph{canonical}: single-qubit $Z$, $X$, $Y$ first;
+  \item \emph{mass}: library Paulis in decreasing order of $\sum_i|A_{i\ell}|$.
+\end{itemize}
+
+All group means follow from one Walsh--Hadamard transform of the outcome distribution, $E_\alpha[\bm z]=\sum_b p_\alpha(b)(-1)^{\bm z\cdot b}$. The covariances then follow from
+\begin{equation}
+  \Cov(P_l,P_m)=s_ls_m\big(E_\alpha[\bm z_l\oplus\bm z_m]-E_\alpha[\bm z_l]E_\alpha[\bm z_m]\big).
+\end{equation}
+The exact $p_\alpha$ gives the oracle moments. A multinomial histogram of sampled outcomes gives the empirical moments and exact shot-level sampling.
+
+\paragraph{Estimators and levels.}
+For a fixed context library, every linear unbiased estimator has the form
+\begin{equation}
+  \hat g_i=\sum_\alpha \bm x_{i\alpha}^{\!\top}\hat{\bm\mu}_\alpha,
+  \qquad
+  \sum_{\alpha\ni\ell}x_{i\alpha\ell}=A_{i\ell}\ \ \forall\ell,
+  \label{eq:abc}
+\end{equation}
+which is exactly $A=BC$. The fragments $F_{i\alpha}=\sum_\ell x_{i\alpha\ell}P_\ell$ are the universal operators. The levels differ only in which coefficients may be non-zero:
+
+\begin{description}[leftmargin=3.2em,labelwidth=2.8em]
+  \item[II-0] Pauli $\ell$ only in its Part I parent context. This is Part I's estimator.
+  \item[II-A] $\ell\in\supp(C_i)$ in any context that measures it (coefficient splitting).
+  \item[II-B] II-A, plus Paulis with $A_{i\ell}=0$ that are measured by at least two contexts already carrying $C_i$. These are ghosts from other generators' supports, capped at 200 per generator by a control-variate score.
+\end{description}
+
+Coefficients are post-processing. Any design satisfying Eq.~\eqref{eq:abc} can be applied to all shots already taken, so redesigning never invalidates earlier data.
+
+\paragraph{Metrics.}
+All costs are total context-shots at the identification criterion. Part I's trajectories are reused.
+\begin{itemize}
+  \item \emph{M1}: every gradient resolved to the radius $\mathrm{gap}/2$.
+  \item \emph{M3 bound}: Part I's exact-limit best-arm trajectory, with every active arm charged the common radius.
+  \item \emph{M3 actual}: arms eliminated on their actual reconstruction variance. This is the primary metric.
+\end{itemize}
+Shots per context are accumulated in one of two ways:
+\begin{itemize}
+  \item \emph{maxima} (Part I): each breakpoint is solved afresh, and each context is charged the largest request it ever received;
+  \item \emph{top-up}: each breakpoint is solved with the shots already held as lower bounds.
+\end{itemize}
+
+%=====================================================================
+\section{Methods in brief}
+
+\paragraph{Joint design (Step 3).}
+For shots $n_\alpha$ the variance is $\Var\hat g_i=\sum_\alpha \bm x_{i\alpha}^{\!\top}\Sigma_\alpha\bm x_{i\alpha}/n_\alpha$, and the design problem is
+\[
+  \min_{\bm x,\bm n}\ \sum_\alpha n_\alpha
+  \quad\text{s.t.}\quad \Var\hat g_i\le\epsilon^2 \text{ for all active } i
+  \quad\text{and Eq.~\eqref{eq:abc}.}
+\]
+This problem is convex.
+
+Alternating exact per-generator designs with Part I's allocation (iterative coefficient splitting) stalls. On H$_4$ side 1.0 HF it ends 9\% above the optimum of a single generator, because a context whose shots reach zero cannot be refilled.
+
+We therefore eliminate $\bm n$ analytically, giving the saddle form
+\[
+  \min_{\bm x}\ \max_{\bm\lambda\ge0}\ \sum_\alpha 2\sqrt{Q_\alpha}-\epsilon^2\sum_i\lambda_i,
+  \qquad
+  Q_\alpha=\sum_i\lambda_i\,\bm x_{i\alpha}^{\!\top}\Sigma_\alpha\bm x_{i\alpha},
+\]
+and solve it in two nested loops:
+\begin{itemize}
+  \item \emph{inner}: L-BFGS over all active coefficients, with $Q\to Q+\delta^2$ and a continuation of $\delta$ from $0.3$ down to $10^{-7}$ of the typical context norm;
+  \item \emph{outer}: 20 multiplicative dual steps $\lambda_i\leftarrow\lambda_i(\Var_i/\epsilon^2)^{1/2}$ per iteration.
+\end{itemize}
+The reported cost is always the exact allocation of the returned design, so it is feasible even if the solver is not fully converged. The solver matches an independent smoothed minimisation to $10^{-4}$ on single-generator problems, and SLSQP on small joint instances. Every design is checked for $\max|A-BC|\le10^{-9}\max|A|$.
+
+\paragraph{Online baseline (Step 1).}
+This is Part I's successive-elimination loop, with estimator noise replaced by sampled outcomes: each round draws one multinomial histogram per context. Everything is decided from those samples except the following:
+\begin{itemize}
+  \item confidence radii use oracle fragment (co)variances, as in Part I;
+  \item the starting radius $\max_i|g_i|$ and the floor $10^{-3}\max_i|g_i|$ are Part I's mild oracle inputs.
+\end{itemize}
+Every context that carries a fragment receives at least one shot, since deterministic outcomes must still be observed once.
+
+%=====================================================================
+\section{Results}
+
+\subsection{Step 0: gates}
+\begin{itemize}
+  \item Measurement circuits map every group element to $\pm Z^{\bm z}$. This is checked against dense matrices for all $2^n$ elements of random maximal groups.
+  \item Group means and fragment covariances match Part I's state-vector evaluator and Part I's context covariances to $10^{-12}$.
+\end{itemize}
+
+The shot-level sampler was checked at Part I's M1 allocation, with 2{,}000 replicates on H$_4$ and 400 on LiH. It is unbiased (max bias below $3.6\sigma$). Its variances and cross-gradient correlations agree with the analytic covariance within Monte Carlo tolerance. Its standardised distribution agrees with Part I's Gaussian surrogate (two-sample KS test).
+
+The same checks pass at $10^{-3}$ of the allocation, where the smallest case has 86 shots in total. There are 47 unit tests.
+
+\subsection{Step 1: II-0 baseline}
+\begin{itemize}
+  \item \emph{Noiseless.} With real-valued shot counts, the online loop reproduces Part I's zero-noise trial exactly on all nine case/rule pairs (ratio 1.0000000).
+  \item \emph{Sampled.} It agrees with Part I's Gaussian surrogate within 1.4 standard errors on every row.
+\end{itemize}
+
+Table~\ref{tab:step1} gives the baseline all later levels are measured against.
+
+\begin{table}[h]
+\centering\small
+\caption{II-0 as a shot-level experiment. The first column is Part I's M3 as Part I ran it (marginal rule, $\gamma=0.5$) under shot-level sampling. The last three columns are the Part II baseline: pairwise rule, $\gamma=0.9$, top-up allocation. Trials: 250 per H$_4$ row, 100 for LiH. Every trial selected the true winner.}
+\label{tab:step1}
+\begin{tabular}{lrrrrr}
+\toprule
+Case & Part I-style M3 & II-0 mean $\pm$ s.e.m. & median & P90 & saving \\
+\midrule
+H$_4$ side 1.0 HF   & 1,377,896 & 337,162 $\pm$ 11,144 & 300,180 & 570,780 & 76\% \\
+H$_4$ side 1.0 CISD & 147,834   & 40,876 $\pm$ 920     & 39,275  & 61,958  & 72\% \\
+H$_4$ side 2.0 HF   & 528,619   & 164,348 $\pm$ 6,118  & 152,312 & 297,895 & 69\% \\
+H$_4$ side 2.0 CISD & 97,121    & 25,000 $\pm$ 662     & 23,030  & 38,735  & 74\% \\
+LiH $R=3.0$ HF      & 872,391   & 303,322 $\pm$ 5,460  & 304,076 & 370,885 & 65\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Most of the saving is Part I's own two findings: the pairwise rule and a finer radius schedule. Top-up accounting matters in one case. H$_4$ side 2.0 HF has an exactly tied runner-up, and under maxima accounting a few trials never separate the tie and run to the radius floor (mean $1.13\times10^6$, median $1.6\times10^5$). Top-up accounting removes that tail.
+
+\subsection{Step 2: overlap census}
+
+\begin{table}[h]
+\centering\small
+\caption{Multiplicity: the number of contexts whose measured group contains a Pauli of $\mathcal B_0$. \emph{Splittable}: the share of $\mathcal B_0$ with multiplicity $\ge2$, and the share of $\sum|A|$ it carries. ``Span'' measures only the group generated by the parent members; it is a diagnostic lower bound, not a circuit.}
+\label{tab:census}
+\begin{tabular}{lcccc}
+\toprule
+ & \multicolumn{1}{c}{span} & \multicolumn{1}{c}{mass completion} & binding & CZ per \\
+ & mult.\,/\,split.\,/\,mass & mult.\,/\,split.\,/\,mass & gen.\ mass & context \\
+\midrule
+H$_4$  & 1.71 / 52\% / 49--53\% & 1.95 / 60--62\% / 62--65\% & 61--87\% & 8.3 \\
+LiH    & 2.57 / 67\% / 75\%     & 2.95 / 76\% / 84\%         & 89\%     & 23.3 \\
+H$_2$O & 2.72 / 67\% / 82--83\% & 3.10 / 74\% / 88\%         & 99\%     & 32.2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Overlap is abundant, and most of it is present before any completion. The \emph{binding generator} is the one whose reconstruction variance sets M1's cost. Nearly all of its coefficient mass is splittable. Coefficient splitting (II-A) passes this go/no-go test.
+
+\subsection{Step 3: oracle ceiling}
+
+Table~\ref{tab:ceiling} gives the cost reduction of each level relative to II-0.
+
+\begin{table}[!ht]
+\centering\small
+\caption{Oracle cost reduction relative to II-0 (Part I's estimator), mass completion. M3 actual is the primary metric; the gate is a 10\% reduction. Redesign is oracle II-D with top-up accounting, compared with II-0 under top-up. Every level passes the gate on every case computed.}
+\label{tab:ceiling}
+\begin{tabular}{llrrrr}
+\toprule
+Case & Level & M1 & M3 bound & \textbf{M3 actual} & M3 redesign \\
+\midrule
+H$_4$ side 1.0 HF   & II-A & $-68\%$ & $-37\%$ & $\mathbf{-38\%}$ & $-57\%$ \\
+                    & II-B & $-70\%$ & $-39\%$ & $\mathbf{-40\%}$ & $-58\%$ \\
+H$_4$ side 1.0 CISD & II-A & $-57\%$ & $-54\%$ & $\mathbf{-54\%}$ & $-53\%$ \\
+                    & II-B & $-60\%$ & $-57\%$ & $\mathbf{-56\%}$ & $-56\%$ \\
+H$_4$ side 2.0 HF   & II-A & $-60\%$ & $-42\%$ & $\mathbf{-40\%}$ & $-59\%$ \\
+                    & II-B & $-73\%$ & $-49\%$ & $\mathbf{-50\%}$ & $-60\%$ \\
+H$_4$ side 2.0 CISD & II-A & $-52\%$ & $-44\%$ & $\mathbf{-43\%}$ & $-50\%$ \\
+                    & II-B & $-60\%$ & $-51\%$ & $\mathbf{-50\%}$ & $-57\%$ \\
+LiH $R=3.0$ HF      & II-A & $-84\%$ & $-81\%$ & $\mathbf{-70\%}$ & --- \\
+                    & II-B & $-84\%$ & $-82\%$ & $\mathbf{-70\%}$ & --- \\
+H$_2$O eq.\ CISD    & II-A & $-79\%$ & $-78\%$ & $\mathbf{-75\%}$ & --- \\
+H$_2$O (other three rows) & II-A & \multicolumn{4}{c}{running at the time of writing} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Canonical completion.}
+With the canonical completion, the H$_4$ reductions are 0--9 points smaller. On LiH, II-A is better with canonical ($-76\%$), while II-B is worse ($-64\%$).
+
+\paragraph{Top-up accounting.}
+Top-up accounting alone lowers the II-0 bound by 0--11\%: 8\% on LiH and H$_4$ side 1.0 CISD, and 11\% on H$_2$O eq.\ CISD. This closes Part I's open item ``allocate incrementally''.
+
+\paragraph{Redesign needs top-up accounting.}
+Under Part I's maxima accounting, per-breakpoint redesign can be worse than one static design. On H$_4$ side 1.0 CISD it gives $-41\%$ against $-54\%$.
+
+\paragraph{Prior transfer.}
+HF and CISD at the same geometry share one context library, so a design fitted on HF covariances can be evaluated on the CISD state.
+
+\begin{table}[h]
+\centering\small
+\caption{II-A designs (mass completion) evaluated on the CISD state, relative to II-0.}
+\label{tab:transfer}
+\begin{tabular}{llrrr}
+\toprule
+Geometry & Design fitted on & M1 & M3 bound & M3 actual \\
+\midrule
+H$_4$ side 1.0 & CISD (oracle)          & $-57\%$ & $-54\%$ & $-54\%$ \\
+               & HF, applied to CISD    & $+56\%$ & $+66\%$ & $+69\%$ \\
+H$_4$ side 2.0 & CISD (oracle)          & $-52\%$ & $-44\%$ & $-43\%$ \\
+               & HF, applied to CISD    & $+43\%$ & $+66\%$ & $+66\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On a determinant, Pauli outcomes are either deterministic or perfectly (anti)correlated. A design fitted to that structure relies on cancellations that correlation destroys. This is failure mode~(1) of the plan, a bad covariance prior, and it is already visible at the planning level before any measurement noise.
+
+%=====================================================================
+\section{Conclusions and next step}
+
+\begin{enumerate}
+  \item The shot-level II-0 baseline (pairwise rule, $\gamma=0.9$, top-up) is the reference for all later levels. It is 65--76\% cheaper than Part I's M3 as run.
+  \item Overlap is abundant. Coefficient splitting (II-A) has a large oracle ceiling: 38--54\% (H$_4$), 70--76\% (LiH), 75\% (H$_2$O eq.\ CISD).
+  \item Ghost Paulis (II-B) add 2--10 points on H$_4$ and nothing on LiH, so they are deferred. Per-breakpoint redesign pays on the depth-dominated rows, but only with top-up accounting. On the M3 top-up bound it improves II-A on the two H$_4$ HF rows from $-38\%$/$-42\%$ (static design) to $-57\%$/$-59\%$.
+  \item The ceiling is fragile to the covariance model: an HF-fitted design loses 66--69\% on CISD.
+\end{enumerate}
+
+\textbf{Step 4} should therefore test II-A with top-up accounting under three covariance models: the prior alone, the measured covariance alone, and their shrinkage $\lambda=\nu/(\nu+m)$. Designs should be refitted by cross-fitting. A guard should fall back to II-0 coefficients whenever the predicted variance does not improve. The first benchmark is CISD truth with an HF prior.
+
+%=====================================================================
+\section{Reproduction}
+
+\paragraph{Code.}
+The code is in \code{part2\_estimator\_design/} on branch \code{part2}. It imports Part I's \code{src/} directly and rebuilds each problem into its own \code{.cache/}.
+
+\paragraph{Environment.}
+WSL Ubuntu, Python 3.12.3, NumPy 2.5.2, SciPy 1.18.1, PySCF 2.14.0, OpenFermion 1.8.1. NumPy $\ge2$ is required.
+
+\paragraph{Commands.}
+Run from \code{part2\_estimator\_design/}:
+\begin{verbatim}
+python scripts/build_problems.py                  # build 9 cases, check vs Part I
+python -m pytest tests -q                         # 47 tests
+python scripts/step0_validate.py --low-shot 0.001 # sampler gate (H4)
+python scripts/step0_validate.py --cases LiH_R3p0_HF --replicates 400
+python scripts/step1_online_baseline.py --trials 250   # H4 (use 100 for LiH)
+python scripts/step2_overlap_census.py            # all nine cases
+python scripts/step3_oracle_ceiling.py --cases <H4 cases> --redesign
+python scripts/step3_oracle_ceiling.py --cases LiH_R3p0_HF \
+       --strategies mass canonical
+python scripts/step3_oracle_ceiling.py --cases <H2O cases> --strategies mass \
+       --levels II-0 II-A
+python scripts/step3_prior_transfer.py
+python scripts/aggregate_results.py               # combined CSVs in runs/
+\end{verbatim}
+
+\paragraph{Outputs.}
+Every script writes \code{runs/<case>/<case>\_<step>.csv}, with a \code{*\_meta.json} recording package versions and the git commit. Step 3 also writes each static design as sparse \code{B}, \code{C} matrices; these are not tracked in git and are regenerated by the script. \code{RESULTS.md} lists every table entry with its source file.
+
+\paragraph{Seeds.}
+Step 1 uses seed 1 for Part II and seed 0 for Part I's surrogate; Step 0 uses seed 0.
+
+\paragraph{Runtime}
+(one desktop, 4 threads per job):
+\begin{itemize}
+  \item tests: 20\,s;
+  \item Step 1: minutes per H$_4$ case, about 20\,min for LiH;
+  \item Step 3, H$_4$ with redesign: 15--20\,min per case;
+  \item Step 3, LiH static: 5--15\,min per design;
+  \item Step 3, H$_2$O static: about 45\,min per design.
+\end{itemize}
+
+\end{document}
