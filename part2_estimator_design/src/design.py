@@ -263,10 +263,16 @@ def _solve_psd(matrix: sp.csr_matrix, rhs: np.ndarray) -> np.ndarray:
             return scipy.linalg.solve(dense, rhs, assume_a="pos")
         except (np.linalg.LinAlgError, scipy.linalg.LinAlgError):
             return np.linalg.lstsq(dense, rhs, rcond=None)[0]
-    regularised = matrix + ridge * sp.identity(n, format="csr")
-    precondition = sp.diags(1.0 / np.maximum(diagonal + ridge, 1e-300))
-    solution, _ = spla.cg(regularised, rhs, rtol=1e-12, maxiter=20 * n, M=precondition)
-    return solution
+    # Sparse direct factorisation.  Conjugate gradients was used here first and
+    # needed ~36,000 iterations per solve on these nearly singular systems: 95% of
+    # a LiH Step 4 trial (1,205 of 1,267 s) went into it.
+    regularised = (matrix + ridge * sp.identity(n, format="csr")).tocsc()
+    try:
+        return spla.spsolve(regularised, rhs, permc_spec="MMD_AT_PLUS_A")
+    except RuntimeError:  # pragma: no cover - singular despite the ridge
+        precondition = sp.diags(1.0 / np.maximum(diagonal + ridge, 1e-300))
+        solution, _ = spla.cg(regularised, rhs, rtol=1e-10, maxiter=20 * n, M=precondition)
+        return solution
 
 
 # --- building the problems of one level ------------------------------------------

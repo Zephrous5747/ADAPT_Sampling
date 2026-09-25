@@ -37,6 +37,7 @@ from contexts import build_context_library  # noqa: E402
 from design import DesignSet, build_fragment_problems  # noqa: E402
 from online import OnlineConfig, OnlineM3, summarise  # noqa: E402
 from outputs import run_record, write_csv, write_json  # noqa: E402
+from parallel import parse_shard, run_trials, trial_path, write_trials  # noqa: E402
 from part1_bridge import DEFAULT_DELTA, load_problem, z_from_delta  # noqa: E402
 from sampler import OracleMoments  # noqa: E402
 
@@ -62,11 +63,13 @@ def part1_noiseless(problem, shrink: float, rule: str, covariances) -> float:
     return outcome.shots
 
 
-def run_trials(model: OnlineM3, trials: int, seed: int) -> dict:
-    rng = np.random.default_rng(seed)
+def run_config(model: OnlineM3, label: str, case: str, args, shard=(1, 1)) -> dict:
+    """Run one configuration's trials (parallel, per-trial seeds) and keep every trial."""
     started = time.perf_counter()
-    outcomes = [model.run(rng) for _ in range(trials)]
-    result = summarise(outcomes)
+    results = run_trials(model.run, args.trials, args.seed, workers=args.workers, shard=shard)
+    write_trials(trial_path(args.out, case, "step1", label, shard), label, args.trials, args.seed,
+                 [(i, outcome, {}) for i, outcome in results])
+    result = summarise([outcome for _, outcome in results])
     result["seconds"] = round(time.perf_counter() - started, 1)
     return result
 
@@ -83,8 +86,13 @@ def main() -> None:
                         help="skip rerunning Part I's Gaussian surrogate")
     parser.add_argument("--gates-only", action="store_true",
                         help="run only the (deterministic) noiseless gate")
+    parser.add_argument("--workers", type=int, default=1, help="worker processes (use OMP_NUM_THREADS=1)")
+    parser.add_argument("--shard", default="1/1",
+                        help="K/N: run every N-th trial of the baseline configurations only; "
+                             "merge with scripts/merge_trials.py --step step1")
     parser.add_argument("--out", type=Path, default=Path("runs"))
     args = parser.parse_args()
+    shard = parse_shard(args.shard)
 
     for case in args.cases:
         problem = load_problem(case)
@@ -101,6 +109,16 @@ def main() -> None:
         # marginal rule and independent noise.  Compare only what it really runs.
         part1_covariances = finite_shot.context_covariances(problem, problem.parent_fc_groups())
         part1_rules = ("marginal", "pairwise") if part1_covariances is not None else ("marginal",)
+
+        if shard != (1, 1):  # sharded: the baseline trials only; gates need the whole set
+            for gamma in args.gammas:
+                for accounting in ("maxima", "topup"):
+                    label = f"baseline pairwise {accounting} gamma={gamma:g}"
+                    result = run_config(model(rule="pairwise", accounting=accounting, shrink=gamma),
+                                        label, case, args, shard)
+                    print(f"{case:32s} {label} shard {args.shard}: {result['shots_mean']:14,.0f} "
+                          f"({result['seconds']:.0f}s)", flush=True)
+            continue
 
         # 1. noiseless gate
         for rule in part1_rules:
@@ -123,7 +141,7 @@ def main() -> None:
 
         # 2. noisy gate against Part I's Gaussian surrogate (correlated where Part I can)
         for rule in ("marginal", "pairwise"):
-            ours = run_trials(model(rule=rule, shrink=0.5), args.trials, args.seed)
+            ours = run_config(model(rule=rule, shrink=0.5), f"noisy {rule} maxima gamma=0.5", case, args)
             row = {"case_id": case, "check": "noisy", "rule": rule, "accounting": "maxima", "gamma": 0.5,
                    **{f"part2_{k}": v for k, v in ours.items()}}
             if not args.skip_part1 and rule in part1_rules:
@@ -149,8 +167,8 @@ def main() -> None:
         # 3. the Part II baseline
         for gamma in args.gammas:
             for accounting in ("maxima", "topup"):
-                result = run_trials(model(rule="pairwise", accounting=accounting, shrink=gamma),
-                                    args.trials, args.seed)
+                result = run_config(model(rule="pairwise", accounting=accounting, shrink=gamma),
+                                    f"baseline pairwise {accounting} gamma={gamma:g}", case, args)
                 rows.append({"case_id": case, "check": "baseline", "rule": "pairwise",
                              "accounting": accounting, "gamma": gamma,
                              **{f"part2_{k}": v for k, v in result.items()}})
@@ -163,7 +181,8 @@ def main() -> None:
         columns = list(dict.fromkeys(k for r in rows for k in r))
         write_csv(args.out / case / f"{case}_step1_online_baseline.csv", columns, rows)
         write_json(args.out / case / f"{case}_step1_meta.json",
-                   {"trials": args.trials, "seed": args.seed, "run": run_record()})
+                   {"trials": args.trials, "seed": args.seed,
+                    "seeding": "trial i uses SeedSequence(seed).spawn(trials)[i]", "run": run_record()})
 
 
 if __name__ == "__main__":
