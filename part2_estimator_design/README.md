@@ -1,14 +1,16 @@
 # Part II: universal measurable estimators — Steps 0–3
 
-This package implements Steps 0–3 of the implementation plan for
-`reports/part2_rewritten_universal_estimator_design.tex`:
+This package implements Steps 0–4 of the implementation plan for
+`reports/part2_rewritten_universal_estimator_design.tex`. The write-up for
+colleagues is `reports/part2_rewritten.tex` (and its PDF).
 
 | Step | What | Where |
 |---|---|---|
 | 0 | Symplectic Pauli algebra, measurement-circuit synthesis, group moments, shot-level sampler, and their gates | `src/symplectic.py`, `src/clifford.py`, `src/sampler.py`, `scripts/step0_validate.py` |
 | 1 | II-0 baseline as a shot-level online experiment (pairwise rule, top-up allocation, fine schedule) | `src/online.py`, `scripts/step1_online_baseline.py` |
 | 2 | Overlap census: which Paulis are measured by more than one context | `src/contexts.py`, `scripts/step2_overlap_census.py` |
-| 3 | Oracle ceiling of coefficient splitting (II-A), zero-sum ghosts (II-B) and per-breakpoint redesign (oracle II-D) | `src/design.py`, `src/allocation.py`, `src/planning.py`, `scripts/step3_oracle_ceiling.py` |
+| 3 | Oracle ceiling of coefficient splitting (II-A), zero-sum ghosts (II-B) and per-breakpoint redesign (oracle II-D) | `src/design.py`, `src/allocation.py`, `src/planning.py`, `scripts/step3_oracle_ceiling.py`, `scripts/step3_prior_transfer.py` |
+| 4 | II-A with covariances learned from the shots (shrinkage prior, cross-fitting, guard, estimated radii) | `src/learning.py`, `scripts/step4_learned_designs.py` |
 
 Results and their reading are in `RESULTS.md`.
 
@@ -70,11 +72,12 @@ PySCF 2.14.0 and OpenFermion 1.8.1.
 ```bash
 cd part2_estimator_design
 python scripts/build_problems.py                      # all nine cases, checked against Part I
-python -m pytest tests -q                             # 47 tests
+python -m pytest tests -q                             # 50 tests
 python scripts/step0_validate.py --low-shot 0.001     # sampler gate
 python scripts/step1_online_baseline.py --trials 250  # II-0 baseline, H4 + LiH
 python scripts/step2_overlap_census.py                # overlap census, all nine cases
 python scripts/step3_oracle_ceiling.py --cases H4_square_eq_side1p0_HF --redesign
+python scripts/step4_learned_designs.py --trials 200  # learned II-A, H4 CISD rows
 ```
 
 Every script writes CSV/JSON under `runs/<case>/`, with interpreter, package

@@ -93,15 +93,7 @@ class FragmentProblem:
         self.ctx_ids, starts = np.unique(self.coord_ctx, return_index=True)
         self.ctx_ptr = np.append(starts, self.coord_ctx.size)
         self.coord_block = np.repeat(np.arange(self.ctx_ids.size), np.diff(self.ctx_ptr))
-        self.blocks = [
-            covariance(int(alpha), self.coord_pauli[self.ctx_ptr[k] : self.ctx_ptr[k + 1]])
-            for k, alpha in enumerate(self.ctx_ids)
-        ]
-        self._block_matrix = (
-            sp.block_diag([sp.coo_matrix(self.blocks[0])] + self.blocks[1:], format="csr")
-            if self.blocks
-            else None
-        )
+        self.update_blocks(covariance)
 
         self.pauli_ids, inverse = np.unique(self.coord_pauli, return_inverse=True)
         by_pauli = np.argsort(inverse, kind="stable")
@@ -115,6 +107,19 @@ class FragmentProblem:
         self.x = np.zeros(self.coord_ctx.size)
         self.x[self.reference] = self.pauli_target
         self._structures: dict[bytes, dict | None] = {}
+
+    def update_blocks(self, covariance: Callable[[int, np.ndarray], np.ndarray]) -> None:
+        """Replace the covariance model (Step 4 refits it from data)."""
+        self.blocks = [
+            covariance(int(alpha), self.coord_pauli[self.ctx_ptr[k] : self.ctx_ptr[k + 1]])
+            for k, alpha in enumerate(self.ctx_ids)
+        ]
+        self._block_matrix = (
+            sp.block_diag([sp.coo_matrix(self.blocks[0])] + self.blocks[1:], format="csr")
+            if self.blocks
+            else None
+        )
+        self._structures = {}
 
     # --- evaluation -----------------------------------------------------------
 

@@ -128,7 +128,10 @@ with top-up accounting, compared with II-0 under top-up.
 | | II-A canonical | −80% | −77% | **−76%** | not run |
 | | II-B mass | −84% | −82% | **−70%** | not run |
 | | II-B canonical | −80% | −78% | **−64%** | not run |
-| H₂O ×4 | II-A mass | pending | pending | **pending** | not run |
+| H₂O eq HF | II-A mass | −84% | −81% | **−80%** | not run |
+| H₂O eq CISD | II-A mass | −79% | −78% | **−75%** | not run |
+| H₂O str HF | II-A mass | −84% | −71% | **−64%** | not run |
+| H₂O str CISD | II-A mass | −73% | −69% | **−68%** | not run |
 
 With the canonical completion, H₄ gains on M3 actual are 0–9 points smaller than
 with mass; on LiH, canonical is 5 points better (`*_step3_oracle_ceiling.csv`). Every design satisfies `A = BC` to within
@@ -150,6 +153,34 @@ On a determinant, outcomes are either deterministic or perfectly
 where the cancellations are exact, and they do not survive correlation. This is
 the work order's failure mode (1), bad covariance prior, observed at planning
 level before any measurement noise.
+
+## Step 4: designs learned from the shots (`*_step4_learned_designs.csv`)
+
+Setup: truth is the CISD state; the prior is the HF determinant. II-A uses the mass
+completion, the pairwise rule, γ = 0.9, top-up allocation and shot-level sampling.
+Each row has 200 trials at seed 2.
+
+| Design | radii | H₄ 1.0 CISD: mean (change), correct | H₄ 2.0 CISD: mean (change), correct |
+|---|---|---|---|
+| II-0 | oracle | 41,215, 200/200 | 24,354, 200/200 |
+| II-A oracle covariance | oracle | 23,450 (−43%), 200 | 12,125 (−50%), 200 |
+| II-0 | estimated | 41,940, 200 | 24,591, 200 |
+| II-A HF prior only | estimated | 439,749 (+949%), 170 | 197,780 (+704%), 138 |
+| II-A HF, ν = 1000 | estimated | 28,360 (−32%), 199 | 23,233 (−6%), 193 |
+| II-A HF, ν = 100 | estimated | 23,850 (−43%), 200 | 14,297 (−42%), 199 |
+| **II-A data only (ν = 0)** | estimated | **24,688 (−41%), 200** | **16,045 (−35%), 200** |
+| II-A data only, no guard | estimated | 25,253 (−40%), 200 | 32,265 (+31%), 197 |
+
+What the table shows:
+
+- **Learned from data, fully non-oracle, II-A keeps most of the ceiling.** It costs
+  35–41% less than II-0 with no wrong selections; the oracle ceiling is 43–50%.
+- **The HF prior alone fails.** Its design and its near-zero variances make the runs
+  overconfident (69–85% correct). With oracle radii, the allocation still follows
+  the prior's near-zero variances, and runs stall until the radius floor
+  (10⁸–10⁹ shots).
+- **Shrinkage helps only with little prior weight.**
+- **The guard is needed.** It removes the tail on side 2.0.
 
 ## Reading and caveats
 

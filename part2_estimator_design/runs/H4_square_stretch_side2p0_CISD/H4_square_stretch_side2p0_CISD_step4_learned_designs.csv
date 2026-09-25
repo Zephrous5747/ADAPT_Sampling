@@ -1,0 +1,10 @@
+case_id,config,label,n_trials,correct_rate,correct_low,correct_high,failures,shots_mean,shots_sem,shots_median,shots_q25,shots_q75,shots_p90,rounds_mean,seconds,mean_designs_kept_last_refit
+H4_square_stretch_side2p0_CISD,II-0 estimated,II-0/estimated radii,200,1.0,0.9811539940816791,1.0,0,24590.61,672.4327545087172,23333.0,18470.0,29395.75,37379.0,12.705,239.7,0.0
+H4_square_stretch_side2p0_CISD,II-0 oracle,II-0/oracle radii,200,1.0,0.9811539940816791,1.0,0,24354.18,685.8729623556043,23053.5,17562.0,29533.75,36708.9,12.18,237.0,0.0
+H4_square_stretch_side2p0_CISD,II-A oracle,II-A/prior=oracle/nu=inf/oracle radii/guard=on,200,1.0,0.9811539940816791,1.0,0,12125.45,294.1127341504397,11571.0,9168.5,14976.0,17313.1,12.19,304.7,12.73
+H4_square_stretch_side2p0_CISD,II-A HF prior,II-A/prior=hf/nu=inf/estimated radii/guard=on,200,0.69,0.622826945087378,0.75001157266366,62,197780.05,96917.48331138218,28266.5,13825.0,62977.5,207240.19999999992,18.515,509.6,7.39
+H4_square_stretch_side2p0_CISD,"II-A HF prior, oracle radii",II-A/prior=hf/nu=inf/oracle radii/guard=on,200,0.915,0.8681031145576462,0.9462547005301477,17,896077498.65,17611368.032857623,804315310.5,727643369.75,898030265.5,1350117245.8,67.0,1804.4,17.99
+H4_square_stretch_side2p0_CISD,II-A data,II-A/prior=none/nu=0/estimated radii/guard=on,200,1.0,0.9811539940816791,1.0,0,16045.21,593.4135796915264,14031.5,11289.75,19498.0,23049.1,12.495,287.8,12.48
+H4_square_stretch_side2p0_CISD,"II-A data, no guard",II-A/prior=none/nu=0/estimated radii/guard=off,200,0.985,0.9568335194437211,0.9948858548155076,3,32265.45,6248.210910162757,16363.5,11053.75,24152.25,40358.49999999999,14.59,223.6,12.51
+H4_square_stretch_side2p0_CISD,II-A HF nu=100,II-A/prior=hf/nu=100/estimated radii/guard=on,200,0.995,0.9722256001302286,0.999116854010634,1,14296.83,733.5736302241934,13528.5,9633.25,17374.5,21584.0,11.85,495.8,13.71
+H4_square_stretch_side2p0_CISD,II-A HF nu=1000,II-A/prior=hf/nu=1000/estimated radii/guard=on,200,0.965,0.9295285391333187,0.9829446753626429,7,23232.9,6273.1719744684415,14545.5,9008.5,19203.25,26931.6,12.56,329.4,12.34
