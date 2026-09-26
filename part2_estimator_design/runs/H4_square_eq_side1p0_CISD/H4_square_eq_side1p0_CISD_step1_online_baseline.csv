@@ -1,9 +1,7 @@
-case_id,check,rule,accounting,gamma,part1_shots,part2_shots,ratio,passed,part2_n_trials,part2_correct_rate,part2_correct_low,part2_correct_high,part2_failures,part2_shots_mean,part2_shots_sem,part2_shots_median,part2_shots_q25,part2_shots_q75,part2_shots_p90,part2_rounds_mean,part2_seconds,part1_noise_model,part1_shots_mean,part1_shots_sem,part1_correct_rate,difference_in_sem,part1_seconds
-H4_square_eq_side1p0_CISD,noiseless,marginal,maxima,0.5,116094.51538496917,116118.0,1.0002022887554416,True,,,,,,,,,,,,,,,,,,,
-H4_square_eq_side1p0_CISD,noiseless,pairwise,maxima,0.5,40971.44210659771,40998.0,1.000648204994425,True,,,,,,,,,,,,,,,,,,,
-H4_square_eq_side1p0_CISD,noisy,marginal,maxima,0.5,,,,True,250,1.0,0.9848661527503766,1.0,0,147833.776,1644.6017538194346,163909.0,135967.75,163910.0,163910.0,3.976,3.3,correlated,151336.68634398293,1925.485022351198,1.0,-1.3833282240539932,3.0
-H4_square_eq_side1p0_CISD,noisy,pairwise,maxima,0.5,,,,True,250,1.0,0.9848661527503766,1.0,0,92131.772,2581.1215110574394,97579.0,40998.0,121069.5,146130.6,3.676,3.6,correlated,89807.16725582274,2699.6664398736443,1.0,0.6223805180788898,3.2
-H4_square_eq_side1p0_CISD,baseline,pairwise,maxima,0.5,,,,,250,1.0,0.9848661527503766,1.0,0,92131.772,2581.1215110574394,97579.0,40998.0,121069.5,146130.6,3.676,3.6,,,,,,
-H4_square_eq_side1p0_CISD,baseline,pairwise,topup,0.5,,,,,250,1.0,0.9848661527503766,1.0,0,92685.644,2622.4715974827013,97231.5,41001.0,126656.25,146053.8,3.68,98.1,,,,,,
-H4_square_eq_side1p0_CISD,baseline,pairwise,maxima,0.9,,,,,250,1.0,0.9848661527503766,1.0,0,40993.932,886.1316055161799,39622.0,30497.25,50338.5,60705.3,9.2,17.2,,,,,,
-H4_square_eq_side1p0_CISD,baseline,pairwise,topup,0.9,,,,,250,1.0,0.9848661527503766,1.0,0,40876.408,920.3331758185146,39275.0,30383.5,50149.5,61957.799999999996,9.536,244.8,,,,,,
+case_id,check,rule,accounting,gamma,part2_n_trials,part2_correct_rate,part2_correct_low,part2_correct_high,part2_failures,part2_shots_mean,part2_shots_sem,part2_shots_median,part2_shots_q25,part2_shots_q75,part2_shots_p90,part2_rounds_mean,part2_seconds,part1_noise_model,part1_shots_mean,part1_shots_sem,part1_correct_rate,difference_in_sem,part1_seconds,passed
+H4_square_eq_side1p0_CISD,noisy,marginal,maxima,0.5,250,1.0,0.9848661527503766,1.0,0,150437.248,1817.5483211206292,163910.0,144090.25,163910.0,163910.0,3.98,2.1,correlated,151336.68634398293,1925.485022351198,1.0,-0.339689564455772,4.2,True
+H4_square_eq_side1p0_CISD,noisy,pairwise,maxima,0.5,250,1.0,0.9848661527503766,1.0,0,95256.02,2622.656640285521,99148.5,40998.0,127174.75,150527.4,3.7,1.8,correlated,89807.16725582274,2699.6664398736443,1.0,1.4476826793640698,4.0,True
+H4_square_eq_side1p0_CISD,baseline,pairwise,maxima,0.5,250,1.0,0.9848661527503766,1.0,0,95256.02,2622.656640285521,99148.5,40998.0,127174.75,150527.4,3.7,1.7,,,,,,,
+H4_square_eq_side1p0_CISD,baseline,pairwise,topup,0.5,250,1.0,0.9848661527503766,1.0,0,96150.008,2504.254256764243,97212.5,41001.0,122934.25,150042.0,3.74,30.6,,,,,,,
+H4_square_eq_side1p0_CISD,baseline,pairwise,maxima,0.9,250,1.0,0.9848661527503766,1.0,0,43217.988,1031.862495672425,40918.5,31600.75,52823.25,63831.7,9.32,5.5,,,,,,,
+H4_square_eq_side1p0_CISD,baseline,pairwise,topup,0.9,250,1.0,0.9848661527503766,1.0,0,41515.056,920.6296176721651,39754.5,30881.25,49811.5,61288.9,9.536,90.7,,,,,,,

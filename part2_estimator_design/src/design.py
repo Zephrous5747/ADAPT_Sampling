@@ -240,12 +240,18 @@ class FragmentProblem:
         gradient = structure["N"].T @ weighted
         step = _solve_psd(hessian, -gradient)
         candidate = self.x + structure["N"] @ step
-        before = self.variance(shots)
-        after = self.variance(shots, candidate)
+        # Compare on the usable contexts only: coordinates elsewhere do not move, and
+        # a context given zero shots here (e.g. held back for lack of data) would
+        # otherwise make both variances infinite and the comparison meaningless.
+        before = self._usable_variance(inverse, self.x)
+        after = self._usable_variance(inverse, candidate)
         if after <= before:
             self.x = candidate
-            return after
-        return before
+            return self.variance(shots)
+        return self.variance(shots)
+
+    def _usable_variance(self, inverse_shots: np.ndarray, x: np.ndarray) -> float:
+        return float((np.maximum(self.context_second_moments(x), 0.0) * inverse_shots).sum())
 
 
 def _solve_psd(matrix: sp.csr_matrix, rhs: np.ndarray) -> np.ndarray:

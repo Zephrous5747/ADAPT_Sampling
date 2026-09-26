@@ -28,13 +28,16 @@ Guard
 
 Radii
     ``radii="estimated"`` computes every variance and pairwise covariance from the
-    pooled covariance model (fully non-oracle); ``radii="oracle"`` uses the exact
-    covariances, as Part I and Step 1 do, to isolate the design effect.
+    covariance model of the *held-out* fold: fold A's design is evaluated with fold
+    B's covariance, which is independent of it (fully non-oracle).  A pooled
+    covariance would include the fold the design was fitted to and underestimate its
+    variance.  ``radii="oracle"`` uses the exact covariances, as Part I and Step 1
+    do, to isolate the design effect.
 
 The first round is always an II-0 pilot at the starting radius; designs are
 refitted when the shots held have grown by ``refit_growth`` since the last fit.
-Allocation plans with the fold-A design and the pooled covariance and tops up
-from the shots already held.
+Allocation plans with the fold-A design and fold B's covariance and tops up from
+the shots already held.
 """
 from __future__ import annotations
 
@@ -62,6 +65,7 @@ class LearningConfig:
     shrink: float = 0.9
     delta: float = 0.05
     refit_growth: float = 1.5
+    min_fold_shots: int = 50  # a context enters a design only with this many shots per fold
 
     @property
     def label(self) -> str:
@@ -170,8 +174,18 @@ class LearnedM3:
         return x
 
     def _refit(self, model, active) -> list[list]:
-        """Fold designs as (ctx, pauli, x) per arm; fallback to II-0 by the guard."""
+        """Fold designs as (ctx, pauli, x) per arm; fallback to II-0 by the guard.
+
+        Only contexts where *both* folds hold at least ``min_fold_shots`` shots may
+        carry learned coefficients; elsewhere a generator keeps its II-0
+        coefficients.  A covariance from a handful of samples has spurious
+        zero-variance directions that a fitted design exploits.  On LiH, fitting
+        straight after the pilot round (a few shots per context) eliminated
+        almost every arm at once and gave 54% correct selections.
+        """
         shots = [model.shots(0).astype(float), model.shots(1).astype(float)]
+        supported = np.minimum(shots[0], shots[1]) >= self.config.min_fold_shots
+        learnable = [np.where(supported, s, 0.0) for s in shots]
         folds = [self._fold_problems(model, 0), self._fold_problems(model, 1)]
         designs = [[None] * self.n_arms, [None] * self.n_arms]
         self.guard_kept = 0
@@ -180,9 +194,9 @@ class LearnedM3:
                 p, check = folds[f][i], folds[1 - f][i]
                 home = self._home_x(p)
                 x = home
-                if i in active:
+                if i in active and supported[p.ctx_ids].any():
                     p.x = home.copy()
-                    p.optimise(shots[f])
+                    p.optimise(learnable[f])
                     candidate = p.x
                     if not self.config.guard or (
                         check.variance(shots[1 - f], candidate) < check.variance(shots[1 - f], home)
@@ -234,26 +248,58 @@ class LearnedM3:
                 if self.config.radii == "oracle":
                     sigma = self.oracle.covariance(alpha, paulis)
                 else:
-                    sigma = model.covariance(alpha, paulis, None)
+                    # The held-out fold only: fold f's design was fitted to fold f's
+                    # noise, so any covariance containing fold f flatters it and the
+                    # radii come out too small.  On LiH the pooled estimate gave 54%
+                    # correct selections.  Fold 1-f is independent of the design,
+                    # so x^T Sigma_hat x is an unbiased estimate of its variance.
+                    sigma = model.covariance(alpha, paulis, 1 - f)
                 K = X.T @ sigma @ X / m
                 rows = [k for k, _, _ in parts]
                 result[np.ix_(rows, rows)] += 0.25 * K
         return result
 
-    def _plan_sigmas(self, model, designs, active) -> np.ndarray:
-        """One-shot fragment standard deviations of the fold-A design, pooled model."""
-        sigmas = np.zeros((len(active), self.n_contexts))
-        for row, arm in enumerate(active):
-            ctx, pauli, x = designs[0][arm]
+    def _variance_by_context(self, model, designs, arm) -> list[tuple]:
+        """(context, fold shots, estimated variance, planning sigma) for one arm, largest first."""
+        rows = []
+        for f in (0, 1):
+            ctx, pauli, x = designs[f][arm]
             for alpha in np.unique(ctx):
                 chosen = ctx == alpha
-                sigma = model.covariance(int(alpha), pauli[chosen], None)
-                sigmas[row, alpha] = math.sqrt(max(float(x[chosen] @ sigma @ x[chosen]), 0.0))
-        return sigmas
+                m = model.shots(1 - f)[alpha]
+                sigma = model.covariance(int(alpha), pauli[chosen], 1 - f)
+                variance = 0.25 * float(x[chosen] @ sigma @ x[chosen]) / max(m, 1)
+                plan = model.covariance(int(alpha), pauli[chosen], 1) if f == 0 else None
+                rows.append((int(alpha), f, int(model.shots(0)[alpha]), int(model.shots(1)[alpha]),
+                             round(variance, 8),
+                             None if plan is None else round(float(np.sqrt(max(x[chosen] @ plan @ x[chosen], 0))), 5)))
+        return sorted(rows, key=lambda r: -r[4])
+
+    def _plan_sigmas(self, model, designs, active) -> np.ndarray:
+        """Per-shot fragment standard deviations, exactly as the radii will see them.
+
+        With ``n`` shots split evenly, the cross-fitted variance in context ``a`` is
+        ``(x_A' S_B x_A + x_B' S_A x_B) / (2 n)``, so the planning variance is the
+        mean of the two held-out terms.  Planning with one design and one fold
+        instead let the two disagree: on H4 side 2.0 a context whose 5-shot fold
+        showed zero variance was never topped up, while the other fold's 6 shots
+        kept a variance the radii could not shrink, and runs went to the radius
+        floor (7.7e6 mean against a median of 1.3e4).
+        """
+        second = np.zeros((len(active), self.n_contexts))
+        for row, arm in enumerate(active):
+            for f in (0, 1):
+                ctx, pauli, x = designs[f][arm]
+                for alpha in np.unique(ctx):
+                    chosen = ctx == alpha
+                    sigma = model.covariance(int(alpha), pauli[chosen], 1 - f)
+                    second[row, alpha] += 0.5 * max(float(x[chosen] @ sigma @ x[chosen]), 0.0)
+        return np.sqrt(second)
 
     # --- the run -----------------------------------------------------------------
 
-    def run(self, rng: np.random.Generator) -> OnlineOutcome:
+    def run(self, rng: np.random.Generator, trace: list | None = None) -> OnlineOutcome:
+        """One trial; pass a list as ``trace`` to record every round (diagnostics)."""
         truth = self.problem.abs_gradients
         leader = int(np.argmax(truth))
         z = self.z
@@ -309,6 +355,20 @@ class LearnedM3:
             magnitudes = np.abs(estimates[active])
             lead = magnitudes[None, :] - magnitudes[:, None]
             dominated = (lead > z * np.sqrt(np.maximum(pairwise, 0.0))).any(axis=1)
+            if trace is not None:
+                order = np.argsort(-magnitudes)[:2]
+                top = [active[k] for k in order]
+                record = {"round": rounds, "radius": radius, "n_active": len(active),
+                          "shots": int(spent.sum()), "top": top,
+                          "estimates": [float(estimates[i]) for i in top],
+                          "truth": [float(self.problem.gradients[i]) for i in top],
+                          "sd": [float(np.sqrt(max(diagonal[k], 0.0))) for k in order]}
+                if len(order) == 2:
+                    a, b = order
+                    record["lead"] = float(magnitudes[a] - magnitudes[b])
+                    record["pair_radius"] = float(z * np.sqrt(max(pairwise[b, a], 0.0)))
+                    record["runner_up_contexts"] = self._variance_by_context(model, designs, active[b])[:4]
+                trace.append(record)
             active = [i for k, i in enumerate(active) if not dominated[k]]
             radius *= self.config.shrink
 

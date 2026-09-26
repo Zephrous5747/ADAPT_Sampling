@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Collect the per-case outputs of Steps 1-3 into combined tables.
+"""Collect the per-case outputs of Steps 1-4 into combined tables.
 
 Each step writes ``runs/<case>/<case>_<step>.csv``; runs over subsets of cases are
 therefore never lost when a later run covers different cases.  This script
-concatenates them into ``runs/step1_online_baseline.csv``,
-``runs/step2_overlap_census.csv`` and ``runs/step3_oracle_ceiling.csv``.
+concatenates them into ``runs/<step>.csv`` for every step in ``TABLES``.
 """
 from __future__ import annotations
 
@@ -22,6 +21,7 @@ TABLES = {
     "step1_online_baseline": "{case}_step1_online_baseline.csv",
     "step2_overlap_census": "{case}_overlap_census.csv",
     "step3_oracle_ceiling": "{case}_step3_oracle_ceiling.csv",
+    "step4_learned_designs": "{case}_step4_learned_designs.csv",
 }
 
 

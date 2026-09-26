@@ -72,6 +72,33 @@ def test_cross_fitted_estimate_is_unbiased_at_fixed_shots(setup):
     assert z.max() < 4.0
 
 
+def test_estimated_variance_matches_the_actual_spread(setup):
+    """The radii must not be flattered by the fold the design was fitted to.
+
+    With few shots per context the fitted design overfits its own fold; its
+    variance estimated with a covariance that includes that fold comes out too
+    small, which on LiH produced 54% correct selections.  The held-out estimate
+    must match the replicate-to-replicate spread of the cross-fitted estimate.
+    """
+    problem, library, oracle, prior, base, coords = setup
+    learner = LearnedM3(problem, library, oracle, prior, base, coords, LearningConfig(prior="none", nu=0.0))
+    rng = np.random.default_rng(17)
+    shots = np.full(library.n_contexts, 120)  # 60 per fold: above min_fold_shots, still few
+    arms = problem.ranking()[:4]
+    replicates = 200
+    estimates = np.empty((replicates, len(arms)))
+    predicted = np.empty((replicates, len(arms)))
+    for r in range(replicates):
+        model = learner._model()
+        _sample(model, learner.distributions, shots, rng)
+        designs = learner._refit(model, set(range(problem.n_generators)))
+        estimates[r] = learner._estimates(model, designs)[arms]
+        predicted[r] = np.diag(learner._covariance_matrix(model, designs, arms))
+    assert learner.guard_kept > 0, "the test must exercise learned designs"
+    ratio = predicted.mean(axis=0) / estimates.var(axis=0, ddof=1)
+    assert (ratio > 0.75).all() and (ratio < 1.35).all(), ratio
+
+
 def test_learned_run_selects_the_winner(setup):
     problem, library, oracle, prior, base, coords = setup
     learner = LearnedM3(problem, library, oracle, prior, base, coords, LearningConfig(prior="none", nu=0.0))

@@ -72,13 +72,37 @@ PySCF 2.14.0 and OpenFermion 1.8.1.
 ```bash
 cd part2_estimator_design
 python scripts/build_problems.py                      # all nine cases, checked against Part I
-python -m pytest tests -q                             # 50 tests
+python -m pytest tests -q                             # 53 tests
 python scripts/step0_validate.py --low-shot 0.001     # sampler gate
 python scripts/step1_online_baseline.py --trials 250  # II-0 baseline, H4 + LiH
 python scripts/step2_overlap_census.py                # overlap census, all nine cases
 python scripts/step3_oracle_ceiling.py --cases H4_square_eq_side1p0_HF --redesign
 python scripts/step4_learned_designs.py --trials 200  # learned II-A, H4 CISD rows
 ```
+
+### Parallel and cluster runs
+
+Steps 1 and 4 run their trials in worker processes. Set `OMP_NUM_THREADS=1` and
+pass `--workers N`:
+
+```bash
+OMP_NUM_THREADS=1 python scripts/step4_learned_designs.py --cases LiH_R3p0_HF --trials 100 --workers 10
+```
+
+Each trial has its own random stream, so the result does not depend on the
+number of workers. To spread one run over several machines or cluster jobs, give
+each job `--shard K/N`, then merge:
+
+```bash
+python scripts/merge_trials.py --step step4 --cases LiH_R3p0_HF
+```
+
+The merge checks that every trial is present exactly once. Memory is about
+1.5 GB per worker on LiH and about 3.6 GB per process on H₂O.
+
+The environment is pinned in `requirements.txt`. `Dockerfile` builds it from the
+repository root; it has not been tested, since no Docker was available on the
+development machine.
 
 Every script writes CSV/JSON under `runs/<case>/`, with interpreter, package
 versions and git commit in a `*_meta.json`. Step 3 saves the static design of

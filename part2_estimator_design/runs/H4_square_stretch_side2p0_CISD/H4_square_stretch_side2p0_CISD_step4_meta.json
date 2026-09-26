@@ -2,16 +2,14 @@
   "trials": 200,
   "seed": 2,
   "strategy": "mass",
+  "seeding": "trial i uses SeedSequence(seed).spawn(trials)[i]",
   "configs": {
-    "II-0 estimated": "II-0/estimated radii",
-    "II-0 oracle": "II-0/oracle radii",
-    "II-A oracle": "II-A/prior=oracle/nu=inf/oracle radii/guard=on",
-    "II-A HF prior": "II-A/prior=hf/nu=inf/estimated radii/guard=on",
-    "II-A HF prior, oracle radii": "II-A/prior=hf/nu=inf/oracle radii/guard=on",
     "II-A data": "II-A/prior=none/nu=0/estimated radii/guard=on",
     "II-A data, no guard": "II-A/prior=none/nu=0/estimated radii/guard=off",
     "II-A HF nu=100": "II-A/prior=hf/nu=100/estimated radii/guard=on",
-    "II-A HF nu=1000": "II-A/prior=hf/nu=1000/estimated radii/guard=on"
+    "II-A HF nu=1000": "II-A/prior=hf/nu=1000/estimated radii/guard=on",
+    "II-A HF prior": "II-A/prior=hf/nu=inf/estimated radii/guard=on",
+    "II-A HF prior, oracle radii": "II-A/prior=hf/nu=inf/oracle radii/guard=on"
   },
   "run": {
     "python": "3.12.3",
@@ -22,7 +20,7 @@
       "pyscf": "2.14.0",
       "openfermion": "1.8.1"
     },
-    "git_commit": "7169c3b2182e2d48bfffe046cce488e73ef1a8f0",
+    "git_commit": "1f95546e8ef6b11ae04252271cc9ce362f7e5df2",
     "part2_tree_dirty": true
   }
 }

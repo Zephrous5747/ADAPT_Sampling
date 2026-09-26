@@ -34,11 +34,11 @@ We implemented Steps 0--4 of the Part II plan on the nine Part I benchmark cases
 
 \begin{itemize}[leftmargin=1.2em]
   \item \textbf{Step 0.} Each measurement context in fact reads out a maximal group of $2^n$ commuting Pauli products. We built the tools to exploit this: measurement circuits, the moments of every group from one transform, and exact shot-level sampling. All are validated against dense linear algebra and against Part I.
-  \item \textbf{Step 1.} The II-0 baseline runs Part I's estimator as a shot-level experiment, with pairwise elimination, radius schedule $\gamma=0.9$ and top-up allocation. It costs 65--76\% fewer context-shots than Part I's M3 as run, with no wrong selections in 1{,}100 trials.
+  \item \textbf{Step 1.} The II-0 baseline runs Part I's estimator as a shot-level experiment, with pairwise elimination, radius schedule $\gamma=0.9$ and top-up allocation. Its median cost is 62--83\% below Part I's M3 as run. It made 5 wrong selections in 1{,}100 trials, all on the tied H$_4$ HF rows.
   \item \textbf{Step 2.} 58--75\% of the Pauli products in $\mathcal B_0$ are measured by at least two contexts, so coefficient splitting is possible everywhere.
   \item \textbf{Step 3.} With exact covariances, splitting (II-A) lowers the M3 cost by 38--80\% across all cases. Ghost Pauli products (II-B) add up to 10 points. Redesign at every elimination breakpoint (oracle II-D) adds up to 19 points, but only under top-up accounting.
   \item \textbf{Prior transfer.} A design fitted to Hartree--Fock covariances and applied to the correlated state is 66--69\% \emph{more} expensive than II-0.
-  \item \textbf{Step 4.} The design is learned from the shots, with cross-fitting and a guard, and the confidence radii are estimated too, so the run is fully non-oracle. On both H$_4$ CISD rows II-A then costs 35--41\% less than II-0 run the same way, with no wrong selections in 400 trials. The online oracle ceiling is 43--50\%. The HF prior on its own is unreliable (69--85\% correct), and it helps only when given little weight.
+  \item \textbf{Step 4.} The design is learned from the shots and the confidence radii are estimated too, so the run is fully non-oracle. It relies on cross-fitting, held-out radii and allocation, and a minimum number of shots per fold before a context is learned. On the two H$_4$ CISD rows and on LiH, II-A then costs 36--43\% less than II-0 run the same way, with no wrong selections in 500 trials. That is 75--84\% of the online oracle ceiling. The HF prior on its own is unreliable (85--99\% correct, heavy tails), and no prior improved on the data alone.
 \end{itemize}
 \end{abstract}
 
@@ -222,11 +222,24 @@ The loop above is run with II-A coefficients learned from the data, as follows.
 \begin{itemize}
   \item \emph{Covariance model.} Per context and fold, $\widetilde\Sigma=\lambda\Sigma^{\rm prior}+(1-\lambda)\widehat\Sigma^{\rm emp}$ with $\lambda=\nu/(\nu+m)$, where $m$ is the number of shots. $\widehat\Sigma^{\rm emp}$ is the unbiased sample covariance of Eq.~\eqref{eq:moments}. It is positive semidefinite, and so is every shrinkage of it, so no projection is needed. The priors are the HF determinant (in the CISD problem's own orbital basis), none ($\nu=0$), or the oracle (a diagnostic).
   \item \emph{Cross-fitting.} Every context's shots are split into two folds. The design fitted on fold A (an exact per-generator solve at fold A's shots) is applied to fold B's means, and vice versa. The two estimates are averaged. Each half-estimate is unbiased whatever its design.
+  \item \emph{Minimum data.} A context may carry learned coefficients only when both folds hold at least 50 shots in it. Elsewhere a generator keeps its II-0 coefficients.
   \item \emph{Guard.} A fitted design is kept for generator $i$ only if the other fold's covariance predicts a lower variance than the II-0 coefficients do. Otherwise $i$ falls back to II-0.
   \item \emph{Schedule.} The first round is an II-0 pilot. Designs are refitted whenever the shots held have grown by a factor of 1.5.
-  \item \emph{Allocation.} Shots are planned with the fold-A design and the pooled covariance, and topped up from the shots already held.
-  \item \emph{Radii.} Either estimated from the pooled covariance model (fully non-oracle) or oracle (to isolate the design effect). For the cross-fitted estimate, $\Cov(\hat g_i,\hat g_j)=\tfrac14\sum_{f}\sum_\alpha\bm x^{f\top}_{i\alpha}\Sigma_\alpha\bm x^{f}_{j\alpha}/n^{\bar f}_\alpha$, where $\bar f$ is the fold not used to fit $\bm x^f$.
+  \item \emph{Radii.} Either estimated or oracle (the latter to isolate the design effect). Estimated radii use only the \emph{held-out} fold's covariance: design $\bm x^f$ is evaluated with $\widetilde\Sigma^{\bar f}$, which is independent of it. For the cross-fitted estimate,
+  \[
+    \Cov(\hat g_i,\hat g_j)=\tfrac14\sum_{f}\sum_\alpha\bm x^{f\top}_{i\alpha}\widetilde\Sigma^{\bar f}_\alpha\bm x^{f}_{j\alpha}/n^{\bar f}_\alpha ,
+  \]
+  where $\bar f$ is the fold not used to fit $\bm x^f$.
+  \item \emph{Allocation.} Shots are planned with exactly the per-shot variance the radii will use, $\tfrac12\sum_f\bm x^{f\top}_{i\alpha}\widetilde\Sigma^{\bar f}_\alpha\bm x^f_{i\alpha}$ per context, and topped up from the shots already held.
 \end{itemize}
+
+\paragraph{Three failures of the first Step 4 implementation.}
+Each was found on LiH or H$_4$ side 2.0 and is now covered by a test or a diagnostic.
+\begin{enumerate}
+  \item \emph{Learning from too little data.} Fitting straight after the pilot round used covariances from one or two samples per fold. Their spurious zero-variance directions were exploited by the design and the radii alike. On LiH, 46 of 100 trials eliminated almost every arm in round 2, and only 54\% selected the winner. Fix: the minimum-data rule.
+  \item \emph{Radii from a covariance that includes the fitting fold.} A design's variance was estimated from both folds, one of which it was fitted to. Fix: held-out radii. A test checks that the estimated variance matches the actual spread of the estimate across replicates (0.8--1.35).
+  \item \emph{Planning and radii that disagreed.} Planning used one fold's design and covariance, while the radii used both. On H$_4$ side 2.0, a context whose 5-shot fold happened to show zero variance was never topped up, while the other fold kept a variance there that the radii could not shrink. Two trials ran to the radius floor, at $7.8\times10^8$ shots each, against a median of $1.3\times10^4$. Fix: plan with the radii's own variance.
+\end{enumerate}
 
 %=====================================================================
 \section{Results}
@@ -266,8 +279,9 @@ LiH 3.0 HF & 1 & 3,564,398 & 3.53 & 0.140 & 0.190 & 0.32 & 0.52 \\
 \paragraph{Gates.}
 \begin{itemize}
   \item \emph{Noiseless.} With every estimate set to the exact gradient and real-valued shot counts, the online loop reproduces Part I's zero-noise trial exactly: ratio 1.0000000 on all nine case/rule pairs. With integer shots the difference is at most $0.08\%$ on H$_4$ and $1.8\%$ on LiH, where rounding up drops one arm a round early.
-  \item \emph{Sampled.} At $\gamma=0.5$ with maxima accounting (250 trials; 100 on LiH), the shot-level runs agree with Part I's Gaussian surrogate within 1.4 standard errors on every row (Table~\ref{tab:step1gate}).
+  \item \emph{Sampled.} At $\gamma=0.5$ with maxima accounting (250 trials; 100 on LiH), the shot-level runs agree with Part I's Gaussian surrogate within 1.5 standard errors on every row (Table~\ref{tab:step1gate}).
 \end{itemize}
+All Step 1 and Step 4 runs use per-trial random streams: trial $i$ uses \code{SeedSequence(seed).spawn(n)[i]}. Results therefore do not depend on how the trials are split across processes or machines.
 
 \begin{table}[!ht]
 \centering\small
@@ -277,11 +291,11 @@ LiH 3.0 HF & 1 & 3,564,398 & 3.53 & 0.140 & 0.190 & 0.32 & 0.52 \\
 \toprule
 Case & marginal rule: Part I / Part II & pairwise rule: Part I / Part II \\
 \midrule
-H$_4$ 1.0 HF & 1,282,876 / 1,377,896 ($+1.3$) & 697,109 / 670,291 ($-1.0$) \\
-H$_4$ 1.0 CISD & 151,337 / 147,834 ($-1.4$) & 89,807 / 92,132 ($+0.6$) \\
-H$_4$ 2.0 HF & 534,126 / 528,619 ($-0.3$) & 507,751 / 515,224 ($+0.0$) \\
-H$_4$ 2.0 CISD & 102,018 / 97,121 ($-1.4$) & 51,726 / 52,096 ($+0.1$) \\
-LiH 3.0 HF & 880,804 / 872,391 ($-0.3$) & -- \\
+H$_4$ 1.0 HF & 1,282,876 / 1,315,987 ($+0.5$) & 697,109 / 874,589 ($+1.1$) \\
+H$_4$ 1.0 CISD & 151,337 / 150,437 ($-0.3$) & 89,807 / 95,256 ($+1.5$) \\
+H$_4$ 2.0 HF & 534,126 / 543,563 ($+0.5$) & 507,751 / 522,126 ($+0.1$) \\
+H$_4$ 2.0 CISD & 102,018 / 102,348 ($+0.1$) & 51,726 / 51,059 ($-0.3$) \\
+LiH 3.0 HF & 880,804 / 856,976 ($-0.7$) & -- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -291,25 +305,31 @@ Table~\ref{tab:step1} gives the II-0 baseline.
 
 \begin{table}[!ht]
 \centering\small
-\caption{II-0 with the pairwise rule, shot-level sampling and oracle radii; 250 trials (LiH 100). The first cost column is Part I's M3 as Part I ran it (marginal rule, $\gamma=0.5$, maxima). The \textbf{bold} column is the Part II baseline used from here on. Entries are mean $\pm$ s.e.m., with median, 90th percentile and number of wrong selections for the baseline.}
+\caption{II-0 with the pairwise rule, shot-level sampling and oracle radii; 250 trials (LiH 100). ``Part I M3 as run'' is the marginal rule, $\gamma=0.5$, maxima accounting (mean / median). The \textbf{bold} column is the Part II baseline used from here on. Entries are mean $\pm$ s.e.m., with median, 90th percentile and number of wrong selections for the baseline.}
 \label{tab:step1}
+\setlength{\tabcolsep}{3.5pt}
 \begin{tabular}{lrrrrrrr}
 \toprule
- & Part I M3 & \multicolumn{2}{c}{$\gamma=0.5$} & \multicolumn{4}{c}{$\gamma=0.9$} \\
+ & Part I M3 as run & \multicolumn{2}{c}{$\gamma=0.5$} & \multicolumn{4}{c}{$\gamma=0.9$} \\
 \cmidrule(lr){3-4}\cmidrule(lr){5-8}
-Case & as run & maxima & top-up & maxima & \textbf{top-up} & median / P90 & fail \\
+Case & mean / median & maxima & top-up & maxima & \textbf{top-up} & median / P90 & fail \\
 \midrule
-H$_4$ 1.0 HF & 1,377,896 & 670,291 & 790,598 & 410,172 & \textbf{337,162 $\pm$ 11,144} & 300,180 / 570,780 & 0 \\
-H$_4$ 1.0 CISD & 147,834 & 92,132 & 92,686 & 40,994 & \textbf{40,876 $\pm$ 920} & 39,275 / 61,958 & 0 \\
-H$_4$ 2.0 HF & 528,619 & 515,224$^\dagger$ & 359,909 & 1,130,462$^\dagger$ & \textbf{164,348 $\pm$ 6,118} & 152,312 / 297,895 & 0 \\
-H$_4$ 2.0 CISD & 97,121 & 52,096 & 48,195 & 24,076 & \textbf{25,000 $\pm$ 662} & 23,030 / 38,735 & 0 \\
-LiH 3.0 HF & 872,391 & 570,427 & 566,114 & 312,640 & \textbf{303,322 $\pm$ 5,460} & 304,076 / 370,885 & 0 \\
+H$_4$ 1.0 HF & 1,315,987 / 921,024 & 874,589 & 782,213 & 406,172 & \textbf{385,766 $\pm$ 53,637} & 285,250 / 568,386 & 2 \\
+H$_4$ 1.0 CISD & 150,437 / 163,910 & 95,256 & 96,150 & 43,218 & \textbf{41,515 $\pm$ 921} & 39,754 / 61,289 & 0 \\
+H$_4$ 2.0 HF$^\dagger$ & 543,563 / 627,922 & 522,126 & 498,755 & \sci{1.60}{6} & \textbf{\sci{1.62}{6} $\pm$ \sci{0.83}{6}} & 160,459 / 295,264 & 3 \\
+H$_4$ 2.0 CISD & 102,348 / 128,284 & 51,059 & 50,145 & 23,748 & \textbf{23,827 $\pm$ 613} & 22,136 / 37,671 & 0 \\
+LiH 3.0 HF & 856,976 / 784,940 & 582,681 & 580,624 & 317,785 & \textbf{307,170 $\pm$ 6,238} & 299,479 / 395,948 & 0 \\
 \bottomrule
 \end{tabular}\\[2pt]
-{\footnotesize $^\dagger$H$_4$ 2.0 HF has an exactly degenerate runner-up. Under maxima accounting a few trials never separate the tie and run to the radius floor; the medians are 514,906 and 160,433, with one and two wrong selections. Top-up accounting removes the tail.}
+{\footnotesize $^\dagger$H$_4$ 2.0 HF has an exactly degenerate runner-up (Part I). A few trials never separate the tie and run to the radius floor, so the mean is dominated by them; use the median.}
 \end{table}
 
-The baseline is 65--76\% cheaper than Part I's M3 as run. Most of that comes from Part I's own two findings: the pairwise rule and a finer radius schedule.
+\paragraph{Reading the table.}
+\begin{itemize}
+  \item On medians, the baseline is 62--83\% cheaper than Part I's M3 as run. Most of that comes from Part I's own two findings: the pairwise rule and a finer radius schedule.
+  \item The price is a small error rate on the HF rows: 5 wrong selections in 1{,}100 trials, all on H$_4$ HF, where the leading generators are exactly or nearly tied. The CISD rows and LiH had none, and Part I's marginal rule had none. This is still far below the nominal $\delta=0.05$.
+  \item Top-up and maxima accounting cost about the same here. An earlier run, with a different random stream, suggested that top-up removes the H$_4$ 2.0 HF tail; the per-trial reruns do not confirm it.
+\end{itemize}
 
 \subsection{Step 2: overlap census}
 
@@ -424,67 +444,81 @@ On a determinant, outcomes are either deterministic or perfectly (anti)correlate
 \subsection{Step 4: designs learned from the shots}
 
 \paragraph{Setup.}
-Truth is the CISD state of H$_4$ side 1.0 or 2.0. The classical prior is the HF determinant. II-A uses the mass completion, with the pairwise rule, $\gamma=0.9$, top-up allocation and shot-level sampling. There are 200 trials per row (seed 2), and every row uses the same loop (Sec.~\ref{sec:online}). Changes are relative to II-0 with the same radii.
+\begin{itemize}
+  \item \emph{Cases.} The two H$_4$ CISD rows, with the HF determinant as the classical prior (200 trials each), and LiH (100 trials).
+  \item \emph{LiH prior.} LiH's truth \emph{is} its HF determinant, so an HF prior would be the oracle. A flat prior (unit variances, no correlation) replaces it there.
+  \item \emph{Common settings.} II-A with the mass completion, the pairwise rule, $\gamma=0.9$, top-up allocation and shot-level sampling, all in the loop of Sec.~\ref{sec:online}. Seed 2.
+  \item \emph{Comparisons.} Changes are relative to II-0 with the same kind of radii.
+\end{itemize}
 
 \begin{table}[!ht]
 \centering\small
-\caption{Learned designs. Mean $\pm$ s.e.m., median, and number of correct selections out of 200. Estimated radii make a run fully non-oracle; ``oracle'' rows use exact covariances for the radii, and ``II-A oracle'' also for the design.}
+\caption{Learned designs. Mean (change) and correct selections, out of 200 on H$_4$ and 100 on LiH. Estimated radii make a run fully non-oracle; ``oracle'' rows use exact covariances for the radii, and ``II-A oracle'' also for the design. Medians are in the text where the mean is tail-dominated.}
 \label{tab:step4}
-\setlength{\tabcolsep}{3.5pt}
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{llrrrrrr}
 \toprule
- & & \multicolumn{3}{c}{H$_4$ side 1.0 CISD} & \multicolumn{3}{c}{H$_4$ side 2.0 CISD} \\
-\cmidrule(lr){3-5}\cmidrule(lr){6-8}
-Design & radii & mean (change) & median & correct & mean (change) & median & correct \\
+ & & \multicolumn{2}{c}{H$_4$ 1.0 CISD} & \multicolumn{2}{c}{H$_4$ 2.0 CISD} & \multicolumn{2}{c}{LiH 3.0 HF} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+Design & radii & mean (change) & ok & mean (change) & ok & mean (change) & ok \\
 \midrule
-II-0 & oracle & 41,215 $\pm$ 1,095 & 38,416 & 200 & 24,354 $\pm$ 686 & 23,054 & 200 \\
-II-A, oracle covariance & oracle & 23,450 ($-43\%$) & 22,152 & 200 & 12,125 ($-50\%$) & 11,571 & 200 \\
-II-A, HF prior only & oracle & \sci{2.47}{9} & \sci{2.50}{9} & 192 & \sci{8.96}{8} & \sci{8.04}{8} & 183 \\
+II-0 & oracle & 42,313 & 200 & 25,563 & 200 & 305,794 & 100 \\
+II-A, oracle covariance & oracle & 24,220 ($-43\%$) & 200 & 11,516 ($-55\%$) & 200 & 146,188 ($-52\%$) & 100 \\
+II-A, HF prior only & oracle & \sci{1.19}{9} & 200 & \sci{7.39}{8} & 194 & -- & -- \\
 \midrule
-II-0 & estimated & 41,940 $\pm$ 1,003 & 41,790 & 200 & 24,591 $\pm$ 672 & 23,333 & 200 \\
-II-A, HF prior only ($\nu=\infty$) & estimated & 439,749 ($+949\%$) & 36,143 & 170 & 197,780 ($+704\%$) & 28,266 & 138 \\
-II-A, HF shrunk, $\nu=1000$ & estimated & 28,360 ($-32\%$) & 27,343 & 199 & 23,233 ($-6\%$) & 14,546 & 193 \\
-II-A, HF shrunk, $\nu=100$ & estimated & 23,850 ($-43\%$) & 23,900 & 200 & 14,297 ($-42\%$) & 13,528 & 199 \\
-\textbf{II-A, data only ($\nu=0$)} & estimated & \textbf{24,688 ($-41\%$)} & 23,138 & \textbf{200} & \textbf{16,045 ($-35\%$)} & 14,032 & \textbf{200} \\
-II-A, data only, no guard & estimated & 25,253 ($-40\%$) & 24,000 & 200 & 32,265 ($+31\%$) & 16,364 & 197 \\
+II-0 & estimated & 42,314 & 200 & 24,123 & 200 & 303,118 & 100 \\
+II-A, HF prior only ($\nu=\infty$) & estimated & 81,047 ($+92\%$) & 197 & 143,851 ($+496\%$) & 171 & -- & -- \\
+II-A, HF shrunk, $\nu=1000$ & estimated & 32,099 ($-24\%$) & 200 & 31,696 ($+31\%$) & 195 & -- & -- \\
+II-A, HF shrunk, $\nu=100$ & estimated & 28,307 ($-33\%$) & 200 & 15,293 ($-37\%$) & 200 & -- & -- \\
+II-A, flat prior, $\nu=100$ & estimated & -- & -- & -- & -- & 193,042 ($-36\%$) & 100 \\
+\textbf{II-A, data only ($\nu=0$)} & estimated & \textbf{27,129 ($-36\%$)} & \textbf{200} & \textbf{13,727 ($-43\%$)} & \textbf{200} & \textbf{184,511 ($-39\%$)} & \textbf{100} \\
+II-A, data only, no guard & estimated & 26,749 ($-37\%$) & 200 & 13,764 ($-43\%$) & 200 & 184,511 ($-39\%$) & 100 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{Findings.}
 \begin{itemize}
-  \item \emph{Learning from the data recovers most of the ceiling, fully non-oracle.} II-A with covariances estimated from the shots, cross-fitting and the guard costs 41\% (side 1.0) and 35\% (side 2.0) less than II-0 run the same way. Every one of the 400 trials selected the winner. The online oracle ceiling is 43\% and 50\%.
-  \item \emph{Estimating variances is nearly free at II-0.} Estimated radii cost 1--2\% more than oracle radii, with no wrong selections.
+  \item \emph{Learning from the data recovers 75--84\% of the ceiling, fully non-oracle, with no wrong selections.} II-A with covariances estimated from the shots costs 36\%, 43\% and 39\% less than II-0 run the same way. The online oracle ceiling is 43\%, 55\% and 52\%. All 500 trials selected the winner. The data-only rows have no tail: the 90th percentiles are 36{,}052, 20{,}382 and 228{,}603.
+  \item \emph{Estimating variances is nearly free at II-0.} Estimated and oracle radii differ by at most 6\% (within noise), with no wrong selections.
   \item \emph{The HF prior alone fails twice over.}
     \begin{itemize}
-      \item Its design is wrong for the correlated state, so the true variances are large.
-      \item Its near-zero variances also corrupt both the radii (69--85\% correct) and the allocation. With oracle radii, runs stall until the radius floor and cost $10^8$--$10^9$ shots.
+      \item Its design is wrong for the correlated state.
+      \item Its near-zero variances corrupt the radii (85--99\% correct, heavy tails; medians 32{,}540 and 25{,}448).
+      \item They also corrupt the allocation: with oracle radii, runs stall at the radius floor ($10^8$--$10^9$ shots).
     \end{itemize}
-  \item \emph{Shrinkage helps only with little prior weight.} $\nu=100$ is 2--7 points cheaper than data alone, with one wrong selection in 400 trials. $\nu=1000$ is worse on cost and gives 8 wrong selections in 400.
-  \item \emph{The guard is necessary.} Without it, the side 2.0 run develops a heavy tail (mean 32{,}265 against median 16{,}364) and 3 wrong selections.
+  \item \emph{A prior helps only with little weight, and never beat the data alone here.} With the HF prior, $\nu=100$ is 3--6 points worse than data alone, and $\nu=1000$ is worse still, with 5 wrong selections on side 2.0. On LiH the flat prior at $\nu=100$ is 3 points worse.
+  \item \emph{The guard rarely acts once the minimum-data rule is in place.} With and without it the results agree within noise. It is kept as a safety net. Its apparent importance in an earlier run came from the planning mismatch (failure 3 in Sec.~\ref{sec:online}).
 \end{itemize}
 
 \paragraph{Caveats.}
 \begin{itemize}
-  \item The guard chooses between two unbiased estimators using the second moments of the evaluation fold. This could bias the estimate at second order. A fixed-shot test finds no bias above $4\sigma$ over 150 replicates.
-  \item Designs are refitted per generator at fixed shots (Sec.~\ref{sec:online}), not with the joint solver, so the learned cost is an upper bound on what a jointly learned design would achieve.
-  \item Step 4 was run on the two H$_4$ CISD rows only.
+  \item The guard chooses between two unbiased estimators using the evaluation fold's second moments, which could bias the estimate at second order. A fixed-shot test finds no bias above $4\sigma$ over 150 replicates, and estimated variances within 0.8--1.35 of the actual spread.
+  \item Designs are refitted per generator at fixed shots, not with the joint solver, so the learned costs are upper bounds on what a jointly learned design would achieve.
+  \item The minimum-data threshold (50 shots per fold) is a single, untuned choice.
+  \item H$_2$O has not been run in Step 4 yet; see Sec.~\ref{sec:reproduction} for sizing.
 \end{itemize}
 
 %=====================================================================
 \section{Conclusions and next steps}
 
 \begin{enumerate}
-  \item The shot-level II-0 baseline (pairwise rule, $\gamma=0.9$, top-up) is 65--76\% cheaper than Part I's M3 as run, and it is the reference for every Part II level.
+  \item The shot-level II-0 baseline (pairwise rule, $\gamma=0.9$, top-up) is 62--83\% cheaper than Part I's M3 as run (medians), and it is the reference for every Part II level. It made 5 wrong selections in 1{,}100 trials, all on the tied H$_4$ HF rows.
   \item Overlap is abundant, and the oracle ceiling of coefficient splitting is large: 38--80\% on M3 actual across the cases computed.
   \item Ghost Pauli products add little. Per-breakpoint redesign pays on depth-dominated rows, but only with top-up accounting.
   \item The Hartree--Fock covariance is harmful as a design prior.
-  \item Learned from the shots, with cross-fitting and the guard, II-A keeps most of its ceiling without any oracle input: $-41\%$ and $-35\%$ against II-0 on the H$_4$ CISD rows, with no wrong selections. The default should be data-driven covariances, with at most a weak prior ($\nu\lesssim100$). The prior should never be used alone.
+  \item Learned from the shots, II-A keeps 75--84\% of its ceiling without any oracle input: $-36\%$, $-43\%$ and $-39\%$ against II-0 on the two H$_4$ CISD rows and LiH, with no wrong selections and no cost tail. It needs three safeguards:
+  \begin{itemize}
+    \item cross-fitting;
+    \item radii and allocation computed on the held-out fold;
+    \item a minimum number of shots per fold before a context is learned.
+  \end{itemize}
+  The default should be data-driven covariances. A prior gave no benefit here and should never be used alone.
 \end{enumerate}
 
 \paragraph{Next.}
 \begin{enumerate}
-  \item \emph{Broaden Step 4.} Run it on LiH (flat or no prior) and on the H$_2$O CISD rows. Swap the per-generator refit for the joint solver.
+  \item \emph{Broaden Step 4.} Run it on the H$_2$O CISD rows (cluster; Sec.~\ref{sec:reproduction}). Swap the per-generator refit for the joint solver, and tune the minimum-data threshold.
   \item \emph{Learned redesign (II-D).} Refit for the active set at each elimination, with top-up accounting, on the depth-dominated rows, where the oracle adds up to 19 points.
   \item \emph{Correlated trajectory states.} Replace the CISD proxy with saved ADAPT trajectory states (Part I's open item), and study the prior weight $\nu$ there.
   \item \emph{Price the circuits.} The mass completion uses 8--32 CZ gates per context. Compare against a completion constrained by circuit depth.
@@ -493,12 +527,13 @@ II-A, data only, no guard & estimated & 25,253 ($-40\%$) & 24,000 & 200 & 32,265
 
 %=====================================================================
 \section{Reproduction}
+\label{sec:reproduction}
 
 \paragraph{Code.}
 \code{part2\_estimator\_design/} on branch \code{part2}. It imports Part I's \code{src/} directly and builds problems into its own \code{.cache/}.
 
 \paragraph{Environment.}
-WSL Ubuntu, Python 3.12.3, NumPy 2.5.2, SciPy 1.18.1, PySCF 2.14.0, OpenFermion 1.8.1. NumPy $\ge2$ is required.
+WSL Ubuntu, Python 3.12.3, with the versions pinned in \code{requirements.txt}: NumPy 2.5.2, SciPy 1.18.1, PySCF 2.14.0, OpenFermion 1.8.1. NumPy $\ge2$ is required. \code{part2\_estimator\_design/Dockerfile} builds the same environment from the repository root. It is not yet tested, since no Docker was available here. On a cluster, either convert it with Apptainer or create a venv from \code{requirements.txt}.
 
 \paragraph{Modules} (\code{src/}):
 \begin{itemize}
@@ -509,19 +544,20 @@ WSL Ubuntu, Python 3.12.3, NumPy 2.5.2, SciPy 1.18.1, PySCF 2.14.0, OpenFermion 
   \item \code{allocation}: top-up allocation;
   \item \code{planning}: M1 and M3 trajectories;
   \item \code{online}: Step 1 loop;
-  \item \code{learning}: Step 4.
+  \item \code{learning}: Step 4;
+  \item \code{parallel}: trial parallelism and sharding.
 \end{itemize}
 
 \paragraph{Commands}
-(from \code{part2\_estimator\_design/}):
+(from \code{part2\_estimator\_design/}; set \code{OMP\_NUM\_THREADS=1} when using \code{--workers}):
 \begin{verbatim}
 python scripts/build_problems.py                        # 9 cases, checked against Part I
-python -m pytest tests -q                               # 50 tests
+python -m pytest tests -q                               # 53 tests
 python scripts/step0_validate.py --low-shot 0.001       # H4 sampler gate
 python scripts/step0_validate.py --cases LiH_R3p0_HF --replicates 400 \
        --out runs/step0_lih
-python scripts/step1_online_baseline.py --trials 250 --cases <H4 cases>
-python scripts/step1_online_baseline.py --trials 100 --cases LiH_R3p0_HF
+python scripts/step1_online_baseline.py --trials 250 --workers 4 --cases <H4 cases>
+python scripts/step1_online_baseline.py --trials 100 --workers 8 --cases LiH_R3p0_HF
 python scripts/step1_online_baseline.py --gates-only    # exact noiseless gate
 python scripts/step2_overlap_census.py                  # all nine cases
 python scripts/step3_oracle_ceiling.py --cases <H4 cases> --redesign
@@ -530,25 +566,31 @@ python scripts/step3_oracle_ceiling.py --cases LiH_R3p0_HF \
 python scripts/step3_oracle_ceiling.py --cases <H2O cases> --strategies mass \
        --levels II-0 II-A
 python scripts/step3_prior_transfer.py
-python scripts/step4_learned_designs.py --trials 200    # H4 CISD rows
+python scripts/step4_learned_designs.py --trials 200 --workers 4   # H4 CISD rows
+python scripts/step4_learned_designs.py --cases LiH_R3p0_HF --trials 100 --workers 10
 python scripts/aggregate_results.py
 \end{verbatim}
+For a cluster, split any Step 1 or Step 4 run with \code{--shard K/N}, one job per \code{K}. Then run \code{scripts/merge\_trials.py --step step4 --cases <case>}. It checks that every trial is present exactly once and writes the same summary file as an unsharded run.
 
 \paragraph{Outputs.}
-Each script writes \code{runs/<case>/<case>\_<step>.csv}, with a \code{*\_meta.json} recording package versions and the git commit. Step 3 designs are saved as \code{*\_B.npz} and \code{*\_C.npz}; these are not tracked and are regenerated by the script.
+Each script writes \code{runs/<case>/<case>\_<step>.csv}, with a \code{*\_meta.json} recording package versions and the git commit. Steps 1 and 4 also keep every trial in \code{runs/<case>/trials/}. Step 3 designs are saved as \code{*\_B.npz} and \code{*\_C.npz}; these are not tracked and are regenerated by the script.
 
 \paragraph{Seeds.}
-Step 0: 0. Step 1: 1 for Part II and 0 for Part I's surrogate. Step 4: 2.
-
-\paragraph{Runtimes}
-(one desktop, 4 threads per job):
 \begin{itemize}
-  \item tests: about 1.5\,min;
-  \item Step 1: minutes per H$_4$ case, about 20\,min for LiH;
-  \item Step 3, H$_4$ with redesign: 15--20\,min per case;
-  \item Step 3, LiH: 5--15\,min per design;
-  \item Step 3, H$_2$O: 12--47\,min per design;
-  \item Step 4: 4--8\,min per configuration and H$_4$ case (200 trials). The prior-only configuration with oracle radii takes 20--30\,min, because its runs stall until the radius floor.
+  \item Step 0: seed 0.
+  \item Step 1: seed 1 for Part II, and seed 0 for Part I's surrogate.
+  \item Step 4: seed 2.
+\end{itemize}
+In Steps 1 and 4, trial $i$ uses \code{SeedSequence(seed).spawn(n)[i]}, so results do not depend on \code{--workers} or \code{--shard} (tested).
+
+\paragraph{Runtimes and memory}
+(one desktop, 8 cores/16 threads, 15\,GB):
+\begin{itemize}
+  \item Tests: about 3\,min.
+  \item Step 3, H$_4$ with redesign: 15--20\,min per case. LiH: 5--15\,min per design. H$_2$O: 12--47\,min per design.
+  \item Step 4, H$_4$: 2--5\,min per configuration (200 trials, 4 workers). The prior-only configuration with oracle radii takes 8--25\,min, because its runs stall until the radius floor.
+  \item Step 4, LiH: 13--24\,min per configuration (100 trials, 10 workers, about 1.5\,GB per worker). A sparse direct solve in the design refit made LiH 8$\times$ faster than the original conjugate-gradient solve.
+  \item Step 4, H$_2$O eq.\ CISD, one trial: II-0 takes 329\,s at a 3.6\,GB peak, and II-A (data only) 685\,s at a 7.1\,GB peak. Five configurations $\times$ 100 trials is therefore about 60--80 CPU-hours per H$_2$O case. Memory is the constraint, at about 7\,GB per process. For example, a 64-core, 256\,GB node runs about 32 processes and finishes one case in roughly 5 hours. Plan the cluster jobs as \code{--shard K/N} with \code{--workers} set by memory.
 \end{itemize}
 
 \end{document}

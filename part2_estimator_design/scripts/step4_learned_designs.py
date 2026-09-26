@@ -46,7 +46,8 @@ INF = math.inf
 CONFIGS = {
     "II-0 estimated": LearningConfig(level="II-0", prior="none", nu=0.0),
     "II-0 oracle": LearningConfig(level="II-0", radii="oracle"),
-    "II-A oracle": LearningConfig(prior="oracle", nu=INF, radii="oracle"),
+    # Exact covariances need no minimum sample size: the oracle row stays a ceiling.
+    "II-A oracle": LearningConfig(prior="oracle", nu=INF, radii="oracle", min_fold_shots=0),
     "II-A HF prior": LearningConfig(prior="hf", nu=INF),
     "II-A HF prior, oracle radii": LearningConfig(prior="hf", nu=INF, radii="oracle"),
     "II-A data": LearningConfig(prior="none", nu=0.0),
