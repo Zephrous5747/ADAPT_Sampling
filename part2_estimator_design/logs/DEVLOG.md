@@ -264,3 +264,19 @@ all other cached cases pass the check.
   M1 seq 53.3k -> 24.1k, 100% correct; the pairwise rule with the loose z is 76-79% correct (H4) and 34-38% (LiH).
 - Local H4 1.0 CISD results added (200 trials): block frontier M1 static 120k / 99k / 71k (QWC / 2 / 4-qubit blocks) against 59.7k (FC); M1 seq 113k / 86k / 64k against 55.9k;
   II-0 80k / 63k / 49k; II-A 61k / 50k / ... (see `runs/paper_a/depth_frontier.csv` after `scripts/paper_a_depth_tables.py`).
+
+## 2026-10-06 (afternoon): stretched-H2O trajectories landed; sanity checks (`scripts/sanity_checks.py`)
+- Cluster job 2502808 (`depth2_h2o_traj_stretch`, II-A line) COMPLETED in 11 h 42 min; queue empty.  `sync_from_trillium.sh` merged it:
+  stretched H2O, 12 trajectories each, median selection shots II-A 2.97e9, II-0 7.85e9, M2 safe 8.45e9, M1 seq safe 8.39e10 (II-A 2.8x below M2); every trajectory reached chemical accuracy.
+  (Q8, depth and discussion tables regenerated afterwards, see below.)
+- New `scripts/sanity_checks.py` (checks C1-C14 in its docstring).  Statistics are recomputed from the raw trial files, so a stale summary cannot hide a corrupted trial file;
+  validity of rho=0.1 runs is judged by the 10%-good rate.  Mutation test (7 deliberate corruptions of a copy of LiH ADAPT3: missing/duplicate trials, wrong arm, NaN, all-wrong method,
+  CZ in a QWC row, II-A costlier than II-0) -> all detected.
+- Result on LiH (HF, ADAPT3, ADAPT5 and the five pool variants; 179 job requests, all with the requested trial counts): 0 FAIL.  One true arm per case across all 103/41/41 configs (91 / 76 / 11).
+  KNOWN (documented, unsafe by design): loose selection radius with the pairwise rule (33-51% correct) and with the sign-aware rule on ADAPT5 (48-74%; the paper already says so), II-A HF prior at ADAPT5 (29%).
+  WARN: `Pivot merged II-A` has 50 trials by design (cost); `II-A data + reuse, FC` 92.5% correct (n=200, not significantly below 95%; pairwise rule with reuse is outside the guarantee).
+  M1 static realised/planning = 1.0001; II-0 oracle realised/planning 0.92 and II-A oracle 1.8 (canonical ceiling; the learned design pays for refits and elimination rounds).
+  Depth/noise/pivot rows exist for LiH HF only (ADAPT3/5 have pivot, QWC and reuse rows): by design of the job files.
+- Paper regenerated (`cluster/regen_all.sh`, local only: sota tables, Q8 text, depth, discussion tables): the stretched-H2O II-A trajectories fill the Q8 trajectory table and the trajectory-cost table
+  (II-A 2.97e9 = 0.38 x II-0; M2 sign-aware 2.85 x II-A).  Text edits, four sentences only: abstract and Conclusions "2.4--2.5" -> "2.4--2.8" times fewer along trajectories, Q8 "three" -> "five measured
+  trajectories", and the threats sentence "measured trajectories were run only on H4 and LiH" -> 12 per method on each H2O geometry.  Paper builds, 23 pages (same as before).
