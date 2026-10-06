@@ -59,7 +59,21 @@ __all__ = [
 def load_problem(
     case_id: str, cache_dir: Path | None = DEFAULT_CACHE, *, validate: bool = True
 ) -> GradientProblem:
-    """Build (or reload) the Part I gradient problem for one case."""
+    """Build (or reload) the Part I gradient problem for one case.
+
+    ``<geometry>_ADAPT<k>`` names the state after ``k`` steps of the saved ADAPT
+    trajectory from ``<geometry>_HF`` (:mod:`trajectory`).
+    """
+    from trajectory import split_case  # local: trajectory imports this module
+
+    if "@" in case_id:  # another operator pool: <case>@<pool>
+        from pools import load_pool_problem
+
+        return load_pool_problem(case_id, cache_dir if cache_dir is not None else DEFAULT_CACHE)
+    if split_case(case_id) is not None:
+        from trajectory import load_trajectory_problem
+
+        return load_trajectory_problem(case_id, cache_dir if cache_dir is not None else DEFAULT_CACHE)
     return load_or_build(get_case(case_id), cache_dir, validate=validate)
 
 

@@ -1,0 +1,82 @@
+{
+  "rho": 0.1,
+  "tolerance": 0.0016,
+  "trajectories": 48,
+  "seed": 7,
+  "strategy": "mass",
+  "methods": {
+    "II-0 safe": "II-0/estimated radii/rule=safe/rho=0.1/start=bound/radius_min_shots=50",
+    "II-A data, safe": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/rho=0.1/start=bound/radius_min_shots=50",
+    "II-A data, contrast": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/objective=contrast/rho=0.1/start=bound/radius_min_shots=50"
+  },
+  "exact_adapt": [
+    {
+      "iteration": 0,
+      "energy_error": 0.1540314953756634,
+      "added": "D 2,3 -> 6,7"
+    },
+    {
+      "iteration": 1,
+      "energy_error": 0.13755555633370387,
+      "added": "D 0,1 -> 4,5"
+    },
+    {
+      "iteration": 2,
+      "energy_error": 0.12041897614674824,
+      "added": "D 0,3 -> 4,7"
+    },
+    {
+      "iteration": 3,
+      "energy_error": 0.10620906423797316,
+      "added": "D 1,2 -> 5,6"
+    },
+    {
+      "iteration": 4,
+      "energy_error": 0.0911199399533873,
+      "added": "D 0,3 -> 5,6"
+    },
+    {
+      "iteration": 5,
+      "energy_error": 0.085752941063449,
+      "added": "D 1,2 -> 4,7"
+    },
+    {
+      "iteration": 6,
+      "energy_error": 0.07905486680883045,
+      "added": "D 2,3 -> 4,5"
+    },
+    {
+      "iteration": 7,
+      "energy_error": 0.016370228624188465,
+      "added": "D 0,1 -> 6,7"
+    },
+    {
+      "iteration": 8,
+      "energy_error": 0.008376991934993194,
+      "added": "D 0,2 -> 4,6"
+    },
+    {
+      "iteration": 9,
+      "energy_error": 0.005414173693540247,
+      "added": "D 1,3 -> 5,7"
+    },
+    {
+      "iteration": 10,
+      "energy_error": 0.0010895443421805595,
+      "added": null
+    }
+  ],
+  "counted": "gradient-selection context-shots only; VQE energies are exact",
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "af38836cce7ff6e59c452bef15d90e9bab1a8a05",
+    "part2_tree_dirty": true
+  }
+}

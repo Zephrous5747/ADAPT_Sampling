@@ -1,0 +1,28 @@
+{
+  "trials": 200,
+  "seed": 7,
+  "rule": "safe",
+  "rho": 0.1,
+  "energy_error": 0.001,
+  "energy_ic_shots": 0.0,
+  "povm": "product of tetrahedral (SIC) single-qubit POVMs, unoptimised",
+  "unit": "IC shots (not context-shots)",
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "af38836cce7ff6e59c452bef15d90e9bab1a8a05",
+    "part2_tree_dirty": true
+  },
+  "labels": [
+    "IC estimated, rule=safe, anytime",
+    "IC estimated, rule=safe, anytime, rho=0.1",
+    "IC oracle, rule=safe, anytime",
+    "IC oracle, rule=safe, anytime, rho=0.1"
+  ]
+}

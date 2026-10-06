@@ -16,18 +16,18 @@ Example::
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
-from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import part1_bridge  # noqa: E402,F401
-from online import OnlineOutcome, summarise  # noqa: E402
+from online import summarise  # noqa: E402
 from outputs import write_csv  # noqa: E402
+from parallel import check_complete, outcomes_from_rows, read_trials  # noqa: E402
 
-OUTPUT = {"step4": "{case}_step4_learned_designs.csv", "step1": "{case}_step1_baseline_merged.csv"}
+OUTPUT = {"step4": "{case}_step4_learned_designs.csv", "step1": "{case}_step1_baseline_merged.csv",
+          "step5": "{case}_step5_external_baselines.csv", "step7": "{case}_step7_ic_baseline.csv"}
 
 
 def main() -> None:
@@ -35,35 +35,40 @@ def main() -> None:
     parser.add_argument("--step", choices=list(OUTPUT), required=True)
     parser.add_argument("--cases", nargs="+", required=True)
     parser.add_argument("--runs", type=Path, default=Path("runs"))
+    parser.add_argument("--allow-incomplete", action="store_true",
+                        help="skip (with a warning) labels whose trials are not all present yet, e.g. while "
+                             "cluster shards are still running; the default refuses, which is the safe choice for final tables")
     args = parser.parse_args()
 
     for case in args.cases:
-        by_label: dict[str, list[dict]] = defaultdict(list)
-        for path in sorted((args.runs / case / "trials").glob(f"{args.step}__*.csv")):
-            with path.open() as handle:
-                for row in csv.DictReader(handle):
-                    by_label[row["label"]].append(row)
-        summaries = []
-        for label, rows in by_label.items():
-            n_trials = int(rows[0]["n_trials"])
-            indices = sorted(int(r["trial"]) for r in rows)
-            if indices != list(range(n_trials)):
-                missing = sorted(set(range(n_trials)) - set(indices))
-                duplicated = len(indices) - len(set(indices))
-                raise SystemExit(f"{case} / {label}: {len(missing)} trials missing, {duplicated} duplicated")
-            outcomes = [OnlineOutcome(int(r["selected"]), bool(int(r["correct"])), float(r["shots"]),
-                                      int(r["rounds"])) for r in rows]
-            summary = {"case_id": case, "config": label, **summarise(outcomes)}
-            if "designs_kept_last_refit" in rows[0]:
-                summary["mean_designs_kept_last_refit"] = sum(
-                    float(r["designs_kept_last_refit"]) for r in rows) / len(rows)
-            summaries.append(summary)
-            print(f"{case:30s} {label:28s} trials {n_trials}  shots {summary['shots_mean']:14,.0f} "
-                  f"+- {summary['shots_sem']:10,.0f}  correct {summary['correct_rate']:.3f}")
-        if summaries:
-            columns = list(dict.fromkeys(k for s in summaries for k in s))
-            write_csv(args.runs / case / OUTPUT[args.step].format(case=case), columns, summaries)
+        summaries = merge_case(args.runs, case, args.step, allow_incomplete=args.allow_incomplete)
+        for summary in summaries:
+            print(f"{case:30s} {summary['config']:28s} trials {summary['n_trials']}  "
+                  f"shots {summary['shots_mean']:14,.0f} +- {summary['shots_sem']:10,.0f}  "
+                  f"correct {summary['correct_rate']:.3f}")
 
+
+def merge_case(runs: Path, case: str, step: str, allow_incomplete: bool = False) -> list[dict]:
+    """Summaries of every label with a complete set of trials; writes the step's CSV."""
+    summaries = []
+    for label, rows in read_trials(runs, case, step).items():
+        if allow_incomplete:
+            try:
+                check_complete(case, label, rows)
+            except SystemExit as incomplete:
+                print(f"skipped (incomplete): {incomplete}")
+                continue
+        else:
+            check_complete(case, label, rows)
+        summary = {"case_id": case, "config": label, **summarise(outcomes_from_rows(rows))}
+        if "designs_kept_last_refit" in rows[0]:
+            summary["mean_designs_kept_last_refit"] = sum(
+                float(r["designs_kept_last_refit"]) for r in rows) / len(rows)
+        summaries.append(summary)
+    if summaries:
+        columns = list(dict.fromkeys(k for s in summaries for k in s))
+        write_csv(Path(runs) / case / OUTPUT[step].format(case=case), columns, summaries)
+    return summaries
 
 if __name__ == "__main__":
     main()

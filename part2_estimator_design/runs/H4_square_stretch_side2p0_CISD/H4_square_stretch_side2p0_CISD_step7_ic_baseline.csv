@@ -1,0 +1,5 @@
+case_id,config,n_trials,correct_rate,correct_low,correct_high,failures,shots_mean,shots_sem,shots_median,shots_q25,shots_q75,shots_p90,rounds_mean,good_1pct_rate,good_5pct_rate,good_10pct_rate,miscovered_rate,best_eliminated,stopped_rho_rate
+H4_square_stretch_side2p0_CISD,"IC estimated, rule=safe, anytime",200,0.995,0.9722256001302286,0.999116854010634,1,2125345.405,1300739.0537388625,714739.0,714739.0,882394.0,1089376.0,43.685,0.995,0.995,0.995,0.07,1,0.0
+H4_square_stretch_side2p0_CISD,"IC estimated, rule=safe, anytime, rho=0.1",200,0.995,0.9722256001302286,0.999116854010634,1,747152.13,65943.00626399803,714739.0,578938.0,714739.0,882394.0,42.725,0.995,0.995,0.995,0.07,1,0.695
+H4_square_stretch_side2p0_CISD,"IC oracle, rule=safe, anytime",200,1.0,0.9811539940816791,1.0,0,824136.455,14422.102840639076,714739.0,714739.0,882394.0,1089376.0,43.545,1.0,1.0,1.0,0.04,0,0.0
+H4_square_stretch_side2p0_CISD,"IC oracle, rule=safe, anytime, rho=0.1",200,1.0,0.9811539940816791,1.0,0,682311.335,11799.390970871389,714739.0,578938.0,714739.0,882394.0,42.655,1.0,1.0,1.0,0.04,0,0.695

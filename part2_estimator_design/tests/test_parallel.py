@@ -39,3 +39,26 @@ def test_shard_parsing_and_cover():
         parse_shard("0/3")
     union = sorted(i for k in range(1, 5) for i in shard_indices(10, (k, 4)))
     assert union == list(range(10))
+
+
+def test_checkpoint_resume_reproduces_an_uninterrupted_run(tmp_path):
+    """Trials checkpointed by an interrupted run plus the rest equal one full run."""
+    from online import OnlineOutcome
+    from parallel import Checkpoint, completed_trials, run_trials, write_trials
+
+    def runner(rng):
+        value = float(rng.normal())
+        return OnlineOutcome(int(value > 0), value > 0, 100 * abs(value), 3, extra={"v": value}), {"v": value}
+
+    full = run_trials(runner, 10, 4, workers=2)
+    checkpoint = Checkpoint(tmp_path / "trials.csv")
+    first = run_trials(runner, 10, 4, shard=(1, 1), skip=set(range(5, 10)), on_result=checkpoint.add)
+    assert [i for i, _ in first] == list(range(5))
+    done = checkpoint.load()
+    assert sorted(done) == list(range(5))
+    rest = run_trials(runner, 10, 4, workers=2, skip=done, on_result=checkpoint.add)
+    merged = sorted(list(done.items()) + rest, key=lambda item: item[0])
+    assert [r[1][0].shots for r in merged] == [r[1][0].shots for r in full]
+    write_trials(tmp_path / "trials.csv", "x", 10, 4, [(i, o, e) for i, (o, e) in merged])
+    assert completed_trials(tmp_path / "trials.csv", 10, (1, 1)) is not None
+    assert completed_trials(tmp_path / "trials.csv", 10, (1, 2)) is None

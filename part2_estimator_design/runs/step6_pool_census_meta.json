@@ -1,0 +1,15 @@
+{
+  "bounds": "Part I planning bounds: M1 identification radius gap/2, M2 exact schedule, M3 on actual precision",
+  "run": {
+    "python": "3.11.4",
+    "packages": {
+      "numpy": "2.4.2",
+      "scipy": "1.17.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": null,
+    "part2_tree_dirty": null
+  }
+}

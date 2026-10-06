@@ -1,0 +1,2 @@
+case_id,method,label,trajectories,exact_adapt_iterations,exact_adapt_final_error,reached_rate,iterations_mean,iterations_max,shots_median,shots_mean,shots_p90,selections,exact_best_rate,rho_good_rate,mean_shortfall,seconds
+H4_square_stretch_side2p0_HF,M1 static,"M1 static (rho max|g|/2, exact variances)",48,10,0.0032203975973907895,0.0,10.0,10,277463315.0,278238680.9166667,277468981.0,480,0.9583333333333334,1.0,0.0004439069374927123,6.9

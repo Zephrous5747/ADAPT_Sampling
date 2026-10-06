@@ -1,0 +1,3 @@
+case_id,config,n_trials,correct_rate,correct_low,correct_high,failures,shots_mean,shots_sem,shots_median,shots_q25,shots_q75,shots_p90,rounds_mean,good_1pct_rate,good_5pct_rate,good_10pct_rate,miscovered_rate,best_eliminated,stopped_rho_rate
+LiH_R3p0_HF,"IC oracle + free energy data, rule=safe, anytime, rho=0.1",100,1.0,0.9630051925239981,0.9999999999999999,0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.03,0,0.0
+LiH_R3p0_HF,"IC oracle, rule=safe, anytime, rho=0.1",100,0.99,0.9455124752390653,0.9982326134344526,1,98519480241.51,98243774634.08955,260956529.0,248561093.75,322168555.0,397738957.0,71.66,0.99,0.99,0.99,0.08,1,0.78

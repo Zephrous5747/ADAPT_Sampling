@@ -9,7 +9,18 @@
     "II-A HF nu=100": "II-A/prior=hf/nu=100/estimated radii/guard=on",
     "II-A HF nu=1000": "II-A/prior=hf/nu=1000/estimated radii/guard=on",
     "II-A HF prior": "II-A/prior=hf/nu=inf/estimated radii/guard=on",
-    "II-A HF prior, oracle radii": "II-A/prior=hf/nu=inf/oracle radii/guard=on"
+    "II-A HF prior, oracle radii": "II-A/prior=hf/nu=inf/oracle radii/guard=on",
+    "II-0 estimated": "II-0/estimated radii",
+    "II-0 oracle": "II-0/oracle radii",
+    "II-A oracle": "II-A/prior=oracle/nu=inf/oracle radii/guard=on",
+    "II-0 safe": "II-0/estimated radii/rule=safe/radius_min_shots=50",
+    "II-A data, safe": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50",
+    "II-0 contrast": "II-0/estimated radii/rule=safe/objective=contrast/radius_min_shots=50",
+    "II-A data, contrast": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/objective=contrast/radius_min_shots=50",
+    "II-A oracle, contrast": "II-A/prior=oracle/nu=inf/oracle radii/guard=on/rule=safe/objective=contrast",
+    "II-0 safe, bound start": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50",
+    "II-A data, contrast, bound start": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/objective=contrast/start=bound/radius_min_shots=50",
+    "II-A data, contrast, bound start, anytime": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/objective=contrast/start=bound/radius_min_shots=50/anytime"
   },
   "run": {
     "python": "3.12.3",
@@ -20,7 +31,20 @@
       "pyscf": "2.14.0",
       "openfermion": "1.8.1"
     },
-    "git_commit": "1f95546e8ef6b11ae04252271cc9ce362f7e5df2",
+    "git_commit": "af38836cce7ff6e59c452bef15d90e9bab1a8a05",
     "part2_tree_dirty": true
+  },
+  "seconds": {
+    "II-0 estimated": 54.3,
+    "II-0 oracle": 56.3,
+    "II-A oracle": 54.1,
+    "II-0 safe": 23.5,
+    "II-A data, safe": 34.6,
+    "II-0 contrast": 73.4,
+    "II-A data, contrast": 95.2,
+    "II-A oracle, contrast": 139.1,
+    "II-0 safe, bound start": 152.7,
+    "II-A data, contrast, bound start": 301.2,
+    "II-A data, contrast, bound start, anytime": 339.1
   }
 }

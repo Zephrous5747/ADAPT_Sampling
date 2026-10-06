@@ -69,7 +69,8 @@ def reference_row(problem, z) -> dict:
     }
 
 
-def evaluate_level(problem, library, moments, level, z, *, aux_cap, redesign, out_dir, stem, log):
+def evaluate_level(problem, library, moments, level, z, *, aux_cap, redesign, out_dir, stem, log,
+                   accountings=("maxima", "topup")):
     A = gradient_matrix(problem, library.n_library)
     n = problem.n_generators
     arms = list(range(n))
@@ -121,7 +122,7 @@ def evaluate_level(problem, library, moments, level, z, *, aux_cap, redesign, ou
 
     rounds = []
     if redesign and level != "II-0":
-        for accounting in ("maxima", "topup"):
+        for accounting in accountings:
             design.restore(snapshot)
             started = time.perf_counter()
             result = m3_common_radius(
@@ -145,6 +146,8 @@ def main() -> None:
     parser.add_argument("--levels", nargs="+", default=list(LEVELS), choices=LEVELS)
     parser.add_argument("--aux-cap", type=int, default=200)
     parser.add_argument("--redesign", action="store_true", help="also run oracle II-D per breakpoint")
+    parser.add_argument("--redesign-accounting", nargs="+", default=["maxima", "topup"],
+                        choices=["maxima", "topup"], help="accountings for the redesign (each costs a full trajectory)")
     parser.add_argument("--out", type=Path, default=Path("runs"))
     args = parser.parse_args()
 
@@ -177,6 +180,7 @@ def main() -> None:
                         problem, library, moments, level, z,
                         aux_cap=args.aux_cap, redesign=args.redesign, out_dir=out_dir,
                         stem=f"{case}_step3_{strategy}_{level}", log=log,
+                        accountings=tuple(args.redesign_accounting),
                     )
                     if level == "II-0":
                         level_zero = row

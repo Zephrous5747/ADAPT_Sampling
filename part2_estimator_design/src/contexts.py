@@ -136,12 +136,64 @@ def coefficient_mass(problem, n_library: int) -> np.ndarray:
     return np.asarray(abs(matrix).sum(axis=0)).ravel()
 
 
+def qwc_groups(labels, *, weights: dict[str, float] | None = None) -> list[list[str]]:
+    """Qubit-wise commuting groups by first-fit insertion.
+
+    Paulis are inserted in decreasing ``weights`` (default: decreasing Pauli weight),
+    ties lexicographic; a Pauli joins the first group on whose every qubit it acts
+    as ``I`` or as the group's letter.  The group's letters then define a product
+    measurement basis (single-qubit rotations only, no entangling gates), which is
+    what the shot-reuse method of Ikhtiarudin et al. measures in.
+    """
+    labels = list(dict.fromkeys(labels))
+    if not labels:
+        return []
+    n = len(labels[0])
+    code = {"I": 0, "X": 1, "Y": 2, "Z": 3}
+    if weights is None:
+        order = sorted(labels, key=lambda p: (-(n - p.count("I")), p))
+    else:
+        order = sorted(labels, key=lambda p: (-abs(weights[p]), p))
+    letters = np.zeros((0, n), dtype=np.int8)
+    members: list[list[str]] = []
+    for label in order:
+        row = np.fromiter((code[c] for c in label), dtype=np.int8, count=n)
+        if members:
+            clash = ((row != 0) & (letters != 0) & (letters != row)).any(axis=1)
+            fits = np.flatnonzero(~clash)
+        else:
+            fits = np.zeros(0, dtype=np.int64)
+        if fits.size == 0:
+            letters = np.vstack([letters, row[None, :]])
+            members.append([label])
+        else:
+            g = int(fits[0])
+            letters[g] = np.where(letters[g] == 0, row, letters[g])
+            members[g].append(label)
+    return members
+
+
 def build_context_library(
-    problem, strategy: str = "canonical", *, seed: int = 0, auxiliary_labels=()
+    problem,
+    strategy: str = "canonical",
+    *,
+    seed: int = 0,
+    auxiliary_labels=(),
+    groups=None,
+    extra_groups=(),
 ) -> ContextLibrary:
-    """Complete every Part I parent context and index the library against it."""
+    """Complete every parent context and index the library against it.
+
+    ``groups`` replaces Part I's fully commuting parent grouping (e.g. QWC groups of
+    the shot-reuse baseline).  ``extra_groups`` are appended as further contexts with
+    no home Pauli: they carry data that is already held (the energy measurement of the
+    last VQE evaluation), and Paulis they measure that the library does not require
+    become auxiliaries.
+    """
     if strategy not in STRATEGIES:
         raise ValueError(f"strategy must be one of {STRATEGIES}")
+    extra_groups = [list(g) for g in extra_groups]
+    auxiliary_labels = list(auxiliary_labels) + [p for g in extra_groups for p in g]
     labels, n_required = library_labels(problem, auxiliary_labels)
     n = problem.n_qubits
     x, z = xz_from_labels(labels)
@@ -149,10 +201,11 @@ def build_context_library(
     packed = pack(xmask, zmask, n)
     index = {label: position for position, label in enumerate(labels)}
 
-    groups = problem.parent_fc_groups()
+    groups = [list(g) for g in (problem.parent_fc_groups() if groups is None else groups)]
     home = np.full(len(labels), -1, dtype=np.int64)
     for alpha, group in enumerate(groups):
         home[[index[p] for p in group]] = alpha
+    groups = groups + extra_groups
 
     preference = None
     if strategy == "mass":

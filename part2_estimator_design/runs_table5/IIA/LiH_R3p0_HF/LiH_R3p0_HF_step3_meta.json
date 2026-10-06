@@ -1,0 +1,22 @@
+{
+  "reference": {
+    "m1": 3563903.585341453,
+    "m2": 1140583.0,
+    "m3_bound": 637632.5188897098,
+    "m3_actual": 333271.9915723851
+  },
+  "gate": 0.1,
+  "primary_metric": "m3_actual_static",
+  "run": {
+    "python": "3.11.4",
+    "packages": {
+      "numpy": "2.4.2",
+      "scipy": "1.17.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": null,
+    "part2_tree_dirty": null
+  }
+}

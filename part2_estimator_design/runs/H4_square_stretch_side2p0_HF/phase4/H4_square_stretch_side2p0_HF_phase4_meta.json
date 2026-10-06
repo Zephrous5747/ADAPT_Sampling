@@ -1,0 +1,82 @@
+{
+  "rho": 0.1,
+  "tolerance": 0.0016,
+  "trajectories": 48,
+  "seed": 7,
+  "strategy": "mass",
+  "methods": {
+    "II-0 safe": "II-0/estimated radii/rule=safe/rho=0.1/start=bound/radius_min_shots=50",
+    "II-A data, safe": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/rho=0.1/start=bound/radius_min_shots=50",
+    "II-A data, contrast": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/objective=contrast/rho=0.1/start=bound/radius_min_shots=50"
+  },
+  "exact_adapt": [
+    {
+      "iteration": 0,
+      "energy_error": 0.35659412642187727,
+      "added": "D 2,3 -> 6,7"
+    },
+    {
+      "iteration": 1,
+      "energy_error": 0.28889866070759007,
+      "added": "D 0,3 -> 5,6"
+    },
+    {
+      "iteration": 2,
+      "energy_error": 0.21581517186176802,
+      "added": "D 0,1 -> 4,5"
+    },
+    {
+      "iteration": 3,
+      "energy_error": 0.11885530954845214,
+      "added": "D 1,2 -> 4,7"
+    },
+    {
+      "iteration": 4,
+      "energy_error": 0.04791664260834949,
+      "added": "D 0,3 -> 4,7"
+    },
+    {
+      "iteration": 5,
+      "energy_error": 0.04669892905173878,
+      "added": "D 1,2 -> 5,6"
+    },
+    {
+      "iteration": 6,
+      "energy_error": 0.03949718015268955,
+      "added": "D 2,3 -> 4,5"
+    },
+    {
+      "iteration": 7,
+      "energy_error": 0.03666283035126572,
+      "added": "D 0,1 -> 6,7"
+    },
+    {
+      "iteration": 8,
+      "energy_error": 0.0051875286146154664,
+      "added": "D 1,3 -> 5,7"
+    },
+    {
+      "iteration": 9,
+      "energy_error": 0.005104230186598446,
+      "added": "D 0,2 -> 4,6"
+    },
+    {
+      "iteration": 10,
+      "energy_error": 0.003220397597392566,
+      "added": null
+    }
+  ],
+  "counted": "gradient-selection context-shots only; VQE energies are exact",
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "af38836cce7ff6e59c452bef15d90e9bab1a8a05",
+    "part2_tree_dirty": true
+  }
+}

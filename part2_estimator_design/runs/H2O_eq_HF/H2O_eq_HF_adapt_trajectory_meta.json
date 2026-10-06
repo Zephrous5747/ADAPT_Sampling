@@ -1,0 +1,22 @@
+{
+  "tolerance": 0.0016,
+  "fci_energy": -75.01240365883292,
+  "sector_dimension": 441,
+  "pool_size": 140,
+  "converged": true,
+  "steps": 17,
+  "states_file": "/mnt/d/Dev Tools/Python/Scripts/codes/VQE_Measurement/part2_estimator_design/.cache/trajectory/H2O_eq_HF_adapt.npz",
+  "seconds": 2128.1,
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "af38836cce7ff6e59c452bef15d90e9bab1a8a05",
+    "part2_tree_dirty": true
+  }
+}

@@ -38,10 +38,59 @@ The first round is always an II-0 pilot at the starting radius; designs are
 refitted when the shots held have grown by ``refit_growth`` since the last fit.
 Allocation plans with the fold-A design and fold B's covariance and tops up from
 the shots already held.
+
+Objectives (``objective``)
+    ``"arm"`` designs each generator's estimator for its own variance and plans
+    the shots so that every active arm reaches the round's radius.  At fixed shots
+    the arms decouple, so this is also the minimiser of the work order's
+    ``U_avg`` for any weights.  ``"contrast"`` targets what BAI actually tests
+    (``U_BAI`` and level II-E): once the leader ``l``'s sign is resolved, every
+    other survivor ``i`` gets a *directly designed* estimator of
+    ``s_l g_l - t g_i`` (``t = s_i`` when ``i``'s sign is resolved, both
+    ``t = +-1`` otherwise), and the shots are planned so that each contrast's
+    standard deviation reaches ``2 epsilon`` -- the separation a pair of arms at
+    radius ``epsilon`` would certify -- and the leader's own reaches ``epsilon``.
+    A contrast's coordinates are the union of both arms' II-A coordinates; Pauli
+    products whose coefficients cancel become zero-sum control variates.  The
+    guard compares each contrast design with the difference of the two arm
+    designs under the held-out fold.
+
+Rules and stopping (``rule``, ``rho``, ``start``)
+    ``rule`` is one of :data:`rules.RULES`; ``"safe"`` is the sign-aware rule and
+    is required by the contrast objective.  ``rho > 0`` stops as soon as the
+    leader is certified ``rho``-good (:func:`rules.rho_good_stop`).
+    ``start="oracle"`` begins at ``max_i |g_i|`` as Part I does; ``"bound"``
+    begins at ``max_i sum_l |A_il|``, an a-priori bound on every ``|g_i|``, and
+    lowers the floor accordingly, so no exact gradient enters the run.
+
+Small-sample radii (``radius_min_shots``)
+    A sample covariance from a handful of shots can be exactly zero (two equal
+    outcomes), and an interval built on it has zero width.  With the oracle start
+    the first eliminations come when contexts hold O(100) shots, but with the
+    ``bound`` start they can come at 2-5 shots per fold: on a tied H4 state II-0
+    then stopped at 9,141 shots on an arm with 6% of the best gradient.  A held-out
+    fold with fewer than ``radius_min_shots`` shots in a context is therefore
+    replaced, for radii and planning alike, by ``k I`` over its ``k`` Paulis, a
+    valid upper bound (``Sigma <= tr(Sigma) I <= k I`` since each Pauli has
+    variance at most one).  The planner then buys those contexts out of the regime.
+
+Sequential validity (``anytime``)
+    Part I's ``z`` is a Bonferroni bound over arms for one look.  The loop looks
+    once per round, so the family-wise guarantee does not cover the whole run;
+    ``anytime=True`` spends ``6 delta / (pi^2 r^2)`` in round ``r``, which sums to
+    ``delta`` over all rounds.  The validation record measures the difference.
+
+Logging and validation
+    ``run(rng, log=...)`` hands a :class:`runlog.RunLog` every round's active set,
+    shots, estimates, intervals, eliminations, redesigns and timings (Phase 3).
+    Every refit checks ``A = BC`` for each designed row and fails hard beyond
+    ``1e-9 max |A|``.  The truth enters only the validation record, which notes
+    whether any interval used missed the exact value.
 """
 from __future__ import annotations
 
 import math
+import time
 from dataclasses import dataclass
 
 import numpy as np
@@ -50,9 +99,14 @@ from allocation import allocate, allocate_topup
 from design import FragmentProblem
 from online import OnlineOutcome
 from part1_bridge import epsilon_from_radius, z_from_delta
+from rules import RULES, eliminate, rho_good_stop
 from sampler import pauli_covariance, walsh_hadamard
 
 PRIORS = ("hf", "flat", "oracle", "none")
+OBJECTIVES = ("arm", "contrast")
+STARTS = ("oracle", "bound")
+ELIMINATIONS = ("on", "off")
+RESIDUAL_TOLERANCE = 1e-9  # relative to max |A|
 
 
 @dataclass(frozen=True)
@@ -66,13 +120,45 @@ class LearningConfig:
     delta: float = 0.05
     refit_growth: float = 1.5
     min_fold_shots: int = 50  # a context enters a design only with this many shots per fold
+    rule: str = "pairwise"
+    objective: str = "arm"
+    rho: float = 0.0
+    start: str = "oracle"
+    radius_min_shots: int = 0  # held-out folds with fewer shots use the bound Sigma <= k I
+    anytime: bool = False  # union bound over rounds: delta_r = 6 delta / (pi^2 r^2)
+    elimination: str = "on"  # "off": every arm stays in the allocation (sequential M1)
+
+    def __post_init__(self) -> None:
+        if self.elimination not in ELIMINATIONS:
+            raise ValueError(f"elimination must be one of {ELIMINATIONS}")
+        if self.elimination == "off" and self.objective != "arm":
+            raise ValueError("without elimination there is no leader to contrast against: use objective='arm'")
+        if self.rule not in RULES:
+            raise ValueError(f"rule must be one of {RULES}")
+        if self.objective not in OBJECTIVES:
+            raise ValueError(f"objective must be one of {OBJECTIVES}")
+        if self.objective == "contrast" and self.rule != "safe":
+            raise ValueError("the contrast objective needs resolved signs: use rule='safe'")
+        if self.start not in STARTS:
+            raise ValueError(f"start must be one of {STARTS}")
+        if not 0.0 <= self.rho < 1.0:
+            raise ValueError("rho must lie in [0, 1)")
 
     @property
     def label(self) -> str:
         if self.level == "II-0":
-            return f"II-0/{self.radii} radii"
-        nu = "inf" if math.isinf(self.nu) else f"{self.nu:g}"
-        return f"{self.level}/prior={self.prior}/nu={nu}/{self.radii} radii/guard={'on' if self.guard else 'off'}"
+            label = f"II-0/{self.radii} radii"
+        else:
+            nu = "inf" if math.isinf(self.nu) else f"{self.nu:g}"
+            label = f"{self.level}/prior={self.prior}/nu={nu}/{self.radii} radii/guard={'on' if self.guard else 'off'}"
+        extras = [f"rule={self.rule}"] if self.rule != "pairwise" else []
+        extras += [f"objective={self.objective}"] if self.objective != "arm" else []
+        extras += [f"rho={self.rho:g}"] if self.rho > 0 else []
+        extras += [f"start={self.start}"] if self.start != "oracle" else []
+        extras += [f"radius_min_shots={self.radius_min_shots}"] if self.radius_min_shots else []
+        extras += ["anytime"] if self.anytime else []
+        extras += ["no-elimination"] if self.elimination == "off" else []
+        return "/".join([label] + extras)
 
 
 class CovarianceModel:
@@ -136,8 +222,14 @@ class CovarianceModel:
 class LearnedM3:
     """Shot-level best-arm identification with a learned, cross-fitted design."""
 
-    def __init__(self, problem, library, oracle_moments, prior_moments, base_problems, split_coords, config):
+    def __init__(self, problem, library, oracle_moments, prior_moments, base_problems, split_coords, config,
+                 credit=None):
         self.problem = problem
+        # Shots already held in each context when the selection starts (the last energy
+        # evaluation of the VQE step, for the shot-reuse baseline).  They are sampled once
+        # per trial, enter every estimate and allocation, and are not charged to the selection.
+        self.credit = (np.zeros(library.n_contexts, dtype=np.int64) if credit is None
+                       else np.asarray(credit, dtype=np.int64))
         self.library = library
         self.oracle = oracle_moments
         self.prior_moments = prior_moments
@@ -153,6 +245,14 @@ class LearnedM3:
         carrying = np.unique(np.concatenate([p.coord_ctx for p in base_problems]))
         self._minimum = np.zeros(self.n_contexts, dtype=np.int64)
         self._minimum[carrying] = 2  # at least one shot in each fold
+        self._pair_coords: dict[tuple[int, int], tuple[np.ndarray, np.ndarray]] = {}
+        self._n_library = library.n_library
+        self._scale = max(max((abs(v) for v in t.values()), default=0.0) for _, _, t in split_coords)
+        self.bound = max(sum(abs(v) for v in t.values()) for _, _, t in split_coords)
+        self.cz = library.two_qubit_counts()
+        self.guard_kept = 0
+        self.contrast_kept = 0
+        self.z_round = self.z
 
     # --- designs --------------------------------------------------------------
 
@@ -205,7 +305,74 @@ class LearnedM3:
                         self.guard_kept += 1
                 keep = x != 0.0
                 designs[f][i] = (p.coord_ctx[keep], p.coord_pauli[keep], x[keep])
+                self._check_row(designs[f][i], self.split_coords[i][2], f"arm {i}, fold {f}")
         return designs
+
+    def _check_row(self, design, targets: dict, what: str) -> float:
+        """Hard failure unless the copies of every Pauli sum to its target (A = BC)."""
+        _, pauli, x = design
+        ids, inverse = np.unique(pauli, return_inverse=True)
+        totals = np.bincount(inverse, weights=x, minlength=ids.size)
+        wanted = np.array([targets.get(int(l), 0.0) for l in ids])
+        residual = float(np.abs(totals - wanted).max()) if ids.size else 0.0
+        present = set(ids.tolist())
+        residual = max([residual] + [abs(v) for l, v in targets.items() if l not in present])
+        if residual > RESIDUAL_TOLERANCE * self._scale:
+            raise AssertionError(f"reconstruction residual {residual:.3e} for {what}")
+        return residual
+
+    # --- contrasts (objective="contrast") -----------------------------------------
+
+    def _coords_of_pair(self, lead: int, other: int):
+        key = (lead, other)
+        if key not in self._pair_coords:
+            ctx = np.concatenate([self.split_coords[lead][0], self.split_coords[other][0]])
+            pauli = np.concatenate([self.split_coords[lead][1], self.split_coords[other][1]])
+            codes = np.unique(ctx.astype(np.int64) * self._n_library + pauli)
+            self._pair_coords[key] = (codes // self._n_library, codes % self._n_library)
+        return self._pair_coords[key]
+
+    def _contrast_targets(self, lead, sign, other, t) -> dict:
+        targets = {l: sign * v for l, v in self.split_coords[lead][2].items()}
+        for l, v in self.split_coords[other][2].items():
+            targets[l] = targets.get(l, 0.0) - t * v
+        return targets
+
+    def _embed(self, p: FragmentProblem, design, weight: float, out: np.ndarray) -> None:
+        ctx, pauli, x = design
+        codes = p.coord_ctx * self._n_library + p.coord_pauli  # sorted: (ctx, pauli) order
+        out[np.searchsorted(codes, ctx.astype(np.int64) * self._n_library + pauli)] += weight * x
+
+    def _design_contrasts(self, model, designs, keys) -> list[list]:
+        """Cross-fitted designs of ``s_l g_l - t g_i`` for ``keys = [(l, s_l, i, t)]``."""
+        shots = [model.shots(0).astype(float), model.shots(1).astype(float)]
+        supported = np.minimum(shots[0], shots[1]) >= self.config.min_fold_shots
+        learnable = [np.where(supported, v, 0.0) for v in shots]
+        home = self.library.home
+        result = [[None] * len(keys), [None] * len(keys)]
+        for row, (lead, sign, other, t) in enumerate(keys):
+            ctx, pauli = self._coords_of_pair(lead, other)
+            targets = self._contrast_targets(lead, sign, other, t)
+            folds = [FragmentProblem(-1, ctx, pauli, targets, home,
+                                     lambda a, q, f=f: model.covariance(a, q, f)) for f in (0, 1)]
+            for f in (0, 1):
+                p, check = folds[f], folds[1 - f]
+                start = np.zeros(p.n_coordinates)
+                self._embed(p, designs[f][lead], sign, start)
+                self._embed(p, designs[f][other], -t, start)
+                x = start
+                if self.config.level != "II-0" and supported[p.ctx_ids].any():
+                    p.x = start.copy()
+                    p.optimise(learnable[f])
+                    if not self.config.guard or (
+                        check.variance(shots[1 - f], p.x) < check.variance(shots[1 - f], start)
+                    ):
+                        x = p.x
+                        self.contrast_kept += 1
+                keep = x != 0.0
+                result[f][row] = (p.coord_ctx[keep], p.coord_pauli[keep], x[keep])
+                self._check_row(result[f][row], targets, f"contrast {lead}-{other} ({t:+g}), fold {f}")
+        return result
 
     def _base_designs(self) -> list[list]:
         single = [(p.coord_ctx, p.coord_pauli, p.pauli_target[np.searchsorted(p.pauli_ids, p.coord_pauli)])
@@ -215,7 +382,7 @@ class LearnedM3:
     # --- statistics -----------------------------------------------------------
 
     def _estimates(self, model, designs) -> np.ndarray:
-        g = np.zeros(self.n_arms)
+        g = np.zeros(len(designs[0]))
         for f in (0, 1):  # design of fold f applied to the other fold's means
             for i, (ctx, pauli, x) in enumerate(designs[f]):
                 total = 0.0
@@ -224,6 +391,12 @@ class LearnedM3:
                     total += x[chosen] @ model.means(int(alpha), pauli[chosen], 1 - f)
                 g[i] += 0.5 * total
         return g
+
+    def _held_out(self, model, alpha: int, paulis: np.ndarray, fold: int, shots: np.ndarray) -> np.ndarray:
+        """One-shot covariance of the held-out fold, or the bound ``k I`` below ``radius_min_shots``."""
+        if shots[alpha] < self.config.radius_min_shots:
+            return float(len(paulis)) * np.eye(len(paulis))
+        return model.covariance(alpha, paulis, fold)
 
     def _covariance_matrix(self, model, designs, active) -> np.ndarray:
         """Cov(g_i, g_j) of the cross-fitted estimate over the active arms."""
@@ -253,7 +426,7 @@ class LearnedM3:
                     # radii come out too small.  On LiH the pooled estimate gave 54%
                     # correct selections.  Fold 1-f is independent of the design,
                     # so x^T Sigma_hat x is an unbiased estimate of its variance.
-                    sigma = model.covariance(alpha, paulis, 1 - f)
+                    sigma = self._held_out(model, alpha, paulis, 1 - f, shots[1 - f])
                 K = X.T @ sigma @ X / m
                 rows = [k for k, _, _ in parts]
                 result[np.ix_(rows, rows)] += 0.25 * K
@@ -287,90 +460,231 @@ class LearnedM3:
         floor (7.7e6 mean against a median of 1.3e4).
         """
         second = np.zeros((len(active), self.n_contexts))
+        shots = [model.shots(0), model.shots(1)]
         for row, arm in enumerate(active):
             for f in (0, 1):
                 ctx, pauli, x = designs[f][arm]
                 for alpha in np.unique(ctx):
                     chosen = ctx == alpha
-                    sigma = model.covariance(int(alpha), pauli[chosen], 1 - f)
+                    sigma = self._held_out(model, int(alpha), pauli[chosen], 1 - f, shots[1 - f])
                     second[row, alpha] += 0.5 * max(float(x[chosen] @ sigma @ x[chosen]), 0.0)
         return np.sqrt(second)
 
     # --- the run -----------------------------------------------------------------
 
-    def run(self, rng: np.random.Generator, trace: list | None = None) -> OnlineOutcome:
-        """One trial; pass a list as ``trace`` to record every round (diagnostics)."""
+    def _pilot_sigmas(self, active) -> np.ndarray:
+        """II-0 pilot.  Before any shots only the flat scale ``||a_{i,alpha}||`` is
+        known, unless the radii are oracle anyway."""
+        sig = np.zeros((len(active), self.n_contexts))
+        for row, i in enumerate(active):
+            p = self.base[i]
+            if self.config.radii == "oracle":
+                sig[row, p.ctx_ids] = np.sqrt(np.maximum(p.context_second_moments(), 0.0))
+            else:
+                coefficients = p.pauli_target[np.searchsorted(p.pauli_ids, p.coord_pauli)]
+                sig[row, p.ctx_ids] = np.sqrt(np.add.reduceat(coefficients ** 2, p.ctx_ptr[:-1]))
+        return sig
+
+    def _contrast_keys(self, active, estimates, covariance):
+        """``[(l, s_l, i, t)]`` for the empirical leader, or ``None`` before its sign is resolved."""
+        magnitude = np.abs(estimates[active])
+        radius = self.z_round * np.sqrt(np.maximum(np.diag(covariance), 0.0))
+        lead_row = int(np.argmax(magnitude))
+        if not magnitude[lead_row] > radius[lead_row]:
+            return None
+        lead = active[lead_row]
+        sign = float(np.sign(estimates[lead]))
+        keys = []
+        for row, arm in enumerate(active):
+            if arm == lead:
+                continue
+            ts = (float(np.sign(estimates[arm])),) if magnitude[row] > radius[row] else (1.0, -1.0)
+            keys.extend((lead, sign, arm, t) for t in ts)
+        return keys
+
+    def _validate(self, record: dict, active, estimates, covariance, decision, contrasts) -> None:
+        """Oracle check of every interval the round used (validation output only)."""
+        truth = self.problem.gradients
+        radius = self.z_round * np.sqrt(np.maximum(np.diag(covariance), 0.0))
+        missed = bool((np.abs(estimates[active] - truth[active]) > radius).any())
+        for (lead, other, t), (value, var) in (contrasts or {}).items():
+            exact = np.sign(estimates[lead]) * truth[lead] - t * truth[other]
+            missed |= bool(abs(value - exact) > self.z_round * math.sqrt(max(var, 0.0)))
+        record["miscovered_rounds"] += int(missed)
+        best = int(np.argmax(self.problem.abs_gradients))
+        record["best_eliminated"] |= any(arm == best for arm, _, _ in decision.eliminated)
+
+    # --- the run -----------------------------------------------------------------
+
+    def run(self, rng: np.random.Generator, trace: list | None = None, log=None) -> OnlineOutcome:
+        """One trial.
+
+        Pass a list as ``trace`` for the compact per-round diagnostics, or a
+        :class:`runlog.RunLog` as ``log`` for the full Phase 3 record.
+        """
+        config = self.config
         truth = self.problem.abs_gradients
         leader = int(np.argmax(truth))
         z = self.z
         active = list(range(self.n_arms))
-        radius = float(truth.max())
-        floor = radius * 1e-3
+        # Arms the rule has not yet removed.  With elimination on these are the active
+        # arms; with elimination off every arm stays in the allocation (sequential M1:
+        # uniform precision for the whole pool) and `alive` only decides when to stop
+        # and what to return.
+        alive = list(active)
+        if config.start == "oracle":
+            radius = float(truth.max())
+            floor = radius * 1e-3
+        else:
+            radius = float(self.bound)
+            floor = radius * 1e-6
         model = self._model()
         spent = np.zeros(self.n_contexts, dtype=np.int64)
+        held = np.flatnonzero(self.credit > 0)
+        if held.size:
+            first_held = (self.credit[held] + 1) // 2
+            model.add(held, (rng.multinomial(first_held, self.distributions[held]),
+                             rng.multinomial(self.credit[held] - first_held, self.distributions[held])))
+            spent = self.credit.copy()
         designs = self._base_designs()
         fitted_at = None
+        refits = 0
         estimates = np.zeros(self.n_arms)
-        rounds = 0
+        contrast_rows: dict[tuple, int] = {}
+        contrast_designs: list[list] = [[], []]
+        plan_keys = None
         self.guard_kept = 0
+        self.contrast_kept = 0
+        self.z_round = self.z
+        check = {"miscovered_rounds": 0, "best_eliminated": False}
+        seconds = {"design": 0.0, "statistics": 0.0, "allocation": 0.0}
+        stopped = False
+        rounds = 0
         for rounds in range(1, 401):
-            if len(active) <= 1 or radius < floor:
+            if stopped or len(alive) <= 1 or radius < floor:
                 break
+            if config.anytime:
+                z = z_from_delta(config.delta * 6.0 / (math.pi ** 2 * rounds ** 2), self.n_arms)
+            self.z_round = z
             epsilon = epsilon_from_radius(radius, z)
+            clock = time.perf_counter()
             if rounds == 1:
-                # II-0 pilot.  Before any shots only the flat scale ||a_{i,alpha}||
-                # is known, unless the radii are oracle anyway.
-                sig = np.zeros((len(active), self.n_contexts))
-                for row, i in enumerate(active):
-                    p = self.base[i]
-                    if self.config.radii == "oracle":
-                        sig[row, p.ctx_ids] = np.sqrt(np.maximum(p.context_second_moments(), 0.0))
-                    else:
-                        coefficients = p.pauli_target[np.searchsorted(p.pauli_ids, p.coord_pauli)]
-                        sig[row, p.ctx_ids] = np.sqrt(np.add.reduceat(coefficients ** 2, p.ctx_ptr[:-1]))
-                wanted = allocate(sig, epsilon)
+                wanted = allocate(self._pilot_sigmas(active), epsilon)
             else:
-                wanted = allocate_topup(self._plan_sigmas(model, designs, active), epsilon, spent.astype(float))
+                sig = self._plan_sigmas(model, designs, active)
+                if plan_keys:
+                    rows = [contrast_rows[k] for k in plan_keys]
+                    sub = [[contrast_designs[f][r] for r in rows] for f in (0, 1)]
+                    lead_sig = sig[active.index(plan_keys[0][0])][None, :]
+                    sig = np.vstack([lead_sig, 0.5 * self._plan_sigmas(model, sub, range(len(rows)))])
+                wanted = allocate_topup(sig, epsilon, spent.astype(float))
             target = np.maximum(spent, np.ceil(wanted - 1e-9).astype(np.int64))
             target = np.maximum(target, self._minimum)
+            seconds["allocation"] += time.perf_counter() - clock
             added = target - spent
             grew = np.flatnonzero(added > 0)
+            first = (added[grew] + 1) // 2
             if grew.size:
-                first = (added[grew] + 1) // 2
                 fold0 = rng.multinomial(first, self.distributions[grew])
                 fold1 = rng.multinomial(added[grew] - first, self.distributions[grew])
                 model.add(grew, (fold0, fold1))
             spent = target
 
-            if self.config.level != "II-0":
-                total = spent.sum()
-                if fitted_at is None or total >= self.config.refit_growth * fitted_at:
+            refitted = False
+            clock = time.perf_counter()
+            if config.level != "II-0":
+                # New shots only: data held in advance (credit) must not postpone the refits.
+                total = max(int(spent.sum() - self.credit.sum()), 1)
+                if fitted_at is None or total >= config.refit_growth * fitted_at:
                     designs = self._refit(model, set(active))
                     fitted_at = total
+                    refitted = True
+                    refits += 1
+                    contrast_rows, contrast_designs = {}, [[], []]
+            seconds["design"] += time.perf_counter() - clock
+
+            clock = time.perf_counter()
             estimates = self._estimates(model, designs)
             covariance = self._covariance_matrix(model, designs, active)
-            diagonal = np.diag(covariance)
-            signs = np.sign(estimates[active])
-            pairwise = diagonal[:, None] + diagonal[None, :] - 2.0 * np.outer(signs, signs) * covariance
-            magnitudes = np.abs(estimates[active])
-            lead = magnitudes[None, :] - magnitudes[:, None]
-            dominated = (lead > z * np.sqrt(np.maximum(pairwise, 0.0))).any(axis=1)
-            if trace is not None:
-                order = np.argsort(-magnitudes)[:2]
-                top = [active[k] for k in order]
-                record = {"round": rounds, "radius": radius, "n_active": len(active),
-                          "shots": int(spent.sum()), "top": top,
-                          "estimates": [float(estimates[i]) for i in top],
-                          "truth": [float(self.problem.gradients[i]) for i in top],
-                          "sd": [float(np.sqrt(max(diagonal[k], 0.0))) for k in order]}
-                if len(order) == 2:
-                    a, b = order
-                    record["lead"] = float(magnitudes[a] - magnitudes[b])
-                    record["pair_radius"] = float(z * np.sqrt(max(pairwise[b, a], 0.0)))
-                    record["runner_up_contexts"] = self._variance_by_context(model, designs, active[b])[:4]
-                trace.append(record)
-            active = [i for k, i in enumerate(active) if not dominated[k]]
-            radius *= self.config.shrink
+            seconds["statistics"] += time.perf_counter() - clock
+            contrasts = None
+            keys = self._contrast_keys(active, estimates, covariance) if config.objective == "contrast" else None
+            if keys:
+                missing = [k for k in keys if k not in contrast_rows]
+                if missing:
+                    clock = time.perf_counter()
+                    fresh = self._design_contrasts(model, designs, missing)
+                    for k, key in enumerate(missing):
+                        contrast_rows[key] = len(contrast_designs[0])
+                        for f in (0, 1):
+                            contrast_designs[f].append(fresh[f][k])
+                    seconds["design"] += time.perf_counter() - clock
+                clock = time.perf_counter()
+                rows = [contrast_rows[k] for k in keys]
+                sub = [[contrast_designs[f][r] for r in rows] for f in (0, 1)]
+                values = self._estimates(model, sub)
+                variances = np.diag(self._covariance_matrix(model, sub, list(range(len(rows)))))
+                contrasts = {(lead, other, t): (float(values[k]), float(variances[k]))
+                             for k, (lead, _, other, t) in enumerate(keys)}
+                seconds["statistics"] += time.perf_counter() - clock
+            if config.elimination == "off":
+                # Every arm is measured, but only the arms still alive may eliminate or be
+                # eliminated; `active` is all arms, so positions in `covariance` are arm ids.
+                decision = eliminate(alive, estimates, covariance[np.ix_(alive, alive)], z, config.rule)
+            else:
+                decision = eliminate(active, estimates, covariance, z, config.rule, contrasts)
+            self._validate(check, active, estimates, covariance, decision, contrasts)
 
-        selected = max(active, key=lambda i: abs(estimates[i]))
-        return OnlineOutcome(selected, selected == leader, float(spent.sum()), rounds)
+            if trace is not None:
+                self._trace(trace, rounds, radius, active, spent, estimates, covariance, model, designs)
+            if log is not None:
+                log.round(self, rounds=rounds, radius=radius, epsilon=epsilon, active=active,
+                          added=(grew, first, added[grew] - first), spent=spent, estimates=estimates,
+                          covariance=covariance, decision=decision, contrasts=contrasts,
+                          refitted=refitted, seconds=dict(seconds))
+                if refitted:
+                    log.refit(self, refits, rounds, model, designs)
+            survivors = decision.survivors  # already a subset of `alive`
+            plan_keys = [k for k in keys if k[2] in survivors] if keys else None
+            if config.rho > 0 and len(survivors) > 1:
+                keep = [active.index(arm) for arm in survivors]
+                stopped = rho_good_stop(survivors, estimates, covariance[np.ix_(keep, keep)], z, config.rho)
+            alive = survivors
+            if config.elimination == "on":
+                active = survivors
+            radius *= config.shrink
+
+        selected = max(alive, key=lambda i: abs(estimates[i]))
+        extra = {
+            "shortfall": float(1.0 - truth[selected] / truth.max()) if truth.max() > 0 else 0.0,
+            "miscovered_rounds": check["miscovered_rounds"],
+            "best_eliminated": bool(check["best_eliminated"]),
+            "stopped_rho": bool(stopped),
+            "refits": refits,
+            "contexts_used": int((spent > self.credit).sum()),
+            "cz_per_shot_mean": float(((spent - self.credit) * self.cz).sum() / max(spent.sum() - self.credit.sum(), 1)),
+            **{f"{k}_seconds": round(v, 3) for k, v in seconds.items()},
+        }
+        if log is not None:
+            log.final(self, model, spent, selected, extra)
+        return OnlineOutcome(selected, selected == leader, float(spent.sum() - self.credit.sum()), rounds,
+                             extra=extra)
+
+    def _trace(self, trace, rounds, radius, active, spent, estimates, covariance, model, designs) -> None:
+        diagonal = np.diag(covariance)
+        magnitudes = np.abs(estimates[active])
+        signs = np.sign(estimates[active])
+        pairwise = diagonal[:, None] + diagonal[None, :] - 2.0 * np.outer(signs, signs) * covariance
+        order = np.argsort(-magnitudes)[:2]
+        top = [active[k] for k in order]
+        record = {"round": rounds, "radius": radius, "n_active": len(active),
+                  "shots": int(spent.sum()), "top": top,
+                  "estimates": [float(estimates[i]) for i in top],
+                  "truth": [float(self.problem.gradients[i]) for i in top],
+                  "sd": [float(np.sqrt(max(diagonal[k], 0.0))) for k in order]}
+        if len(order) == 2:
+            a, b = order
+            record["lead"] = float(magnitudes[a] - magnitudes[b])
+            record["pair_radius"] = float(self.z * np.sqrt(max(pairwise[b, a], 0.0)))
+            record["runner_up_contexts"] = self._variance_by_context(model, designs, active[b])[:4]
+        trace.append(record)

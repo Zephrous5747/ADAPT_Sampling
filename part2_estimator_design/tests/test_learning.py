@@ -104,3 +104,74 @@ def test_learned_run_selects_the_winner(setup):
     learner = LearnedM3(problem, library, oracle, prior, base, coords, LearningConfig(prior="none", nu=0.0))
     outcome = learner.run(np.random.default_rng(1))
     assert outcome.correct and outcome.shots > 0
+
+
+def test_contrast_designs_are_unbiased_with_honest_variances(setup):
+    """II-E: a directly designed contrast is unbiased, and its held-out variance is honest."""
+    problem, library, oracle, prior, base, coords = setup
+    config = LearningConfig(prior="none", nu=0.0, rule="safe", objective="contrast")
+    learner = LearnedM3(problem, library, oracle, prior, base, coords, config)
+    rng = np.random.default_rng(23)
+    shots = np.full(library.n_contexts, 120)
+    lead, *others = problem.ranking()[:4]
+    sign = float(np.sign(problem.gradients[lead]))
+    keys = [(lead, sign, i, t) for i in others for t in (1.0, -1.0)]
+    exact = np.array([sign * problem.gradients[lead] - t * problem.gradients[i] for _, _, i, t in keys])
+    replicates = 150
+    values = np.empty((replicates, len(keys)))
+    predicted = np.empty((replicates, len(keys)))
+    for r in range(replicates):
+        model = learner._model()
+        _sample(model, learner.distributions, shots, rng)
+        designs = learner._refit(model, set(range(problem.n_generators)))
+        contrast = learner._design_contrasts(model, designs, keys)
+        values[r] = learner._estimates(model, contrast)
+        predicted[r] = np.diag(learner._covariance_matrix(model, contrast, list(range(len(keys)))))
+    assert learner.contrast_kept > 0
+    error = values - exact
+    z = np.abs(error.mean(axis=0)) / (error.std(axis=0, ddof=1) / math.sqrt(replicates))
+    assert z.max() < 4.0
+    ratio = predicted.mean(axis=0) / values.var(axis=0, ddof=1)
+    assert (ratio > 0.7).all() and (ratio < 1.4).all(), ratio
+
+
+def test_contrast_run_selects_the_winner_and_logs_everything(setup, tmp_path):
+    import json
+
+    from runlog import RunLog, write_static
+
+    problem, library, oracle, prior, base, coords = setup
+    config = LearningConfig(prior="none", nu=0.0, rule="safe", objective="contrast", start="bound")
+    learner = LearnedM3(problem, library, oracle, prior, base, coords, config)
+    log = RunLog()
+    outcome = learner.run(np.random.default_rng(1), log=log)
+    assert outcome.correct and outcome.shots > 0
+    paths = log.save(tmp_path, "run")
+    write_static(tmp_path / "static", problem, library)
+    rounds = [json.loads(line) for line in paths[0].read_text().splitlines()]
+    assert rounds[-1]["cumulative_shots"] == outcome.shots
+    assert sum(sum(v) for r in rounds for v in r["shots_added"].values()) == outcome.shots
+    assert any(r["contrasts"] for r in rounds) and any(r["eliminated"] for r in rounds)
+    summary = json.loads(paths[4].read_text())
+    assert "exact_gradients" not in summary  # oracle values only in the validation file
+    assert "exact_gradients" in json.loads(paths[5].read_text())
+    designs = np.load(paths[2])
+    assert any(k.endswith("_x") for k in designs.files)
+
+
+def test_reconstruction_residual_fails_hard(setup):
+    problem, library, oracle, prior, base, coords = setup
+    learner = LearnedM3(problem, library, oracle, prior, base, coords, LearningConfig())
+    ctx, pauli, targets = coords[problem.ranking()[0]]
+    home = library.home[pauli]
+    first = np.unique(pauli, return_index=True)[1]
+    x = np.array([targets[int(l)] for l in pauli[first]])
+    learner._check_row((home[first], pauli[first], x), targets, "exact")
+    x[0] += 1e-6
+    with pytest.raises(AssertionError):
+        learner._check_row((home[first], pauli[first], x), targets, "perturbed")
+
+
+def test_contrast_objective_requires_the_safe_rule():
+    with pytest.raises(ValueError):
+        LearningConfig(objective="contrast", rule="pairwise")

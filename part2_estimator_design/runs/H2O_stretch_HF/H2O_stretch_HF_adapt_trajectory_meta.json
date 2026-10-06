@@ -1,0 +1,22 @@
+{
+  "tolerance": 0.0016,
+  "fci_energy": -74.80092349929494,
+  "sector_dimension": 441,
+  "pool_size": 140,
+  "converged": true,
+  "steps": 18,
+  "states_file": "/mnt/d/Dev Tools/Python/Scripts/codes/VQE_Measurement/part2_estimator_design/.cache/trajectory/H2O_stretch_HF_adapt.npz",
+  "seconds": 1622.0,
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "af38836cce7ff6e59c452bef15d90e9bab1a8a05",
+    "part2_tree_dirty": true
+  }
+}

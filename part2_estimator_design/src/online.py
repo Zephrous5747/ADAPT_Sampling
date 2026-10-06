@@ -19,8 +19,9 @@ Options mirror Part I's ``finite_shot._sequential_trial`` so that the comparison
 like for like:
 
 ``rule``
-    ``"marginal"`` (Part I Eq. 4) or ``"pairwise"`` (covariance-aware, Part I
-    Eq. 17, with the sign factor ``s_ij``);
+    ``"marginal"`` (Part I Eq. 4), ``"pairwise"`` (covariance-aware, Part I
+    Eq. 17, with the sign factor ``s_ij``) or ``"safe"`` (pairwise only where the
+    signs are resolved; :mod:`rules`);
 ``accounting``
     ``"maxima"`` raises each context to Part I's allocation for the round and
     never lowers it; ``"topup"`` solves the round's allocation above the shots
@@ -47,9 +48,9 @@ import numpy as np
 
 from allocation import allocate, allocate_topup
 from part1_bridge import epsilon_from_radius, z_from_delta
+from rules import RULES, eliminate
 from sampler import walsh_hadamard
 
-RULES = ("marginal", "pairwise")
 SAMPLING = ("multinomial", "none")
 MINIMUM_RADIUS_FRACTION = 1e-3
 MAXIMUM_ROUNDS = 400
@@ -89,6 +90,7 @@ class OnlineOutcome:
     shots: float
     rounds: int
     history: list = field(default_factory=list, repr=False)
+    extra: dict = field(default_factory=dict, repr=False)  # diagnostics and validation
 
 
 class OnlineM3:
@@ -126,7 +128,7 @@ class OnlineM3:
         self._minimum[np.unique(self._ctx)] = 1
 
         self.covariances = None
-        if config.rule == "pairwise":
+        if config.rule != "marginal":
             self.covariances = self._generator_covariances(library, moments, design)
         self._shape_cache: dict[frozenset, np.ndarray] = {}
 
@@ -205,21 +207,14 @@ class OnlineM3:
             starved = (self.squared[:, ~funded] > 0).any(axis=1)
             variance[starved] = np.inf
             if self.config.rule == "marginal":
-                radii = z * np.sqrt(np.where(np.isfinite(variance), variance, 0.0))
-                best = max(abs(estimates[j]) - radii[j] for j in active)
-                active = [i for i in active if abs(estimates[i]) + radii[i] >= best]
+                # Part I zeroes a starved arm's radius here; kept for comparability.
+                block = np.diag(np.where(np.isfinite(variance), variance, 0.0)[active])
             else:
                 inverse = np.zeros(self.n_contexts)
                 inverse[funded] = 1.0 / spent[funded]
                 index = np.asarray(active)
                 block = np.einsum("a,aij->ij", inverse, self.covariances[:, index][:, :, index])
-                diagonal = np.diag(block)
-                signs = np.sign(estimates[index])
-                pairwise = diagonal[:, None] + diagonal[None, :] - 2.0 * np.outer(signs, signs) * block
-                magnitudes = np.abs(estimates[index])
-                lead = magnitudes[None, :] - magnitudes[:, None]
-                dominated = (lead > z * np.sqrt(np.maximum(pairwise, 0.0))).any(axis=1)
-                active = [i for k, i in enumerate(active) if not dominated[k]]
+            active = eliminate(active, estimates, block, z, self.config.rule).survivors
             if record:
                 history.append({"round": rounds, "radius": radius, "n_active": len(active),
                                 "cumulative_shots": int(spent.sum())})
@@ -249,4 +244,25 @@ def summarise(outcomes: list[OnlineOutcome]) -> dict:
         "shots_q75": float(np.percentile(shots, 75)),
         "shots_p90": float(np.percentile(shots, 90)),
         "rounds_mean": float(np.mean([o.rounds for o in outcomes])),
+        **_extra_summary(outcomes),
     }
+
+
+GOOD_FRACTIONS = (0.01, 0.05, 0.10)
+
+
+def _extra_summary(outcomes: list[OnlineOutcome]) -> dict:
+    """Delta-good rates, interval coverage and classical time, when recorded."""
+    if not outcomes or not all("shortfall" in o.extra for o in outcomes):
+        return {}
+    n = len(outcomes)
+    shortfall = np.array([o.extra["shortfall"] for o in outcomes])
+    result = {f"good_{round(100 * rho)}pct_rate": float((shortfall <= rho + 1e-12).mean())
+              for rho in GOOD_FRACTIONS}
+    result["miscovered_rate"] = sum(o.extra["miscovered_rounds"] > 0 for o in outcomes) / n
+    result["best_eliminated"] = int(sum(o.extra["best_eliminated"] for o in outcomes))
+    result["stopped_rho_rate"] = sum(o.extra["stopped_rho"] for o in outcomes) / n
+    for key in ("design_seconds", "statistics_seconds", "contexts_used", "cz_per_shot_mean"):
+        if key in outcomes[0].extra:
+            result[f"{key}_mean"] = float(np.mean([o.extra[key] for o in outcomes]))
+    return result

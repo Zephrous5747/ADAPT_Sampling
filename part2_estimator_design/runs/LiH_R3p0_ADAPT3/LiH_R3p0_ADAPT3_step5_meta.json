@@ -1,0 +1,63 @@
+{
+  "configs": {
+    "M1 seq": "II-0/estimated radii/no-elimination",
+    "M2 pairwise": "M2 independent/rule=pairwise/start=oracle",
+    "Ikh reuse, FC": "II-0/estimated radii/no-elimination/fc/reuse",
+    "II-0 + reuse, FC": "II-0/estimated radii/fc/reuse",
+    "II-A data + reuse, FC": "II-A/prior=none/nu=0/estimated radii/guard=on/fc/reuse",
+    "II-A data, safe": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50",
+    "M1 seq, safe": "II-0/estimated radii/rule=safe/radius_min_shots=50/no-elimination",
+    "Ikh reuse, FC, safe": "II-0/estimated radii/rule=safe/radius_min_shots=50/no-elimination/fc/reuse",
+    "II-0 safe + reuse, FC": "II-0/estimated radii/rule=safe/radius_min_shots=50/fc/reuse",
+    "II-A data, safe + reuse, FC": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/fc/reuse",
+    "Ikh no reuse, QWC": "II-0/estimated radii/no-elimination/qwc/no reuse",
+    "II-A data + reuse (home), FC": "II-A/prior=none/nu=0/estimated radii/guard=on/fc/reuse/assign=home",
+    "II-A data, safe + reuse (home), FC": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/fc/reuse/assign=home",
+    "II-A data, safe, FC library, no data": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/fc/no reuse/assign=home",
+    "M2 safe": "M2 independent/rule=safe/start=oracle"
+  },
+  "reuse_libraries": {
+    "fc": {
+      "contexts": 1019,
+      "energy_groups": 39,
+      "credit_shots": 1014880,
+      "overlap": {
+        "support": 30196,
+        "covered": 5352,
+        "covered_fraction": 0.17724201881043847,
+        "covered_mass_fraction": 0.3854330262832287,
+        "in_h_support": 620
+      }
+    },
+    "qwc": {
+      "contexts": 5460,
+      "energy_groups": 171,
+      "credit_shots": 1336975,
+      "overlap": {
+        "support": 30196,
+        "covered": 9480,
+        "covered_fraction": 0.3139488673996556,
+        "covered_mass_fraction": 0.5140367684212062,
+        "in_h_support": 620
+      }
+    }
+  },
+  "trials": 100,
+  "seed": 5,
+  "strategy": "mass",
+  "energy_error": 0.001,
+  "rho": 0.0,
+  "seeding": "trial i uses SeedSequence(seed).spawn(trials)[i]",
+  "run": {
+    "python": "3.11.4",
+    "packages": {
+      "numpy": "2.4.2",
+      "scipy": "1.17.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": null,
+    "part2_tree_dirty": null
+  }
+}
