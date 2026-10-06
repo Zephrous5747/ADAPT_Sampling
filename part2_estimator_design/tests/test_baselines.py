@@ -52,6 +52,35 @@ def test_independent_group_count_matches_part1(independent):
     assert contexts.n_contexts == sum(len(g) for g in problem.individual_fc_groups())
 
 
+def test_qwc_fragments_are_product_measurements_and_reproduce_every_gradient(h4_cisd_problem):
+    """Huang and Izmaylov's fragmentation: qubit-wise commuting groups, no entangling gates, more groups."""
+    problem = h4_cisd_problem
+    qwc = IndependentContexts(h4_cisd_problem, grouping="qwc")
+    qwc.set_state(problem.evaluator.state)
+    assert np.allclose(qwc.exact_gradients(), problem.gradients, atol=1e-10)
+    assert (qwc.cz == 0).all()
+    assert qwc.n_contexts >= sum(len(g) for g in problem.individual_fc_groups())
+    with pytest.raises(ValueError):
+        IndependentContexts(problem, grouping="other")
+
+
+def test_selection_confidence_factor_is_smaller_and_validated(independent):
+    from learning import LearningConfig
+    from part1_bridge import confidence_z
+
+    assert confidence_z(0.05, 26, "selection") < 0.5 * confidence_z(0.05, 26, "bonferroni")
+    problem, contexts = independent
+    loose = IndependentBAI(problem, contexts, IndependentConfig(rule="marginal", confidence="selection"))
+    strict = IndependentBAI(problem, contexts, IndependentConfig(rule="marginal"))
+    assert loose.z < strict.z
+    assert "confidence=selection" in IndependentConfig(confidence="selection").label
+    assert "confidence=selection" in LearningConfig(confidence="selection").label
+    with pytest.raises(ValueError):
+        IndependentConfig(confidence="other")
+    with pytest.raises(ValueError):
+        LearningConfig(confidence="other")
+
+
 def test_independent_bound_dominates_exact_sd(independent):
     _, contexts = independent
     p, f = contexts.distributions, contexts.fvalues

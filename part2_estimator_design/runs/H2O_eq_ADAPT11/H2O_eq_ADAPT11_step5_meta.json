@@ -8,7 +8,9 @@
     "M1 static": "M1 static (gap/2, exact variances)",
     "II-A data + reuse (home), FC": "II-A/prior=none/nu=0/estimated radii/guard=on/fc/reuse/assign=home",
     "M2 safe": "M2 independent/rule=safe/start=oracle",
-    "II-A data, safe": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50"
+    "II-A data, safe": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50",
+    "M2 QWC pairwise": "M2 independent/rule=pairwise/start=oracle/grouping=qwc",
+    "M2 QWC safe": "M2 independent/rule=safe/start=oracle/grouping=qwc"
   },
   "reuse_libraries": {
     "fc": {

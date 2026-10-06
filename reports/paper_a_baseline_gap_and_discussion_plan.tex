@@ -1,0 +1,192 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\hypersetup{colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black}
+\newcommand{\stDone}{\textcolor{green!40!black}{\textbf{done}}}
+\newcommand{\stPart}{\textcolor{orange!80!black}{\textbf{partial}}}
+\newcommand{\stMiss}{\textcolor{red!70!black}{\textbf{missing}}}
+\newcommand{\Hfour}{H$_4$}
+\newcommand{\Htwo}{H$_2$O}
+\title{Paper A: Baseline Coverage Against the 2026 State-of-the-Art Note,\\New Literature, and What the Discussion Needs}
+\author{Working note for the ADAPT-VQE measurement project}
+\date{5 October 2026}
+\begin{document}
+\maketitle
+
+\section{Verdict}
+
+The draft (\texttt{AFI\_ paper\_A\_plan\_projects\_1\_2.tex}) has no Discussion section. The results end at Q8, and the Conclusions carry a limitations paragraph of about 600 words. Against the thirteen items the state-of-the-art note asks a new measurement paper to cover (Table~\ref{tab:cover}), three are done, nine are partial and one is missing.
+
+The headline, that the learned designs (II-A) need $2.1$--$4.5$ times fewer shots than the strongest baseline we ran, stands for the baselines we ran. Reading the original papers showed that three of them are not the construction the literature uses (Sec.~\ref{sec:audit}), and one baseline that the note already listed, and that the published version of the shot-reuse paper now calls the practical baseline, is not implemented:
+
+\begin{itemize}[leftmargin=1.6em,itemsep=2pt]
+\item \textbf{Pivot-based grouping of Anastasiou \emph{et al.}\ is not implemented.} Our M1 groups the whole Pauli support by first-fit insertion. Ikhtiarudin \emph{et al.}\ (Physica Scripta 101, 255103, published 19 June 2026) conclude that pivot-based grouping alone gives the dominant reduction and ``should be considered the practical baseline'' (abstract). Until it is run, ``the learned designs beat the strongest published strategy'' is not established.
+\item \textbf{What to expect, and how little that is worth.} In their own simulations the pivot grouping needs $1.28$ times fewer shots than gradient-by-gradient term partitioning on \Hfour{} ($4.65\times10^{7}$ against $5.94\times10^{7}$), and $3.24$ times fewer on H$_6$ (12 qubits, the size of LiH); on H$_2$ it is $0.93$ (reduced pools and a different state, so the absolute numbers are not comparable with ours). Our sharing factor (Q1) is $1.1$--$3.4$ and II-A's margin over our strongest baseline is $2.1$--$4.5$. So on \Hfour{} the ranking is unlikely to change, but at LiH size the pivot grouping could be as good as our first-fit grouping or better, and at the size of \Htwo{} nothing is known. This is an expectation, not a result.
+\item \textbf{M2 is not Huang and Izmaylov's implementation.} They fragment each gradient into qubit-wise commuting (QWC) groups, use exact state variances and a hand-set radius schedule, and compare only with uniform estimation. Our M2 uses fully commuting groups per arm, estimated variances and $\delta$-calibrated radii, which makes it cheaper in shots and deeper in circuits than theirs.
+\item \textbf{Smaller items.} The AIM-ADAPT proxy is unoptimised (an upper bound). The reuse baseline models the first arXiv version. The CEO-ADAPT stack is represented by the pool and a $10\times$ cheaper optimisation, not by TETRIS or a measured optimiser.
+\end{itemize}
+
+What the Discussion needs, in order of weight: (D1) an honest table of how each baseline differs from the original; (D3) what the confidence intervals buy and cost; (D4) termination, which the trajectories take from an oracle; (D5) circuit depth and noise, where our contexts are the deepest; (D6) the optimisation cost; (D7) the score, pool and multi-operator axes; (D8) scaling and classical help; (D9) threats to validity. Section~\ref{sec:plan} gives each with the evidence in hand and the work that is missing; Section~\ref{sec:order} orders the work.
+
+\section{Coverage of the note's comparator set}
+
+\begingroup\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.19\linewidth}>{\raggedright\arraybackslash}p{0.07\linewidth}>{\raggedright\arraybackslash}p{0.35\linewidth}>{\raggedright\arraybackslash}p{0.31\linewidth}}
+\caption{Items of the state-of-the-art note (comparator set, ablation, controls, metrics) against the draft.\label{tab:cover}}\\
+\toprule
+Item in the note & Status & What the draft has & What is missing \\
+\midrule
+\endfirsthead
+\toprule
+Item in the note & Status & What the draft has & What is missing \\
+\midrule
+\endhead
+1. Naive per-gradient measurement & \stDone & No-sharing baseline (every gradient grouped alone, resolved to M1's radius), planning bound, Q1--Q3. & Not run from sampled outcomes; Q8 uses M2, which adds elimination to the same per-gradient groups. \\
+2. Global FC all-gradient measurement (Anastasiou \emph{et al.}) & \stPart & M1 static and sequential on first-fit universal FC contexts (Q1, Q8). & The pivot partition itself: $2N$ commuting sets per Hamiltonian term, equal coefficients inside a set, allocation by their Eqs.~(13)--(16), diagonalising circuits of at most $N-3$ CNOT. Qubit-type pools first (qubit, QEB, CEO), then the Pauli images of UCCSD. \\
+3. Independent BAI (Huang--Izmaylov) & \stPart & M2: one arm per gradient, own FC groups, estimated variances, $\delta$-calibrated radii; planning and sampled (Q3, Q8). & Their fragmentation (QWC with sorted insertion) and their radius schedule. M2-QWC is a change of the grouping. \\
+4. AIM-ADAPT-VQE (Nyk\"anen \emph{et al.}) & \stPart & Unoptimised tetrahedral (SIC) product POVM with exact moments and anytime intervals, \Hfour{} and LiH (Q8). & Adaptive optimisation of the POVM, whose purpose is lower variance; \Htwo{} ($4^{14}$ outcomes). The numbers are an upper bound for AIM-ADAPT. \\
+5. Reuse and variance allocation (Ikhtiarudin \emph{et al.}) & \stPart & Last energy evaluation (1~mHa) as free data on FC or QWC energy contexts, forced or home assignment, optimal allocation (favours the baseline); \Hfour{}, LiH, \Htwo{}. & Pivot grouping, which the published version finds dominant; their VMSA and VPSR allocations; the published reference. \\
+6. Integrated CEO-ADAPT-VQE & \stPart & OVP-CEO pool in the pool census (\Hfour{}, LiH); optimisation cost divided by $10$ as a proxy for Hessian recycling (Q7). & TETRIS (several operators per iteration); measured trajectories on the CEO pool; a measured, not modelled, optimisation cost. \\
+7. Internal ablation hierarchy & \stDone & II-0, II-A--II-E; static against redesigned designs (Q4, Q5). & -- \\
+8. Prior-art controls for variance optimisation (Yen \emph{et al.}, Choi \emph{et al.}) & \stPart & Coefficient splitting (II-A) and zero-sum terms (II-C) designed for the decision; static designs from exact covariances (Q5) or the Hartree--Fock prior (Q4). & A static design fitted to the previous ADAPT iteration's data (the realistic fixed-fragment control); iterative coefficient splitting and ghost Paulis as published. \\
+9. Score axis (ExcitationSolve, Rossi \emph{et al.}, greedy gradient-free, FAST-type) & \stMiss & None; the paper fixes the gradient criterion. & A cost-side comparison needs no new runs (D7). \\
+10. Cumulative selection cost along trajectories at a common accuracy & \stPart & Measured trajectories on \Hfour{} (two geometries) and LiH for every method (Q6, Q8). & \Htwo{}; the stop is an oracle (chemical accuracy against FCI), so certifying termination is not in the cost (D4). \\
+11. Measurement-circuit complexity reported separately, preserved or reduced & \stPart & CZ count per diagonalising circuit of our contexts, $8$--$32$ (Q1), also weighted by shots. & Baseline circuits (pivot: at most $N-3$ CNOT; QWC: none); our estimators on QWC or depth-capped FC contexts. The note's ``while preserving or reducing circuit complexity'' is not met against those baselines. \\
+12. Weakly and strongly correlated geometries & \stDone & Equilibrium and stretched \Hfour{}, LiH, \Htwo{}; trajectories to the stalled stretched pool. & Systems beyond three molecules and 14 qubits (D8). \\
+13. Operator pools & \stPart & UCCSD, qubit-ADAPT, QEB, generalised QEB, generalised qubit-ADAPT, OVP-CEO (17 problems, \Hfour{} and LiH). & The minimal complete pool of Shkolnikov \emph{et al.}; pools other than UCCSD on \Htwo{}. \\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\section{Audit of the baselines against the original papers}
+\label{sec:audit}
+
+Read directly: Huang and Izmaylov (arXiv:2509.14917v1, all six pages), Anastasiou \emph{et al.}\ (arXiv:2306.03227v3, pages 1--9) and Ikhtiarudin \emph{et al.}\ (arXiv:2507.16879v1, pages 1--3). The automatic page summaries of the first two papers were wrong (one described parameter-shift gradients and hardware-efficient ansatzes), so none of the statements below rests on them.
+
+\begingroup\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.13\linewidth}>{\raggedright\arraybackslash}p{0.33\linewidth}>{\raggedright\arraybackslash}p{0.23\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}}
+\caption{What the original does, what we ran, and the direction of the difference.\label{tab:audit}}\\
+\toprule
+Baseline & Original & Our proxy & Consequence \\
+\midrule
+\endfirsthead
+\toprule
+Baseline & Original & Our proxy & Consequence \\
+\midrule
+\endhead
+Anastasiou \emph{et al.} & The pivot is one Hamiltonian term $P$. The commutators $[P,S]$ with a set of mutually commuting pool operators $S$ commute with each other, because $[[P,S_i],[P,S_j]]=4[S_j,S_i]$. For the qubit pool this gives $2N$ sets per pivot, $\mathcal O(N^5)$ sets in all; all members of a set have the same $\lvert$coefficient$\rvert$ $2\lvert h\rvert$, which makes the allocation (their Eqs.~13--16, variances bounded by one) nearly optimal; diagonalising circuits have at most $N-3$ CNOT. Pool cost is about $4N$ energy evaluations. Simulated on H$_2$, \Hfour{}, H$_6$ (STO-3G, reduced pools). & First-fit insertion over the union of all Pauli products of all gradients (weight order); one partition for the whole pool, sharing across pivots; exact variances (static M1) or estimated (sequential M1). & Different construction, not a weaker one: ours shares across pivots and needs deeper circuits ($8$--$32$ CZ). Whether it is cheaper or dearer in shots than the pivot partition is untested. The algebra holds for any mutually commuting Pauli strings, so the pivot partition extends to the Pauli images of UCCSD (to be checked numerically). \\
+Huang and Izmaylov (v1) & QWC fragments of each commutator, sorted insertion; exact variances from the state and a Gaussian measurement model (as I read their Eqs.~6--8); per-round precision $(5-2r/5)\epsilon$ (UCCSD, QE) or $(2-r/10)\epsilon$ (qubit), at most ten rounds, radius $8\epsilon'_r$, no stated $\delta$ (tuned on numerical simulation, in their words); baseline is uniform precision; \Hfour{}, LiH, BeH$_2$ linear at 1~\AA{}; $69$--$93\%$ fewer measurements. They note that elimination can add ADAPT iterations, and name Track-and-Stop and Bayesian solvers as future work. The journal version (JCTC 22, 4475) was not read. & FC groups per arm, estimated variances, $\delta$-calibrated radii, sampled outcomes. & M2 is cheaper in shots and deeper in circuits than the original, so the comparison is conservative on shots and silent on circuits. Their savings are against uniform estimation, the axis we call elimination. \\
+Ikhtiarudin \emph{et al.} & v1: reuse of the Pauli outcomes of the VQE optimisation for the gradients, QWC cliques; variance-minimised and variance-preserved allocation (VMSA, VPSR); reuse plus grouping $32.29\%$ of the naive shots against $38.59\%$ for grouping alone; VPSR saves $43.21\%$ (H$_2$) and $51.23\%$ (LiH). Published form (Phys.\ Scr.\ 101, 255103): six molecules (4--14 qubits); pivot-based grouping alone gives the dominant reduction and is the practical baseline; reuse is modest (abstract only). & Reuse of one energy evaluation to 1~mHa, FC or QWC contexts, optimal allocation (better than their rules). & Models v1. Our finding that reuse helps on \Hfour{} and LiH and not on \Htwo{} agrees with ``modest''. Pivot grouping is the missing part. \\
+AIM-ADAPT & Optimised informationally complete POVM, data reused classically; Anastasiou \emph{et al.}\ describe it as shown on one 8-qubit system with $4^N$ outcomes in general. & SIC product POVM, unoptimised; \Hfour{}, LiH. & Upper bound; \Htwo{} infeasible. \\
+CEO-ADAPT & Integrated stack (CEO pool, TETRIS, improved gradient measurement, Hessian recycling); its measurement metric counts noiseless expectation evaluations. & Pool only, plus an optimisation cost divided by $10$. & Not an isolated measurement comparator, as the note says; what is shown is that the ranking holds on the CEO pool. \\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\section{Literature since the note, and what each item adds}
+\label{sec:lit}
+
+The state-of-the-art note ends in June 2026 (Rossi \emph{et al.}). The items below are either later or were not in the note. ``Read'' says how far I verified each: \emph{abstract} is the arXiv or publisher abstract, \emph{pdf} is the paper itself, \emph{snippet} is a search-result summary only.
+
+\begingroup\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.27\linewidth}>{\raggedright\arraybackslash}p{0.33\linewidth}>{\raggedright\arraybackslash}p{0.27\linewidth}>{\raggedright\arraybackslash}p{0.07\linewidth}}
+\caption{New and newly relevant literature. D$n$ refers to the Discussion plan.\label{tab:lit}}\\
+\toprule
+Reference & Finding & Bearing on Paper A & Read \\
+\midrule
+\endfirsthead
+\toprule
+Reference & Finding & Bearing on Paper A & Read \\
+\midrule
+\endhead
+\multicolumn{4}{l}{\emph{Selection and measurement}} \\
+Ikhtiarudin \emph{et al.}, Phys.\ Scr.\ \textbf{101}, 255103 (2026) [published form of arXiv:2507.16879] & Six molecules, 4--14 qubits; VPSR up to $43\%$ (H$_2$) and $51\%$ (LiH) fewer shots than uniform; pivot-based grouping alone is the dominant reduction; reuse modest. & Replace the arXiv reference; add pivot grouping to Methods and Q8 (D1). & abstract, v1 pdf \\
+Utama and Dipojono, arXiv:2607.17443 (Jul 2026) & Finite-shot selection of Pauli words: fixed shots $0/100$ correct, uniform escalation and confidence-bound racing $84/100$, racing $34\%$ fewer median shots; transverse-field Ising, 4--6 qubits. & Independent support for sequential testing; toy models, no sharing (related work, D3). & abstract \\
+Vahedi and Arefi, arXiv:2606.08794 (Jun 2026) & Graph network proposes the next operator, a shortlist is rescored; LiH, BeH$_2$, spin chains. & A classical shortlist or start radius with our certificate on top (D8). & abstract \\
+Mullinax \emph{et al.}, arXiv:2411.07920 (Nov 2024) & Classical pre-optimisation of ADAPT-VQE with a sparse wavefunction circuit solver, up to 52 spin orbitals. & If early iterations are classical, quantum selection is paid late (D8). & abstract \\
+He \emph{et al.}, arXiv:2606.13118 (Jun 2026) & Hamiltonian-aware criterion beyond the local gradient, strongly correlated molecules, lower measurement cost. & Score axis (D7). & abstract \\
+Haas \emph{et al.}, arXiv:2602.10776 (Feb 2026, rev.\ Aug 2026) & Energy sorting with ExcitationSolve: one sweep over the pool gives a warm start. & Score axis and optimisation cost (D6, D7). & abstract \\
+Rossi \emph{et al.}, arXiv:2606.04786 (cited) & Energy-based selection about twice cheaper; weakly correlated: ``last'' optimisation avoids VQE; strongly correlated: full reoptimisation and orbital optimisation govern the cost. & Supports Q7 (D6). & abstract \\
+Bincoletto and Kottmann, arXiv:2504.03019 (Apr 2025) & State-specific measurement protocols for VQE, $30$--$80\%$ fewer measurements and shallower circuits. & State-dependent design of the energy measurement; related work. & abstract \\
+\midrule
+\multicolumn{4}{l}{\emph{Optimisation cost}} \\
+Measurement-efficient ADAPT-VQE with the SOAP optimiser, J.\ Chem.\ Phys.\ \textbf{163}, 224118 (2025) & Sequential optimisation with an approximate parabola; fewer energy evaluations in ADAPT. & A realistic cheaper $C_{\rm opt}$ than the modelled exact optimiser (D6). Authors not retrieved. & snippet \\
+Vaquero-Sabater, Carreras, Casanova, J.\ Chem.\ Theory Comput.\ \textbf{21}, 8720 (2025) & Pruned-ADAPT: poor operator selection is one of three causes of near-zero operators. & A wrong selection costs more than the shots (D3, D6). & abstract \\
+K\"ubler \emph{et al.}, Quantum \textbf{4}, 263 (2020); Arrasmith \emph{et al.}, arXiv:2004.06252 & Shot-frugal optimisers (iCANS, Rosalin). & Candidates for a measured $C_{\rm opt}$ (D6). & snippet \\
+\midrule
+\multicolumn{4}{l}{\emph{Noise, bias, hardware}} \\
+Haravu, Ram\^oa, Sambasivam, arXiv:2609.17501 (Sep 2026) & Coherent and incoherent noise can make ADAPT choose ineffective operators; dynamical decoupling, ZNE and Pauli twirling restore convergence; linear H$_3$. & Our intervals cover shot noise only (D5). & abstract \\
+Larrucea, arXiv:2609.27704 (Sep 2026, rev.\ Oct 2026) & Winner's curse on IBM Heron r3: optimiser-selected energies up to $17.36$~mHa below exact; $0.892$--$0.989$ retained on remeasurement $5.6$--$38.4$ days later. & The decision of an argmax is protected by the intervals; the reported value of the selected estimate is not (D3, D4). & abstract \\
+Dalton \emph{et al.}, npj Quantum Inf.\ \textbf{10}, 18 (2024) & Gate-error probabilities of $10^{-6}$--$10^{-4}$ ($10^{-4}$--$10^{-2}$ mitigated) for chemical accuracy at 4--14 orbitals; ADAPT beats fixed circuits. & Budget for measurement circuits (D5). & snippet \\
+Bansingh \emph{et al.}, J.\ Phys.\ Chem.\ A (2022), arXiv:2205.07113 & Imperfect non-local rotations add variance; non-local grouping still needs fewer measurements for molecular Hamiltonians. & A way to put gate fidelity into a shots-against-depth comparison (D5). & abstract \\
+Patel \emph{et al.}, Chem.\ Rev.\ \textbf{125}, 7490 (2025) & Review of quantum measurement for quantum chemistry. & Background citation. & snippet \\
+Gonthier \emph{et al.}, Phys.\ Rev.\ Research \textbf{4}, 033154 (2022) & Measurements as a roadblock to near-term advantage in chemistry. & Why selection cost matters (D8). & snippet \\
+\midrule
+\multicolumn{4}{l}{\emph{Scaling and context}} \\
+Hagelueken \emph{et al.}, arXiv:2603.13073 (Mar 2026) & Number of adaptive iterations, hence depth, predicted to grow exponentially with system size (more than 20 molecules, 4--10 orbitals). & Selection is paid at every iteration (D8). & abstract \\
+Lee \emph{et al.}, Nat.\ Commun.\ \textbf{14}, 1952 (2023) & No evidence yet of a generic exponential advantage in ground-state chemistry. & Fault-tolerance framing (D8). & snippet \\
+Harville \emph{et al.}, arXiv:2602.11384 (Feb 2026) & VQE review with benchmarking considerations (accuracy and resources). & Reporting checklist (D1). & abstract \\
+\midrule
+\multicolumn{4}{l}{\emph{Bandit theory}} \\
+Garivier and Kaufmann, COLT 2016 (PMLR \textbf{49}, 998) & Lower bound on the sample complexity of best-arm identification and the asymptotically optimal Track-and-Stop. & The reference for the slack of our radii (D3); named by Huang and Izmaylov as future work. & snippet \\
+Jedra and Proutiere, NeurIPS 2020; Degenne \emph{et al.}\ 2020 (venue from memory) & Asymptotically optimal identification in linear bandits with finite arm sets. & Our problem is a transductive linear one with vector-valued feedback (D3). & snippet \\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\section{The Discussion the draft needs}
+\label{sec:plan}
+
+Proposed: a new section after Q8, with the limitations paragraph of the Conclusions moved into it and the Conclusions reduced to the four short paragraphs they already have. Each subsection below gives the claim it carries, the evidence already in the draft, and what is missing.
+
+\paragraph{D1. What was compared, and with what fidelity.} Carry: Table~\ref{tab:audit} in short form (original, proxy, direction of the difference), and the reporting checklist of recent reviews (accuracy, resources, measurement overhead, classical preprocessing). Have: the audit. Missing: the pivot baseline and M2-QWC; afterwards the sentence ``against the strongest published strategy'' is either confirmed or replaced.
+
+\paragraph{D2. Why the strongest baseline depends on the pool.} Carry: sequential M1 is strongest on four of nine fixed states (small pools), independent BAI on five and on every trajectory; elimination is worth $1.3$--$27.8$ times and sharing $1.2$--$4.3$ (Q8). The $69$--$93\%$ savings of Huang and Izmaylov (their Table~I) are against uniform estimation, our elimination axis; the sharing and learning come on top. Practical rule: sharing pays when a context serves many surviving gradients (uses per product $2.0$--$4.4$ in our pools), elimination when the pool is large with small gradients. Have: all numbers. Missing: a one-paragraph regression of which baseline wins on pool size, uses per product and relative gap (analysis of stored results).
+
+\paragraph{D3. What the confidence intervals buy and cost.} Carry: (i) the per-round intervals are not a run-wide guarantee ($14$--$29\%$ of trials had a missed interval), the anytime variant removes the misses at $1.8$--$2.6$ times the cost (Q3); (ii) in a two-arm Gaussian idealisation at $\delta=0.05$ the per-round radii cost $3.6$--$4.8$ times the Garivier--Kaufmann bound and the anytime radii $7.3$--$10.8$ times at 10--50 rounds, with an anytime-to-per-round ratio of $1.8$--$2.6$ that matches the measured one (\texttt{scripts/price\_of\_validity.py}); absolute shot counts are therefore upper bounds, and the ranking is unaffected only if every method pays the same slack, which is untested; (iii) plug-in signs fail on correlated states ($5$--$24\%$; $7.5\%$ of LiH trials with free data) and the sign-aware rule costs $21$--$76\%$ more; (iv) sample variances from a few tens of shots can be zero, which is the last exact input; (v) a selected estimate is biased upwards (Larrucea; Huang and Izmaylov note that elimination can lengthen the trajectory, ours did not: 376 of 378 trajectories had the exact length); (vi) a wrong selection leaves redundant operators (Pruned-ADAPT). Missing: a run with a tighter stopping rule to see whether the ranking is stable; a small-sample variance bound (empirical Bernstein) to remove the last exact input. State that no optimality is claimed.
+
+\paragraph{D4. Termination.} Carry: the trajectories stop at chemical accuracy against FCI or at $\max\lvert g_i\rvert<10^{-6}$, an oracle. ADAPT stops on the gradient, and with shot noise $\mathbb E\lVert\hat g\rVert^2=\lVert g\rVert^2+\sum_i\sigma_i^2$, so the test is biased upwards and grows with $K$. Certifying $\max\lvert g_i\rvert<\tau$ needs every gradient resolved to a radius between $0$ and $\tau$ (the smaller its own $\lvert g_i\rvert$, the larger the radius allowed), and no gradient can be eliminated; its cost is of the order of M1 at a radius of order $\tau$ on the final state. Missing: this cost on the final states of the stored trajectories (planning bound, minutes) and its effect on the $C_{\rm sel}$ share of Q7, which it can only raise.
+
+\paragraph{D5. Circuit depth, noise and hardware.} Carry: our contexts need $8.2$--$8.4$, $23.3$ and $32.2$ CZ per circuit (\Hfour{}, LiH, \Htwo{}), against at most $N-3$ CNOT for the pivot circuits and none for QWC. Bansingh \emph{et al.}\ show that non-local grouping can still win after the variance penalty of imperfect rotations; Dalton \emph{et al.}\ bound the gate error that chemical accuracy tolerates; Haravu \emph{et al.}\ and Larrucea show that noise and drift bias exactly the quantity we threshold. Our intervals cover shot noise only, and the paper should say it makes no hardware claim. Missing: (a) our estimators on QWC and on depth-capped FC contexts, giving a shots-against-CZ frontier; (b) a simulation with depolarising error per CZ and readout error on the measurement circuits, giving the wrong-selection rate for FC, pivot and QWC contexts.
+
+\paragraph{D6. Selection against optimisation.} Carry: Q7 (modelled $C_{\rm opt}$: selection is below $0.7\%$ of the total on \Hfour{} and $3$--$11\%$ on LiH; with a ten times cheaper optimisation $34$--$56\%$ on LiH), set against the methods that lower $C_{\rm opt}$: Hessian recycling, SOAP, iCANS and Rosalin, and the gradient-free or energy-based routes (the greedy gradient-free algorithm of Feniou \emph{et al.}\ avoids global reoptimisation, ExcitationSolve initialises parameters from exact landscapes). Rossi \emph{et al.}\ find that in strongly correlated systems full reoptimisation and orbital optimisation govern the cost, which is the regime where Q7 matters most. Missing: a measured $C_{\rm opt}$ for one shot-frugal optimiser on \Hfour{} and LiH, or at least a SOAP-like sensitivity; the point that a cheaper but less reliable selection can cost more end to end through extra iterations.
+
+\paragraph{D7. Scope: score, pool, several operators, utility.} Carry: the paper fixes the gradient. A gradient is the expectation of one observable on one state, so all $K$ gradients share the state and the contexts; an energy-based score needs one different state per candidate, so the $K$-fold factor is structural. A cost-side estimate follows from the stored cost of one energy evaluation to 1~mHa ($5.2\times10^{5}$ context-shots on \Hfour{}, $5.6\times10^{5}$ on LiH, $7\times10^{6}$ on \Htwo{}) times $K$ times the number of energies per landscape (about three to five, to be checked in the ExcitationSolve paper), against our selection costs of $10^{4}$--$10^{10}$; energy scores may need fewer iterations, so this is not a total-cost claim. Top-$k$ and threshold identification (TETRIS; named as future work by Huang and Izmaylov): the $\rho$-good rule is the single-arm form. A cost-weighted utility $\lvert g_i\rvert-\lambda c_i$ stays linear in the shared estimates. A smaller pool (Shkolnikov \emph{et al.}) changes $K$ and hence the ranking of D2. Missing: the cost-side table.
+
+\paragraph{D8. Scaling and classical help.} Carry: contexts $53$, $980$, $2{,}366$ and pools $K=26$, $92$, $140$; classical design time about $1$~s (\Hfour{}) to $5$--$6$~min (\Htwo{}) per selection, hours with contrast designs; AIM needs $4^N$ outcomes; the number of adaptive iterations is predicted to grow exponentially (Hagelueken \emph{et al.}), so the selection cost is paid many times. Classical shortlists or priors (graph network, classical pre-optimisation, FAST populations, three-body density approximations) carry no certificate; our Hartree--Fock prior alone failed on correlated states (Q4), which argues for a prior followed by a certified test. Fault-tolerance framing in one sentence (Lee \emph{et al.}; Gonthier \emph{et al.}). Missing: a plot of classical time against pool and context size; the paper should make no scaling claim beyond 14 qubits.
+
+\paragraph{D9. Threats to validity.} Carry: three molecules in STO-3G, 8--14 qubits; shots simulated from the exact distribution without device noise; every baseline is our implementation (list in Table~\ref{tab:audit}); the schedule, $\rho$ and $\delta$ are shared by all methods; the fixed-state tables start from the exact largest gradient; $100$--$200$ trials per row. Missing: whether the ratios of the Q8 table of the draft (\texttt{tab:q8best}) carry bootstrap intervals (to check), and a short statement of code and data availability.
+
+\section{Order of work}
+\label{sec:order}
+
+\begingroup\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.04\linewidth}>{\raggedright\arraybackslash}p{0.40\linewidth}>{\raggedright\arraybackslash}p{0.30\linewidth}>{\raggedright\arraybackslash}p{0.17\linewidth}}
+\toprule
+ & Task & Effect on the claims & Effort, where \\
+\midrule
+1 & Pivot-grouping baseline: M1 static and sequential on the pivot contexts with their allocation, qubit-type pools of \Hfour{} and LiH first, then UCCSD Pauli images; record CNOT counts. & Decides the headline (D1, D5). & 1--2 days of code; workstation, cluster for LiH. \\
+2 & M2-QWC, and the Huang--Izmaylov radius schedule as a sensitivity. & Fidelity of M2 (D1). & Hours; workstation. \\
+3 & Cost of certifying termination on the final states, planning bound then sampled. & Changes $C_{\rm sel}$ of Q7 (D4). & Hours; workstation. \\
+4 & Our estimators on QWC and depth-capped FC contexts; shots against CZ. & The circuit-complexity claim (D5). & 1--2 days; cluster for LiH. \\
+5 & Score-axis cost table from stored energy costs. & Closes item 9 (D7). & Hours; analysis only. \\
+6 & Noisy measurement circuits: wrong-selection rate for FC, pivot, QWC. & Hardware realism (D5). & 2 days. \\
+7 & Measured $C_{\rm opt}$ with a shot-frugal optimiser; \Htwo{} trajectories. & Q7 and item 10 (D6). & Cluster, hours. \\
+8 & Tighter stopping rule and a small-sample variance bound. & Stability of the ranking (D3). & 1--2 days. \\
+9 & Optimised AIM POVM; minimal complete pool. & Items 4 and 13. & Large; defer. \\
+10 & Housekeeping: add the 2026 items to the note; replace the Ikhtiarudin reference by the published form; check the publication status of Anastasiou \emph{et al.}\ (arXiv v3 is dated June 2026). & Citations. & Hours. \\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\paragraph{Verification.} Pdf read as stated in Section~\ref{sec:audit}. For the rest I read abstract pages or search-result summaries (Table~\ref{tab:lit}, last column); none was read in full. The published versions of Huang and Izmaylov, Ikhtiarudin \emph{et al.}\ and Nyk\"anen \emph{et al.}\ were not read, the authors of the SOAP paper were not retrieved, and the venue of Degenne \emph{et al.}\ is from memory. The numbers of Sec.~\ref{sec:plan}, D3, are from \texttt{scripts/price\_of\_validity.py}; the rest are quoted from the draft or the papers.
+
+\end{document}

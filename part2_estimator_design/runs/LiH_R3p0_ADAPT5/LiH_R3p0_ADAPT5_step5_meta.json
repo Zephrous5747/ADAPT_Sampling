@@ -14,7 +14,21 @@
     "II-A data + reuse (home), FC": "II-A/prior=none/nu=0/estimated radii/guard=on/fc/reuse/assign=home",
     "II-A data, safe + reuse (home), FC": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/fc/reuse/assign=home",
     "II-A data, safe, FC library, no data": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/fc/no reuse/assign=home",
-    "M2 safe": "M2 independent/rule=safe/start=oracle"
+    "M2 safe": "M2 independent/rule=safe/start=oracle",
+    "M2 QWC pairwise": "M2 independent/rule=pairwise/start=oracle/grouping=qwc",
+    "M2 QWC safe": "M2 independent/rule=safe/start=oracle/grouping=qwc",
+    "Ikh reuse, QWC": "II-0/estimated radii/no-elimination/qwc/reuse",
+    "M1 static, selection z": "M1 static (gap/2, exact variances)/confidence=selection",
+    "M1 seq, selection z": "II-0/estimated radii/no-elimination/confidence=selection",
+    "M2 pairwise, selection z": "M2 independent/rule=pairwise/start=oracle/confidence=selection",
+    "M2 safe, selection z": "M2 independent/rule=safe/start=oracle/confidence=selection",
+    "II-0, selection z": "II-0/estimated radii/confidence=selection",
+    "II-A data, selection z": "II-A/prior=none/nu=0/estimated radii/guard=on/confidence=selection",
+    "M1 seq, safe, selection z": "II-0/estimated radii/rule=safe/radius_min_shots=50/no-elimination/confidence=selection",
+    "II-A data, safe, selection z": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/confidence=selection",
+    "Pivot M1 static": "M1 static (gap/2, exact variances)/pivot contexts/classes=auto/assign=split",
+    "Pivot merged M1 static": "M1 static (gap/2, exact variances)/pivot contexts/classes=auto/assign=merged",
+    "Pivot merged M1 seq": "II-0/estimated radii/no-elimination/pivot contexts/classes=auto/assign=merged"
   },
   "reuse_libraries": {
     "fc": {
@@ -35,9 +49,9 @@
       "credit_shots": 1482856,
       "overlap": {
         "support": 30196,
-        "covered": 9480,
-        "covered_fraction": 0.3139488673996556,
-        "covered_mass_fraction": 0.5140367684212062,
+        "covered": 3978,
+        "covered_fraction": 0.1317393032189694,
+        "covered_mass_fraction": 0.3020037900293058,
         "in_h_support": 620
       }
     }
@@ -59,5 +73,35 @@
     },
     "git_commit": null,
     "part2_tree_dirty": null
+  },
+  "pivot_libraries": {
+    "auto/split": {
+      "classes": "firstfit",
+      "n_classes": 35,
+      "pivots": 630,
+      "pool_strings": 640,
+      "contexts": 21243,
+      "members_mean": 8.333286259002966,
+      "members_max": 32,
+      "extra_products": 196,
+      "reads_per_gradient_mean": 1924.1739130434783,
+      "two_qubit_mean": 8.70446735395189,
+      "two_qubit_max": 35,
+      "bound_n_minus_3": 9
+    },
+    "auto/merged": {
+      "classes": "firstfit",
+      "n_classes": 35,
+      "pivots": 630,
+      "pool_strings": 640,
+      "contexts": 21243,
+      "members_mean": 8.333286259002966,
+      "members_max": 32,
+      "extra_products": 196,
+      "reads_per_gradient_mean": 1924.1739130434783,
+      "two_qubit_mean": 8.70446735395189,
+      "two_qubit_max": 35,
+      "bound_n_minus_3": 9
+    }
   }
 }

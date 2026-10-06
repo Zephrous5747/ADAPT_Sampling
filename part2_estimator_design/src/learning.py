@@ -98,7 +98,7 @@ import numpy as np
 from allocation import allocate, allocate_topup
 from design import FragmentProblem
 from online import OnlineOutcome
-from part1_bridge import epsilon_from_radius, z_from_delta
+from part1_bridge import confidence_z, epsilon_from_radius
 from rules import RULES, eliminate, rho_good_stop
 from sampler import pauli_covariance, walsh_hadamard
 
@@ -127,8 +127,10 @@ class LearningConfig:
     radius_min_shots: int = 0  # held-out folds with fewer shots use the bound Sigma <= k I
     anytime: bool = False  # union bound over rounds: delta_r = 6 delta / (pi^2 r^2)
     elimination: str = "on"  # "off": every arm stays in the allocation (sequential M1)
+    confidence: str = "bonferroni"  # or "selection": the less conservative z of part1_bridge.confidence_z
 
     def __post_init__(self) -> None:
+        confidence_z(self.delta, 1, self.confidence)  # validates the mode
         if self.elimination not in ELIMINATIONS:
             raise ValueError(f"elimination must be one of {ELIMINATIONS}")
         if self.elimination == "off" and self.objective != "arm":
@@ -158,6 +160,7 @@ class LearningConfig:
         extras += [f"radius_min_shots={self.radius_min_shots}"] if self.radius_min_shots else []
         extras += ["anytime"] if self.anytime else []
         extras += ["no-elimination"] if self.elimination == "off" else []
+        extras += [f"confidence={self.confidence}"] if self.confidence != "bonferroni" else []
         return "/".join([label] + extras)
 
 
@@ -236,7 +239,7 @@ class LearnedM3:
         self.config = config
         self.n_arms = problem.n_generators
         self.n_contexts = library.n_contexts
-        self.z = z_from_delta(config.delta, self.n_arms)
+        self.z = confidence_z(config.delta, self.n_arms, config.confidence)
         self.distributions = oracle_moments.distributions_matrix()
         self.distributions /= self.distributions.sum(axis=1, keepdims=True)
         self.dim = self.distributions.shape[1]
@@ -375,8 +378,10 @@ class LearnedM3:
         return result
 
     def _base_designs(self) -> list[list]:
-        single = [(p.coord_ctx, p.coord_pauli, p.pauli_target[np.searchsorted(p.pauli_ids, p.coord_pauli)])
-                  for p in self.base]
+        # The base design is the coefficients of the base problems as they stand: one context per
+        # Pauli for II-0 and the reuse baseline (x = the Pauli's target), several for the pivot
+        # grouping, where a product that arises from several pivots is read from each of them.
+        single = [(p.coord_ctx, p.coord_pauli, p.x.copy()) for p in self.base]
         return [single, single]
 
     # --- statistics -----------------------------------------------------------
@@ -481,8 +486,7 @@ class LearnedM3:
             if self.config.radii == "oracle":
                 sig[row, p.ctx_ids] = np.sqrt(np.maximum(p.context_second_moments(), 0.0))
             else:
-                coefficients = p.pauli_target[np.searchsorted(p.pauli_ids, p.coord_pauli)]
-                sig[row, p.ctx_ids] = np.sqrt(np.add.reduceat(coefficients ** 2, p.ctx_ptr[:-1]))
+                sig[row, p.ctx_ids] = np.sqrt(np.add.reduceat(p.x ** 2, p.ctx_ptr[:-1]))
         return sig
 
     def _contrast_keys(self, active, estimates, covariance):
@@ -564,7 +568,7 @@ class LearnedM3:
             if stopped or len(alive) <= 1 or radius < floor:
                 break
             if config.anytime:
-                z = z_from_delta(config.delta * 6.0 / (math.pi ** 2 * rounds ** 2), self.n_arms)
+                z = confidence_z(config.delta * 6.0 / (math.pi ** 2 * rounds ** 2), self.n_arms, config.confidence)
             self.z_round = z
             epsilon = epsilon_from_radius(radius, z)
             clock = time.perf_counter()

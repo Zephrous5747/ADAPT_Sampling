@@ -44,8 +44,10 @@ from symplectic import (
     commutes_with_all,
     masks_from_xz,
     pack,
+    popcount,
     unpack,
     xz_from_labels,
+    xz_from_masks,
 )
 
 STRATEGIES = ("canonical", "mass", "random")
@@ -173,6 +175,86 @@ def qwc_groups(labels, *, weights: dict[str, float] | None = None) -> list[list[
     return members
 
 
+def contiguous_blocks(n_qubits: int, size: int) -> list[list[int]]:
+    """Qubits ``0..n-1`` in consecutive blocks of ``size`` (the last one may be shorter).
+
+    With the interleaved spin orbitals of Jordan-Wigner order, ``size = 2`` pairs the two
+    spins of one spatial orbital and ``size = 4`` pairs two spatial orbitals.
+    """
+    return [list(range(start, min(start + size, n_qubits))) for start in range(0, n_qubits, size)]
+
+
+def block_commuting_groups(labels, blocks) -> list[list[str]]:
+    """First-fit groups of Paulis that commute *block by block*.
+
+    Two Paulis are compatible when their restrictions to every block commute.  One block
+    of a single qubit is qubit-wise commutation (:func:`qwc_groups`, no entangling gates);
+    one block of all qubits is full commutation (Part I's grouping).  The measuring circuit
+    of a group is a tensor product of one Clifford per block, so it needs at most
+    ``size (size - 1) / 2`` CZ gates per block: depth is capped by construction.  Paulis are
+    inserted by decreasing weight, ties lexicographic, as in Part I.
+    """
+    labels = list(dict.fromkeys(labels))
+    if not labels:
+        return []
+    n = len(labels[0])
+    order = sorted(labels, key=lambda p: (-(n - p.count("I")), p))
+    x, z = xz_from_labels(order)
+    xm, zm = masks_from_xz(x, z)
+    weights = (np.int64(1) << (n - 1 - np.arange(n, dtype=np.int64)))
+    block_masks = [int(weights[list(b)].sum()) for b in blocks]
+    groups: list[list[str]] = []
+    placed_x = np.empty(len(order), dtype=np.int64)
+    placed_z = np.empty(len(order), dtype=np.int64)
+    placed_group = np.empty(len(order), dtype=np.int64)
+    for k, (label, xi, zi) in enumerate(zip(order, xm, zm)):
+        target = len(groups)
+        if k:
+            form = (xi & placed_z[:k]) ^ (zi & placed_x[:k])
+            anti = np.zeros(k, dtype=bool)
+            for mask in block_masks:
+                anti |= (popcount(form & mask) & 1).astype(bool)
+            if anti.any():
+                blocked = np.bincount(placed_group[:k][anti], minlength=len(groups)) > 0
+                free = np.flatnonzero(~blocked)
+                target = int(free[0]) if free.size else len(groups)
+            else:
+                target = 0
+        if target == len(groups):
+            groups.append([])
+        groups[target].append(label)
+        placed_x[k], placed_z[k], placed_group[k] = xi, zi, target
+    return groups
+
+
+def block_generators(labels, blocks, n_qubits: int) -> tuple[list[int], int]:
+    """``n`` independent commuting generators, block-local, whose group contains every label.
+
+    Within each block the restrictions of the labels (which commute pairwise there) are
+    completed to a maximal abelian set of the block's own Pauli group, so the measuring
+    circuit never couples two blocks.  Returns the generators and the rank of the parent
+    labels' restrictions.
+    """
+    generators: list[int] = []
+    rank = 0
+    for block in blocks:
+        b = len(block)
+        local = [s for s in dict.fromkeys("".join(label[q] for q in block) for label in labels) if set(s) != {"I"}]
+        base: list[int] = []
+        if local:
+            vectors = pack(*masks_from_xz(*xz_from_labels(local)), b)
+            base = [int(vectors[p]) for p in independent_subset(vectors)]
+        rank += len(base)
+        base, _ = complete_generators(base, b, None)
+        for g in base:
+            xl, zl = xz_from_masks(*unpack(np.int64(g), b), b)
+            x = np.zeros(n_qubits, dtype=bool)
+            z = np.zeros(n_qubits, dtype=bool)
+            x[block], z[block] = xl[0], zl[0]
+            generators.append(int(pack(*masks_from_xz(x, z), n_qubits)[0]))
+    return generators, rank
+
+
 def build_context_library(
     problem,
     strategy: str = "canonical",
@@ -181,6 +263,7 @@ def build_context_library(
     auxiliary_labels=(),
     groups=None,
     extra_groups=(),
+    blocks=None,
 ) -> ContextLibrary:
     """Complete every parent context and index the library against it.
 
@@ -188,10 +271,14 @@ def build_context_library(
     the shot-reuse baseline).  ``extra_groups`` are appended as further contexts with
     no home Pauli: they carry data that is already held (the energy measurement of the
     last VQE evaluation), and Paulis they measure that the library does not require
-    become auxiliaries.
+    become auxiliaries.  ``blocks`` (a partition of the qubits) makes every context a
+    block-wise product measurement (:func:`block_generators`); the groups must then commute
+    block by block (:func:`block_commuting_groups`).
     """
     if strategy not in STRATEGIES:
         raise ValueError(f"strategy must be one of {STRATEGIES}")
+    if blocks is not None and strategy != "canonical":
+        raise ValueError("block-wise contexts use the canonical completion (a library-ordered one would couple blocks)")
     extra_groups = [list(g) for g in extra_groups]
     auxiliary_labels = list(auxiliary_labels) + [p for g in extra_groups for p in g]
     labels, n_required = library_labels(problem, auxiliary_labels)
@@ -218,10 +305,14 @@ def build_context_library(
     contexts = []
     for alpha, group in enumerate(groups):
         home_members = np.sort(np.array([index[p] for p in group], dtype=np.int64))
-        vectors = packed[home_members]
-        generators = [int(vectors[p]) for p in independent_subset(vectors)]
-        parent_rank = len(generators)
-        generators, from_library = complete_generators(generators, n, preference)
+        if blocks is None:
+            vectors = packed[home_members]
+            generators = [int(vectors[p]) for p in independent_subset(vectors)]
+            parent_rank = len(generators)
+            generators, from_library = complete_generators(generators, n, preference)
+        else:
+            generators, parent_rank = block_generators(group, blocks, n)
+            from_library = 0
         circuit = synthesise_measurement_circuit(generators, n)
         gx, gz = unpack(np.array(generators, dtype=np.int64), n)
         members = np.flatnonzero(commutes_with_all(xmask, zmask, gx, gz))

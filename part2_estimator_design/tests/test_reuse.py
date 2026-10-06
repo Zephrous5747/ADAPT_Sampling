@@ -27,6 +27,19 @@ def test_qwc_needs_at_least_as_many_groups_as_fc(h4_cisd_problem):
     assert len(qwc_groups(h4_cisd_problem.universal_support)) >= len(h4_cisd_problem.parent_fc_groups())
 
 
+def test_qwc_contexts_are_product_measurements(h4_cisd_problem):
+    """A QWC clique is measured in a product basis: no entangling gates, and only the Paulis of that basis."""
+    problem = h4_cisd_problem
+    terms = hamiltonian_terms(problem, problem.case_id)
+    library = ReuseLibrary(problem, terms, "mass", "qwc").library
+    assert (library.two_qubit_counts() == 0).all()
+    for context in library.contexts[::7]:
+        labels = [library.labels[m] for m in context.members[:60]]
+        for a in labels:
+            for b in labels:
+                assert all(x == "I" or y == "I" or x == y for x, y in zip(a, b))
+
+
 @pytest.fixture(scope="module")
 def reuse(h4_cisd_problem):
     problem = h4_cisd_problem

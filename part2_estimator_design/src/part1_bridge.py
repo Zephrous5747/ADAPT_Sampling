@@ -37,17 +37,38 @@ from shot_models import (  # noqa: E402
     DEFAULT_DELTA,
     allocate_context_shots,
     epsilon_from_radius,
+    z_for_selection_error,
     z_from_delta,
 )
 
+CONFIDENCE_MODES = ("bonferroni", "selection")
+
+
+def confidence_z(delta: float, n_arms: int, mode: str = "bonferroni") -> float:
+    """The confidence factor of the radii.
+
+    ``"bonferroni"`` is the paper's convention (a two-sided normal quantile at ``delta / 2K`` over the
+    ``K`` gradients of the pool, one look); ``"selection"`` is Part I's ``z`` calibrated to the realised
+    selection error (``z = z_{delta/2} / sqrt(2)``, independent of ``K``), about 2.2 times smaller at
+    ``delta = 0.05`` and ``K = 26``: an upper bound on how much of a cost is the price of the radius rule.
+    """
+    if mode == "bonferroni":
+        return z_from_delta(delta, n_arms)
+    if mode == "selection":
+        return z_for_selection_error(delta)
+    raise ValueError(f"confidence must be one of {CONFIDENCE_MODES}")
+
+
 __all__ = [
     "CASES",
+    "CONFIDENCE_MODES",
     "SMALL_CASES",
     "DEFAULT_CACHE",
     "DEFAULT_DELTA",
     "GradientProblem",
     "allocate_context_shots",
     "check_against_part1",
+    "confidence_z",
     "epsilon_from_radius",
     "get_case",
     "load_problem",

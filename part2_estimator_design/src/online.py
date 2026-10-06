@@ -47,7 +47,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from allocation import allocate, allocate_topup
-from part1_bridge import epsilon_from_radius, z_from_delta
+from part1_bridge import confidence_z, epsilon_from_radius
 from rules import RULES, eliminate
 from sampler import walsh_hadamard
 
@@ -65,8 +65,10 @@ class OnlineConfig:
     delta: float = 0.05
     terminal_radius: float | None = None
     integer_shots: bool = True
+    confidence: str = "bonferroni"  # or "selection": part1_bridge.confidence_z
 
     def __post_init__(self) -> None:
+        confidence_z(self.delta, 1, self.confidence)  # validates the mode
         if not self.integer_shots and self.sampling != "none":
             raise ValueError("real-valued shot counts are only meaningful without sampling")
         if self.rule not in RULES:
@@ -101,7 +103,7 @@ class OnlineM3:
         self.config = config
         self.n_arms = problem.n_generators
         self.n_contexts = library.n_contexts
-        self.z = z_from_delta(config.delta, self.n_arms)
+        self.z = confidence_z(config.delta, self.n_arms, config.confidence)
         arms = list(range(self.n_arms))
         self.sigmas = design.sigmas(arms)
         self.squared = self.sigmas ** 2

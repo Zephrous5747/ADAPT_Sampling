@@ -53,6 +53,8 @@ def rng(values, digits=1):
     values = [v for v in values if v == v]
     lo, hi = min(values), max(values)
     f = lambda x: f"{x:.{digits}f}"  # noqa: E731
+    if f(lo) == f(hi):
+        return f"${f(lo)}$"
     return f"${f(lo)}$ to ${f(hi)}$"
 
 
@@ -69,6 +71,19 @@ def main() -> None:
         if v is None or (need_correct and v[1] < GOOD):
             return None
         return v[0]
+
+    def meta_overlap(case):  # from scripts/paper_a_reuse_overlap.py
+        table = {(r["case"], r["grouping"]): (float(r["covered_fraction"]), float(r["covered_mass_fraction"]))
+                 for r in csv.DictReader((runs / "paper_a" / "reuse_overlap.csv").open())}
+        return {g: table[(case, g)] for g in ("fc", "qwc")}
+
+    ov_h4, ov_lih = meta_overlap(CASES[0]), meta_overlap("LiH_R3p0_HF")
+    pc = lambda x: f"{100 * x:.0f}"  # noqa: E731
+    k = lambda x: f"{x:,.0f}".replace(",", "{,}")  # noqa: E731
+    qwc_plain = val(CASES[0], "oracle start", "Ikh QWC, no reuse", need_correct=False)
+    qwc_reuse = val(CASES[0], "oracle start", "Ikh reuse, QWC", need_correct=False)
+    fc_plain = val(CASES[0], "oracle start", "M1 seq (no elimination)", need_correct=False)
+    fc_reuse = val(CASES[0], "oracle start", "Ikh reuse, FC", need_correct=False)
 
     # --- strongest baseline, per state and rule --------------------------------------------------------------
     rows = {}
@@ -94,6 +109,14 @@ def main() -> None:
                  "ours_free": min(traj[(c, m)] for m in ("II-0 safe + reuse, FC", "II-A data, safe + reuse, FC") if (c, m) in traj),
                  "ikh": traj.get((c, "Ikh reuse, FC"))}
         tr[c]["rf"] = base[b] / tr[c]["ours_free"]
+    # H2O trajectories (12 per method; no static M1 and no reuse rows): included once every method is complete
+    trh = {}
+    for c in ("H2O_eq_HF", "H2O_stretch_HF"):
+        if all((c, m) in traj for m in ("M1 seq, safe", "M2 safe", "II-0 safe", "II-A data, safe")):
+            base = {m: traj[(c, m)] for m in ("M1 seq, safe", "M2 safe")}
+            b = min(base, key=base.get)
+            trh[c] = {"best": b, "cost": base[b], "r0": base[b] / traj[(c, "II-0 safe")], "ra": base[b] / traj[(c, "II-A data, safe")],
+                      "seq_over_ii0": traj[(c, "M1 seq, safe")] / traj[(c, "II-0 safe")]}
     # who is strongest
     seq_states = [c for c in CASES if (c, "oracle start") in rows and rows[(c, "oracle start")]["best"].startswith("M1 seq")]
     m2_states = [c for c in CASES if (c, "oracle start") in rows and rows[(c, "oracle start")]["best"].startswith("M2")]
@@ -185,8 +208,10 @@ def main() -> None:
     A("")
     A(r"\paragraph{Free data.} One energy evaluation to 1~mHa holds more data than a selection needs on the small systems "
       r"($5.2\times10^{5}$ shots on H$_4$ against $4.1\times10^{4}$ for II-0, $5.6\times10^{5}$ on LiH) and far less on H$_2$O ($7\times10^{6}$ "
-      r"against $10^{10}$). The Pauli products that its groups measure are $11\%$ of the gradient support on H$_4$ for the fully commuting "
-      r"groups of $\hat H$ ($22\%$ of the coefficient mass) and $23\%$ ($42\%$) for QWC cliques, and $15\%$ ($34\%$) and $32\%$ ($51\%$) on LiH. "
+      r"against $10^{10}$). The Pauli products that its groups measure are $" + pc(ov_h4["fc"][0]) + r"\%$ of the gradient support on H$_4$ for the fully commuting "
+      r"groups of $\hat H$ ($" + pc(ov_h4["fc"][1]) + r"\%$ of the coefficient mass) and $" + pc(ov_h4["qwc"][0]) + r"\%$ ($" + pc(ov_h4["qwc"][1])
+      + r"\%$) for QWC cliques measured in a product basis, and $" + pc(ov_lih["fc"][0]) + r"\%$ ($" + pc(ov_lih["fc"][1]) + r"\%$) and $"
+      + pc(ov_lih["qwc"][0]) + r"\%$ ($" + pc(ov_lih["qwc"][1]) + r"\%$) on LiH. "
       r"Reading them from that data lowers the cost of the sequential M1 by $" + f"{-ikh[CASES[0]]:.0f}" + r"\%$ on H$_4$ and by "
       + rng([-ikh[c] for c in lih], 0) + r"\% on LiH, but raises it by " + rng([ikh[c] for c in h2o_harm], 0) + r"\% on " + f"{len(h2o_harm)}"
       + r" of the four H$_2$O states, where the free data are negligible (so the loss cannot come from the data themselves) and the cost is that of the "
@@ -200,20 +225,27 @@ def main() -> None:
       r"the forced assignment is the better of the two for II-A: the home start changes its cost by " + rng([iia_home[c] for c in H2O if iia_home[c] is not None], 0)
       + r"\% against " + rng([iia_fix[c] for c in H2O if iia_fix[c] is not None], 0) + r"\% for the forced assignment. The ``ours + data'' columns of Table~\ref{tab:q8best} use the best of the "
       r"three variants per state, as the baseline gets the better of its fully commuting and QWC versions. The benefit is a statement about "
-      r"the energy precision (Table~\ref{tab:q8eps}): it saturates below 1~mHa and has vanished at 30~mHa. QWC cliques need more shots without "
-      r"the data ($111{,}957$ against $55{,}870$ on H$_4$, twice the fully commuting grouping) and fewer with it ($29{,}765$).")
+      r"the energy precision (Table~\ref{tab:q8eps}): it saturates below 1~mHa and has vanished at 30~mHa. QWC cliques need more shots "
+      r"than the fully commuting grouping both without the data ($" + k(qwc_plain) + r"$ against $" + k(fc_plain) + r"$ on H$_4$, " + f"{qwc_plain / fc_plain:.1f}"
+      + r" times) and with it ($" + k(qwc_reuse) + r"$ against $" + k(fc_reuse) + r"$): the free data of the QWC cliques cover about as much of the gradient coefficient mass as the fully commuting ones, so the cost is "
+      r"set by the grouping of the rest, which is twice as expensive.")
     A("")
     A(r"\paragraph{Sign-aware rule.} The pairwise rule takes the signs of the estimates at face value, and with the free data it selected a "
       r"wrong generator in $7.5\%$ of the LiH trials. Every row marked sign-aware was correct in every trial. The sign-aware rule costs more "
       r"(II-A on LiH: $" + sci(val("LiH_R3p0_HF", "sign-aware", "II-A safe"), 2) + r"$ against $" + sci(val("LiH_R3p0_HF", "oracle start", "II-A data"), 2) + r"$ shots), and the comparison with the strongest baseline is then "
       + rng([r["ra"] for r in sa]) + r" times for II-A.")
     A("")
-    A(r"\paragraph{Trajectories.} Along the measured trajectories (Table~\ref{tab:q8traj}; 48 trajectories per method on H$_4$, 30 on LiH, every "
-      r"one reaching chemical accuracy in the steps of exact ADAPT except on the stretched geometry, whose pool stalls at 3.2~mHa) independent "
-      r"BAI with the sign-aware rule is the strongest baseline on all three systems, " + rng([t["r0"] for t in tr.values()])
-      + r" times II-0 and " + rng([t["ra"] for t in tr.values()]) + r" times II-A. The sequential M1 costs $" + f"{traj[(tr_cases[0], 'M1 seq, safe')] / traj[(tr_cases[0], 'II-0 safe')]:.1f}"
+    every = list(tr.values()) + list(trh.values())
+    h2o_note = (r", 12 on each H$_2$O geometry" if len(trh) == 2 else r", 12 on H$_2$O at equilibrium" if trh else "")
+    A(r"\paragraph{Trajectories.} Along the measured trajectories (Table~\ref{tab:q8traj}; 48 trajectories per method on H$_4$, 30 on LiH" + h2o_note + r", every "
+      r"one reaching chemical accuracy in the steps of exact ADAPT except on the stretched H$_4$ geometry, whose pool stalls at 3.2~mHa) independent "
+      r"BAI with the sign-aware rule is the strongest baseline on all " + ("five" if len(trh) == 2 else "three" if not trh else "four")
+      + r" systems, " + rng([t["r0"] for t in every])
+      + r" times II-0 and " + rng([t["ra"] for t in every]) + r" times II-A. The sequential M1 costs $" + f"{traj[(tr_cases[0], 'M1 seq, safe')] / traj[(tr_cases[0], 'II-0 safe')]:.1f}"
       + r"$, $" + f"{traj[(tr_cases[1], 'M1 seq, safe')] / traj[(tr_cases[1], 'II-0 safe')]:.1f}" + r"$ and $"
-      + f"{traj[(tr_cases[2], 'M1 seq, safe')] / traj[(tr_cases[2], 'II-0 safe')]:.1f}" + r"$ times II-0, and the static M1 of Q7 "
+      + f"{traj[(tr_cases[2], 'M1 seq, safe')] / traj[(tr_cases[2], 'II-0 safe')]:.1f}" + r"$ times II-0 on H$_4$ (two geometries) and LiH"
+      + ("" if not trh else r" and " + rng([t["seq_over_ii0"] for t in trh.values()]) + r" times on H$_2$O")
+      + r", and the static M1 of Q7 "
       + rng([traj[(c, 'M1 static')] / traj[(c, 'II-0 safe')] for c in tr_cases], 0) + r" times. With the energy data the learned designs are "
       + rng([t["rf"] for t in tr.values()]) + r" times cheaper than independent BAI, and II-A with the data is "
       + rng([t["ikh"] / t["ours_free"] for t in tr.values() if t["ikh"]]) + r" times cheaper than the reuse baseline.")

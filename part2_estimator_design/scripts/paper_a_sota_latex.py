@@ -45,7 +45,7 @@ FIXED_ROWS = [
     ("II-A + reuse, home start", "II-A safe + reuse (home)"),
 ]
 TRAJ_CASES = [("H4_square_eq_side1p0_HF", r"H$_4$ 1.0"), ("H4_square_stretch_side2p0_HF", r"H$_4$ 2.0"),
-              ("LiH_R3p0_HF", "LiH")]
+              ("LiH_R3p0_HF", "LiH"), ("H2O_eq_HF", r"H$_2$O eq"), ("H2O_stretch_HF", r"H$_2$O str")]
 TRAJ_ROWS = [
     ("external baselines", None),
     ("M1 static", "M1 static"), ("M1 seq", "M1 seq, safe"), ("M2, Successive Elimination", "M2 marginal"),

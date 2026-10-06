@@ -1,28 +1,15 @@
 {
   "configs": {
-    "M1 static": "M1 static (gap/2, exact variances)",
-    "M1 seq": "II-0/estimated radii/no-elimination",
-    "M2 marginal": "M2 independent/rule=marginal/start=oracle",
-    "M2 pairwise": "M2 independent/rule=pairwise/start=oracle",
-    "M2 safe, bound start": "M2 independent/rule=safe",
-    "M2 marginal, bound start": "M2 independent/rule=marginal",
-    "M1 seq, safe, bound start": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50/no-elimination",
-    "Ikh reuse, FC": "II-0/estimated radii/no-elimination/fc/reuse",
-    "II-0 + reuse, FC": "II-0/estimated radii/fc/reuse",
-    "II-A data + reuse, FC": "II-A/prior=none/nu=0/estimated radii/guard=on/fc/reuse",
-    "Ikh reuse, QWC": "II-0/estimated radii/no-elimination/qwc/reuse",
-    "Ikh no reuse, QWC": "II-0/estimated radii/no-elimination/qwc/no reuse",
-    "II-A data, safe": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50",
-    "M1 seq, safe": "II-0/estimated radii/rule=safe/radius_min_shots=50/no-elimination",
-    "Ikh reuse, FC, safe": "II-0/estimated radii/rule=safe/radius_min_shots=50/no-elimination/fc/reuse",
-    "II-0 safe + reuse, FC": "II-0/estimated radii/rule=safe/radius_min_shots=50/fc/reuse",
-    "II-A data, safe + reuse, FC": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/fc/reuse",
-    "II-A data + reuse (home), FC": "II-A/prior=none/nu=0/estimated radii/guard=on/fc/reuse/assign=home",
-    "II-A data, safe + reuse (home), FC": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/fc/reuse/assign=home",
-    "II-A data, safe, FC library, no data": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/fc/no reuse/assign=home",
-    "M2 safe": "M2 independent/rule=safe/start=oracle"
+    "M1 seq, noise=0.06/0": "II-0/estimated radii/no-elimination",
+    "II-A data, noise=0.06/0": "II-A/prior=none/nu=0/estimated radii/guard=on",
+    "M2 marginal, noise=0.06/0": "M2 independent/rule=marginal/start=oracle",
+    "II-A data, blocks=2, noise=0.06/0": "II-A/prior=none/nu=0/estimated radii/guard=on/2-qubit block contexts",
+    "II-A data, blocks=4, noise=0.06/0": "II-A/prior=none/nu=0/estimated radii/guard=on/4-qubit block contexts",
+    "M1 seq, blocks=1, noise=0.06/0": "II-0/estimated radii/no-elimination/1-qubit block contexts",
+    "II-A data, blocks=1, noise=0.06/0": "II-A/prior=none/nu=0/estimated radii/guard=on/1-qubit block contexts",
+    "M2 QWC marginal, noise=0.06/0": "M2 independent/rule=marginal/start=oracle/grouping=qwc"
   },
-  "trials": 200,
+  "trials": 100,
   "seed": 5,
   "strategy": "mass",
   "energy_error": 0.001,
@@ -40,30 +27,33 @@
     "git_commit": null,
     "part2_tree_dirty": null
   },
-  "reuse_libraries": {
-    "fc": {
-      "contexts": 1019,
-      "energy_groups": 39,
-      "credit_shots": 559683,
-      "overlap": {
-        "support": 30196,
-        "covered": 5352,
-        "covered_fraction": 0.17724201881043847,
-        "covered_mass_fraction": 0.3854330262832305,
-        "in_h_support": 620
-      }
+  "block_libraries": {
+    "2": {
+      "classes": "blocks=2",
+      "n_classes": 6,
+      "contexts": 3047,
+      "members_mean": 58.49983590416804,
+      "two_qubit_mean": 2.3288480472595996,
+      "two_qubit_max": 6,
+      "bound_two_qubit": 6
     },
-    "qwc": {
-      "contexts": 5460,
-      "energy_groups": 171,
-      "credit_shots": 968851,
-      "overlap": {
-        "support": 30196,
-        "covered": 9604,
-        "covered_fraction": 0.3180553715723937,
-        "covered_mass_fraction": 0.5102957346950404,
-        "in_h_support": 620
-      }
+    "4": {
+      "classes": "blocks=4",
+      "n_classes": 3,
+      "contexts": 2004,
+      "members_mean": 56.442115768463076,
+      "two_qubit_mean": 6.139720558882235,
+      "two_qubit_max": 14,
+      "bound_two_qubit": 18
+    },
+    "1": {
+      "classes": "blocks=1",
+      "n_classes": 12,
+      "contexts": 5289,
+      "members_mean": 57.42975987899414,
+      "two_qubit_mean": 0.0,
+      "two_qubit_max": 0,
+      "bound_two_qubit": 0
     }
   }
 }

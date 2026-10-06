@@ -35,7 +35,7 @@ from dataclasses import dataclass
 import numpy as np
 
 import part1_bridge  # noqa: F401  (puts Part I's src on the path)
-from contexts import build_context_library, qwc_groups
+from contexts import build_context_library, contiguous_blocks, qwc_groups
 from design import FragmentProblem
 from learning import LearningConfig
 from pauli_fc import greedy_fc_groups  # Part I
@@ -147,7 +147,12 @@ class ReuseLibrary:
         parents = parent_groups(problem, grouping)
         self.energy = energy_groups(terms, grouping)
         self.n_parent = len(parents)
-        self.library = build_context_library(problem, strategy, groups=parents, extra_groups=self.energy)
+        # QWC cliques are measured in a product basis: no entangling gates, and the Paulis a context measures
+        # are those of its local basis.  (An earlier version completed them like fully commuting groups,
+        # which gave circuits with entangling gates and a larger measured group than a product measurement.)
+        blocks = contiguous_blocks(problem.n_qubits, 1) if grouping == "qwc" else None
+        self.library = build_context_library(problem, "canonical" if blocks else strategy, groups=parents,
+                                             extra_groups=self.energy, blocks=blocks)
         self.energy_context = np.arange(self.n_parent, self.n_parent + len(self.energy))
 
     def credit(self, moments, epsilon: float = ENERGY_ERROR) -> np.ndarray:

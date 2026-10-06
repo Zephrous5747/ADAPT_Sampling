@@ -193,3 +193,74 @@ all other cached cases pass the check.
   no undefined references); scratch build only. Tool note: inline `python - <<EOF` scripts collapse `\` to `\` in this environment: use raw strings or Write a script file.
 - LiH IC (oracle radii only): median 2.6e8 IC shots (one trial 9.8e12 dominates the mean), energy to 1 mHa 5.7e8 IC shots (860x the FC energy shots).
 - Tests: 103 pass (2.0 min).
+
+## 2026-10-05 (after the commit) — baseline audit against the original papers, literature review, Discussion plan
+
+- No change to the library code or to any result. Committed state is `f2730c3`.
+- New: `scripts/price_of_validity.py` (no inputs; two-arm Gaussian idealisation). At delta = 0.05 the per-round Bonferroni radii cost 3.6 / 4.5 / 4.8 times the
+  Garivier-Kaufmann lower bound (K = 26 / 92 / 140), the anytime radii 7.3-10.8 times at 10-50 rounds; anytime / per-round = 1.76-2.64, consistent with the measured
+  1.8-2.6 of Q3. It is a back-of-the-envelope figure (equal variances, no elimination of the other arms), meant for the Discussion, not for a table.
+- New: `reports/paper_a_baseline_gap_and_discussion_plan.tex` (+ pdf in `reports/generated/`): coverage of the 13 items of the SOTA note (3 done, 9 partial, 1 missing),
+  audit of our baselines against the papers read in full, 2026 literature table, plan for a Discussion section, order of work.
+- Findings from reading the originals (not from our runs):
+  * Anastasiou et al. (arXiv:2306.03227v3) is a *pivot* partition (pivot = one Hamiltonian term; commutators with a commuting set of pool operators commute; 2N sets per pivot,
+    equal |coefficients| per set, <= N-3 CNOT circuits). Our M1 is first-fit universal FC over the union of all products: a different construction. NOT implemented.
+  * Ikhtiarudin et al. published form (Phys. Scr. 101, 255103, 19 Jun 2026; abstract only): pivot-based grouping alone gives the dominant reduction ("practical baseline");
+    our reuse baseline models the arXiv v1 (QWC, reuse of the energy data).
+  * Huang-Izmaylov (arXiv:2509.14917v1): QWC fragments per arm, exact variances, hand-set radius schedule R_r = 8 eps'_r, no delta, compared with uniform estimation only.
+    Our M2 uses FC groups per arm, estimated variances and delta-calibrated radii (cheaper in shots, deeper circuits).
+  * Anastasiou's own Table II: pivot grouping vs gradient-by-gradient term partitioning = 0.93 (H2), 1.28 (H4), 3.24 (H6); reduced pools, so not comparable in absolute terms.
+- Tool note: the WebFetch page summariser returned wrong content for two papers (it described parameter-shift / hardware-efficient ansatzes for Huang-Izmaylov); the PDFs
+  were saved under the session's tool-results folder and read directly. Treat web summaries as leads, not facts.
+
+## 2026-10-05 (evening) — order of work 1-5: pivot grouping, M2-QWC, termination cost, block contexts, score axis
+
+- **Pivot grouping** (`src/pivot.py`, `tests/test_pivot.py`): contexts `(Hamiltonian term P, class of commuting pool strings)`; every gradient is read from the pivot contexts its
+  Paulis came from (`pivot_fragment_problems`), or each product from one pivot context by greedy set cover (`merged_assignment`, stronger than the published scheme).  The
+  decomposition `[H, G_i] = sum_P h_P sum_S g_S [P, S]` reproduces the stored commutators to 1e-8 on H4, LiH and H2O (hard check at build time).  Anchored 2N classes for the
+  qubit-type pools, first-fit classes for UCCSD.  Validation: static cost on the qubit pool is 34.8 in units of (sum|h|)^2/eps^2; Anastasiou's own estimate is 4N = 32.
+  H4 1.0 CISD, 200 trials: pivot M1 static 763k, seq 715k; merged static 98k, seq 97k, II-0 68k, II-A 45k; first-fit M1 static 59.7k, seq 55.9k, II-A 27.1k.
+  H2O would need 56,242 contexts x 16,384 outcomes: not run.
+  `learning.py`: the base design now uses the base problems' own coefficients (`p.x`), not the Pauli targets, so that a product can be read from several contexts
+  (identical for II-0 and the reuse designs).  `step5_external_baselines.py`: `PivotSpec`, `BlockSpec`, `M2 QWC ...`, `pivot_setup`, `block_setup`.
+- **Block-wise contexts** (`contexts.py`: `contiguous_blocks`, `block_commuting_groups`, `block_generators`, `build_context_library(blocks=...)`, `tests/test_blocks.py`): Paulis commute
+  block by block, so each circuit is a tensor product of one Clifford per block (CZ <= size(size-1)/2 per block); size 1 is QWC (no entangling gates), size n is Part I's FC.
+  H4 1.0 CISD contexts / mean CZ: QWC 314 / 0, 2-qubit blocks 215 / 1.6, 4-qubit blocks 110 / 4.3, FC 53 / 7.3.
+- **M2 with QWC fragments** (`IndependentContexts(grouping="qwc")`, `IndependentConfig.grouping`): Huang and Izmaylov's fragmentation.
+- **Bug found and fixed in the QWC reuse baseline**: `ReuseLibrary(..., "qwc")` completed the QWC cliques like FC groups (strategy "mass"): circuits with about 6 two-qubit gates per shot and a
+  measured group larger than a product measurement, i.e. more free overlap than QWC measurement provides (H4 1.0 CISD: 23% of the support / 42% of the coefficient mass, now 23% / 25%;
+  LiH HF: 32% / 51%, now 13% / 31%).  Now `blocks=contiguous_blocks(n, 1)` with the canonical completion; regression test `test_qwc_contexts_are_product_measurements`.  Old trial files go to
+  `trials_superseded/` (`cluster/qwc_fix.sh`, idempotent).  H4 1.0 CISD "Ikh reuse, QWC": 29,765 -> 67,205 shots (the old row favoured the baseline).  The Q8 tables and text that use
+  the QWC rows (best baseline with data) must be regenerated once the LiH rows are rerun.
+- `scripts/paper_a_termination_cost.py` (cost of certifying `max|g| < tau`, planning bound), `scripts/paper_a_score_axis_cost.py` (energy-score cost `K n_E M_E`).
+- Environment: an SSH master started with `ssh -f` through `wsl -e` dies when that call returns; start it in the foreground (`-N`, no `-f`) in a terminal tab.
+- **Noisy measurement circuits** (`src/noise.py`, `tests/test_noise.py`): a two-qubit depolarising error `p2` after every CZ and a readout flip `pr`; for Clifford circuits this scales
+  the mean of every measured Pauli by a factor from the gates it passes through (`damping`), so `NoisyMoments` replaces each context's outcome distribution by the damped one.
+  Verified against a density-matrix simulation (depolarising channel after each CZ plus readout flips) to 1e-12.  `step5 --gate-error P --readout-error P` (label suffix
+  `, noise=p2/pr`); correctness is judged against the noiseless gradients.  The intervals know only shot noise, so the bias shows as wrong selections.
+- **Radius rule** (`part1_bridge.confidence_z`, `confidence="selection"` in `LearningConfig`, `IndependentConfig`, `OnlineConfig`, `StaticM1`): Part I's `z = z_{delta/2}/sqrt(2)`
+  instead of the Bonferroni value (2.2 times smaller at K = 26).  Configs `... , selection z` (`StaticSpec` for M1 static): does any ranking depend on the radius convention?
+- Cluster (user keeps a foreground master): jobs 2502773 `depth_lih_pivot`, 2502774 `depth_lih_blocks`, 2502775 `depth_lih_qwc` (corrected QWC reuse rows via `cluster/qwc_fix.sh` + M2 QWC),
+  2502781 `depth_h2o_light` (H2O termination bound, energy-score cost, M2 QWC), 2502803 `depth2_lih_selz`, 2502804 `depth2_lih_noise`, 2502805 `depth2_h2o_qwc` (M1 static/seq, II-0 on QWC
+  contexts of H2O), 2502807/2502808 `depth2_h2o_traj_eq/stretch` (measured ADAPT trajectories on H2O, four methods, 12 each).  Job files `cluster/jobs/make_depth_jobs*.sh`; helper scripts
+  `cluster/submit.sh`, `check_logs.sh`, `watch_jobs.sh`.  LiH pivot probes: library 21,243 contexts (5.6-8.7 CZ mean), 14,700 for the qubit-type pools.
+- **Paper** (`reports/AFI_ paper_A_plan_projects_1_2.tex`, 22 pages): Methods gained paragraphs on pivot grouping and M2 with QWC fragments and a subsection on block-wise contexts and
+  the noise model; a new Discussion section (sec:discussion; baseline fidelity, depth, noise, radius rule, stopping the run, selection and optimisation, other scores, scale, threats)
+  with five generated tables spliced from `runs/` by `scripts/paper_a_discussion_tables.py --splice` (markers `% BEGIN/END GENERATED disc_<name>`); Q8 tables and prose regenerated after
+  the QWC fix (`cluster/regen_q8.sh`; overlap statistics from `scripts/paper_a_reuse_overlap.py`; H4 1.0 CISD best-with-data baseline is now reuse FC, 33,988, ratio 2.40, not reuse QWC 29,765);
+  bibliography extended (Ikhtiarudin published form, Garivier-Kaufmann, Gonthier, Bansingh, Dalton, Haravu, Larrucea, Utama, Hagelueken, Lee, Patel, Vahedi, Mullinax, Vaquero-Sabater);
+  Conclusions edited (circuit caveat, pivot, stop certification).  The H2O QWC rows, the H2O measured trajectories and the LiH pivot sequential rows are still being produced.
+- **Failed cluster jobs (2026-10-06 01:40) and what was done.** `depth2_lih_selz` (2502803) and `depth2_lih_noise` (2502804) ended FAILED (exit 1), and lines of `depth_lih_pivot` also crashed:
+  every one of them died with `json.decoder.JSONDecodeError` in the *post-processing* of `step5_external_baselines.py` (several processes of one case rewrote `<case>_step5_meta.json` at
+  the same time and one read a half-written file), after all trials of the line were written and merged.  All trial files were complete (200/100 rows each, checked on the cluster); nothing
+  was lost.  The runner now reads the meta file tolerantly and writes it atomically (already on the cluster), and the two jobs were relaunched as 2503136 (`depth2_lih_selz`) and 2503137
+  (`depth2_lih_noise`, now with the p2 = 0.06 level on LiH as well) with `--resume`, which skips the finished configurations (a first attempt, 2503131/2503132, ran an empty
+  job-file name because of a shell quoting slip in the submit command and did nothing).  The first H2O QWC job (2502805) ran out of memory (24 workers per line)
+  and was replaced by 2502844 (10 workers per line), which completed.  Results added to the paper: LiH pivot sequential rows (published 1.78e7 = 21x first-fit M1 seq, merged 4.44e6, merged II-A 3.95e5)
+  and the H2O QWC rows (II-0 on QWC 2.11e10 / 8.80e7 against 2.05e10 / 8.63e7 on FC, M2 QWC 3.84e10 / 1.32e8).
+- Tests: 133 pass (11 min) after the pivot, block, M2-QWC, QWC-reuse, noise and confidence changes.
+- LiH HF depth frontier (100 trials, cluster job 2502774): II-A pairwise / safe 3.63e5 / 6.08e5 on QWC contexts (0 CZ), 3.64e5 / 4.87e5 on 2-qubit blocks (2.6 CZ), 3.10e5 / 6.02e5 on 4-qubit
+  blocks (6.2 CZ), 1.85e5 / 3.25e5 on fully commuting contexts (21 CZ); M2 with QWC fragments 1.14e6 (0 CZ), M2 FC 1.01e6, M1 seq FC 8.33e5.  Radius rule (sign-aware, H4): II-A 33.5k -> 17.8k,
+  M1 seq 53.3k -> 24.1k, 100% correct; the pairwise rule with the loose z is 76-79% correct (H4) and 34-38% (LiH).
+- Local H4 1.0 CISD results added (200 trials): block frontier M1 static 120k / 99k / 71k (QWC / 2 / 4-qubit blocks) against 59.7k (FC); M1 seq 113k / 86k / 64k against 55.9k;
+  II-0 80k / 63k / 49k; II-A 61k / 50k / ... (see `runs/paper_a/depth_frontier.csv` after `scripts/paper_a_depth_tables.py`).

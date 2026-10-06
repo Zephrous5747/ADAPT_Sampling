@@ -8,7 +8,7 @@
 \toprule
 state & rule & best baseline & cost & II-0 & II-A & best, with data & cost & ours + data \\
 \midrule
-H$_4$ 1.0 CISD & pairwise & M1 seq & 55\,870 & 1.35 & 2.06 & reuse QWC & 29\,765 & 2.10 \\
+H$_4$ 1.0 CISD & pairwise & M1 seq & 55\,870 & 1.35 & 2.06 & reuse FC & 33\,988 & 2.40 \\
 H$_4$ 1.0 CISD & sign-aware & M1 seq & 53\,260 & 1.13 & 1.59 & reuse FC & 36\,824 & 1.74 \\
 H$_4$ 2.0 CISD & pairwise & M1 seq & 41\,979 & 1.70 & 3.06 & M1 seq & 41\,979 & -- \\
 H$_4$ 2.0 CISD & sign-aware & M1 seq & 45\,085 & 1.73 & 2.35 & M1 seq & 45\,085 & -- \\
@@ -30,6 +30,8 @@ H$_2$O str ADAPT$_8$ & sign-aware & M2 sign-aware & $2.64\times10^{8}$ & 1.46 & 
 H$_4$ 1.0 trajectory & sign-aware & M2 sign-aware & $2.67\times10^{6}$ & 1.42 & 2.41 & M2 sign-aware & $2.67\times10^{6}$ & 5.71 \\
 H$_4$ 2.0 trajectory & sign-aware & M2 sign-aware & $2.31\times10^{7}$ & 1.45 & 2.47 & M2 sign-aware & $2.31\times10^{7}$ & 2.88 \\
 LiH trajectory & sign-aware & M2 sign-aware & $1.21\times10^{8}$ & 1.41 & 2.44 & M2 sign-aware & $1.21\times10^{8}$ & 3.86 \\
+H$_2$O eq trajectory & sign-aware & M2 sign-aware & $2.73\times10^{9}$ & 1.11 & 2.44 & M2 sign-aware & $2.73\times10^{9}$ & -- \\
+H$_2$O str trajectory & sign-aware & M2 sign-aware & $8.45\times10^{9}$ & 1.08 & -- & M2 sign-aware & $8.45\times10^{9}$ & -- \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -73,23 +75,23 @@ II-A + reuse, home start & 21\,197 (0.45) & -- & $3.24\times10^{5}$ (0.59) & -- 
 \caption{Measured ADAPT trajectories to chemical accuracy ($\rho=0.1$, a-priori starting radius, sign-aware rule): median cumulative selection context-shots and, in brackets, the ratio to II-0. M1 static uses the exact gradient scale and variances.}
 \label{tab:q8traj}
 \footnotesize\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrrr}
 \toprule
-Method & H$_4$ 1.0 & H$_4$ 2.0 & LiH \\
+Method & H$_4$ 1.0 & H$_4$ 2.0 & LiH & H$_2$O eq & H$_2$O str \\
 \midrule
-\multicolumn{4}{l}{\emph{external baselines}} \\
-M1 static & $4.14\times10^{7}$ (22.04) & $2.77\times10^{8}$ (17.41) & $5.63\times10^{9}$ (65.70) \\
-M1 seq & $5.74\times10^{6}$ (3.06) & $3.81\times10^{7}$ (2.39) & $3.47\times10^{8}$ (4.05) \\
-M2, Successive Elimination & $3.18\times10^{6}$ (1.69) & $3.49\times10^{7}$ (2.19) & $2.17\times10^{8}$ (2.53) \\
-M2, sign-aware & $2.67\times10^{6}$ (1.42) & $2.31\times10^{7}$ (1.45) & $1.21\times10^{8}$ (1.41) \\
-\multicolumn{4}{l}{\emph{this work}} \\
-II-0 & $1.88\times10^{6}$ (1.00) & $1.59\times10^{7}$ (1.00) & $8.57\times10^{7}$ (1.00) \\
-II-A & $1.11\times10^{6}$ (0.59) & $9.39\times10^{6}$ (0.59) & $4.94\times10^{7}$ (0.58) \\
-II-E & $1.09\times10^{6}$ (0.58) & $8.85\times10^{6}$ (0.56) & $3.41\times10^{7}$ (0.40) \\
-\multicolumn{4}{l}{\emph{with the energy data of the last VQE evaluation (FC)}} \\
-shot reuse of Ikhtiarudin \textit{et al.} & $4.23\times10^{6}$ (2.25) & $3.70\times10^{7}$ (2.32) & $2.79\times10^{8}$ (3.26) \\
-II-0 + reuse & $1.03\times10^{6}$ (0.55) & $1.31\times10^{7}$ (0.82) & $3.94\times10^{7}$ (0.46) \\
-II-A + reuse & $4.67\times10^{5}$ (0.25) & $8.04\times10^{6}$ (0.50) & $3.13\times10^{7}$ (0.37) \\
+\multicolumn{6}{l}{\emph{external baselines}} \\
+M1 static & $4.14\times10^{7}$ (22.04) & $2.77\times10^{8}$ (17.41) & $5.63\times10^{9}$ (65.70) & -- & -- \\
+M1 seq & $5.74\times10^{6}$ (3.06) & $3.81\times10^{7}$ (2.39) & $3.47\times10^{8}$ (4.05) & $2.43\times10^{10}$ (9.85) & $8.39\times10^{10}$ (10.68) \\
+M2, Successive Elimination & $3.18\times10^{6}$ (1.69) & $3.49\times10^{7}$ (2.19) & $2.17\times10^{8}$ (2.53) & -- & -- \\
+M2, sign-aware & $2.67\times10^{6}$ (1.42) & $2.31\times10^{7}$ (1.45) & $1.21\times10^{8}$ (1.41) & $2.73\times10^{9}$ (1.11) & $8.45\times10^{9}$ (1.08) \\
+\multicolumn{6}{l}{\emph{this work}} \\
+II-0 & $1.88\times10^{6}$ (1.00) & $1.59\times10^{7}$ (1.00) & $8.57\times10^{7}$ (1.00) & $2.46\times10^{9}$ (1.00) & $7.85\times10^{9}$ (1.00) \\
+II-A & $1.11\times10^{6}$ (0.59) & $9.39\times10^{6}$ (0.59) & $4.94\times10^{7}$ (0.58) & $1.12\times10^{9}$ (0.46) & -- \\
+II-E & $1.09\times10^{6}$ (0.58) & $8.85\times10^{6}$ (0.56) & $3.41\times10^{7}$ (0.40) & -- & -- \\
+\multicolumn{6}{l}{\emph{with the energy data of the last VQE evaluation (FC)}} \\
+shot reuse of Ikhtiarudin \textit{et al.} & $4.23\times10^{6}$ (2.25) & $3.70\times10^{7}$ (2.32) & $2.79\times10^{8}$ (3.26) & -- & -- \\
+II-0 + reuse & $1.03\times10^{6}$ (0.55) & $1.31\times10^{7}$ (0.82) & $3.94\times10^{7}$ (0.46) & -- & -- \\
+II-A + reuse & $4.67\times10^{5}$ (0.25) & $8.04\times10^{6}$ (0.50) & $3.13\times10^{7}$ (0.37) & -- & -- \\
 \bottomrule
 \end{tabular}
 \end{table*}

@@ -43,8 +43,9 @@ import numpy as np
 
 from allocation import allocate
 from clifford import complete_generators, independent_subset, synthesise_measurement_circuit
+from contexts import qwc_groups
 from online import OnlineConfig, OnlineM3, OnlineOutcome
-from part1_bridge import epsilon_from_radius, z_from_delta
+from part1_bridge import confidence_z, epsilon_from_radius
 from rules import RULES, eliminate, rho_good_stop
 from sampler import walsh_hadamard
 from symplectic import masks_from_xz, pack, xz_from_labels
@@ -55,8 +56,10 @@ CHUNK = 256  # contexts per multinomial draw: bounds the transient histogram mem
 class StaticM1(OnlineM3):
     """M1 with sampled outcomes: one allocation at a common radius, one draw."""
 
-    def __init__(self, problem, library, moments, design, *, radius: float, delta: float = 0.05) -> None:
-        super().__init__(problem, library, moments, design, OnlineConfig(rule="marginal", delta=delta))
+    def __init__(self, problem, library, moments, design, *, radius: float, delta: float = 0.05,
+                 confidence: str = "bonferroni") -> None:
+        super().__init__(problem, library, moments, design,
+                         OnlineConfig(rule="marginal", delta=delta, confidence=confidence))
         self.cz = library.two_qubit_counts()
         self.radius = float(radius)
         wanted = allocate(self.sigmas, epsilon_from_radius(self.radius, self.z))
@@ -131,12 +134,20 @@ class IndependentContexts:
     outcome distributions depend on the state and are computed by :meth:`set_state`.
     """
 
-    def __init__(self, problem, *, progress: bool = False) -> None:
+    def __init__(self, problem, *, progress: bool = False, grouping: str = "fc") -> None:
         n = problem.n_qubits
         self.n_qubits = n
         self.dim = 2 ** n
         self.n_arms = problem.n_generators
-        groups = problem.individual_fc_groups()
+        if grouping == "fc":
+            groups = problem.individual_fc_groups()
+        elif grouping == "qwc":
+            # Huang and Izmaylov's fragments: qubit-wise commuting groups of each commutator by sorted
+            # insertion (decreasing |coefficient|); product-basis measurements, no entangling gates.
+            groups = [qwc_groups(list(terms), weights=terms) for terms in problem.commutator_terms]
+        else:
+            raise ValueError("grouping must be 'fc' or 'qwc'")
+        self.grouping = grouping
         arm_of, fvalues, cz, circuits = [], [], [], []
         started = time.perf_counter()
         for arm, (terms, arm_groups) in enumerate(zip(problem.commutator_terms, groups)):
@@ -169,11 +180,19 @@ class IndependentContexts:
     def n_contexts(self) -> int:
         return int(self.arm_of.size)
 
-    def set_state(self, state: np.ndarray) -> None:
-        """Outcome distribution of every group on ``state`` (replaces the previous state's)."""
+    def set_state(self, state: np.ndarray, two_qubit_error: float = 0.0, readout_error: float = 0.0) -> None:
+        """Outcome distribution of every group on ``state`` (replaces the previous state's).
+
+        With a two-qubit or readout error the circuits are noisy (:mod:`noise`).
+        """
         out = np.empty((self.n_contexts, self.dim))
+        noisy = bool(two_qubit_error or readout_error)
+        if noisy:
+            from noise import damping, noisy_distribution
         for c, circuit in enumerate(self.circuits):
             out[c] = circuit.outcome_distribution(state)
+            if noisy:
+                out[c] = noisy_distribution(out[c], damping(circuit, two_qubit_error, readout_error))
         self.distributions = out
 
     def exact_gradients(self) -> np.ndarray:
@@ -191,8 +210,13 @@ class IndependentConfig:
     start: str = "bound"  # or "oracle": max_i |g_i|
     min_shots: int = 50  # fewer shots in a group: use the Popoviciu bound
     anytime: bool = False
+    grouping: str = "fc"  # of each arm's own fragments: fully commuting, or qubit-wise commuting (Huang and Izmaylov)
+    confidence: str = "bonferroni"  # or "selection": the less conservative z of part1_bridge.confidence_z
 
     def __post_init__(self) -> None:
+        confidence_z(self.delta, 1, self.confidence)  # validates the mode
+        if self.grouping not in ("fc", "qwc"):
+            raise ValueError("grouping must be 'fc' or 'qwc'")
         if self.rule not in RULES:
             raise ValueError(f"rule must be one of {RULES}")
         if self.start not in ("oracle", "bound"):
@@ -206,6 +230,8 @@ class IndependentConfig:
         extras += [f"rho={self.rho:g}"] if self.rho > 0 else []
         extras += [f"start={self.start}"] if self.start != "bound" else []
         extras += ["anytime"] if self.anytime else []
+        extras += ["grouping=qwc"] if self.grouping == "qwc" else []
+        extras += [f"confidence={self.confidence}"] if self.confidence != "bonferroni" else []
         return "M2 independent/" + "/".join(extras)
 
 
@@ -219,7 +245,7 @@ class IndependentBAI:
         self.contexts = contexts
         self.config = config
         self.n_arms = problem.n_generators
-        self.z = z_from_delta(config.delta, self.n_arms)
+        self.z = confidence_z(config.delta, self.n_arms, config.confidence)
         self.bound = max(sum(abs(v) for v in terms.values()) for terms in problem.commutator_terms)
 
     def _sd(self, m, s1, s2) -> np.ndarray:
@@ -256,7 +282,7 @@ class IndependentBAI:
             if stopped or len(active) <= 1 or radius < floor:
                 break
             if cfg.anytime:
-                z = z_from_delta(cfg.delta * 6.0 / (math.pi ** 2 * rounds ** 2), self.n_arms)
+                z = confidence_z(cfg.delta * 6.0 / (math.pi ** 2 * rounds ** 2), self.n_arms, cfg.confidence)
             clock = time.perf_counter()
             epsilon = epsilon_from_radius(radius, z)
             sd = self._sd(m, s1, s2)

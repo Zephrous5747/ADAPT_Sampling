@@ -4,7 +4,10 @@
     "II-A data, rho=0.1": "II-A/prior=none/nu=0/estimated radii/guard=on",
     "M1 static, rho=0.1": "M1 static (gap/2, exact variances)",
     "M1 seq, rho=0.1": "II-0/estimated radii/no-elimination",
-    "M2 pairwise, rho=0.1": "M2 independent/rule=pairwise/start=oracle"
+    "M2 pairwise, rho=0.1": "M2 independent/rule=pairwise/start=oracle",
+    "Pivot M1 static, rho=0.1": "M1 static (gap/2, exact variances)/pivot contexts/classes=auto/assign=split",
+    "Pivot merged M1 static, rho=0.1": "M1 static (gap/2, exact variances)/pivot contexts/classes=auto/assign=merged",
+    "Pivot merged M1 seq, rho=0.1": "II-0/estimated radii/no-elimination/pivot contexts/classes=auto/assign=merged"
   },
   "trials": 100,
   "seed": 5,
@@ -23,5 +26,35 @@
     },
     "git_commit": null,
     "part2_tree_dirty": null
+  },
+  "pivot_libraries": {
+    "auto/split": {
+      "classes": "anchor",
+      "n_classes": 24,
+      "pivots": 630,
+      "pool_strings": 640,
+      "contexts": 14700,
+      "members_mean": 12.987210884353741,
+      "members_max": 42,
+      "extra_products": 452,
+      "reads_per_gradient_mean": 2075.1304347826085,
+      "two_qubit_mean": 5.567210884353742,
+      "two_qubit_max": 36,
+      "bound_n_minus_3": 9
+    },
+    "auto/merged": {
+      "classes": "anchor",
+      "n_classes": 24,
+      "pivots": 630,
+      "pool_strings": 640,
+      "contexts": 14700,
+      "members_mean": 12.987210884353741,
+      "members_max": 42,
+      "extra_products": 452,
+      "reads_per_gradient_mean": 2075.1304347826085,
+      "two_qubit_mean": 5.567210884353742,
+      "two_qubit_max": 36,
+      "bound_n_minus_3": 9
+    }
   }
 }

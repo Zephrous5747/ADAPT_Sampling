@@ -301,11 +301,22 @@ The planning bounds above use exact gradients and variances. For the comparison 
 
 \paragraph{M2, sampled.} Every gradient is one arm with its own fully commuting groups, as in the planning form of M2 above. A group is measured in one Clifford circuit, so the fragment of an arm is a known function $f_\alpha(b)$ of the outcome $b$, and $\sum f$ and $\sum f^2$ over the shots of the group are sufficient statistics. The shots of an arm follow the optimal independent allocation $n_\alpha\propto\hat\sigma_\alpha$, topped up from the shots held. A group with fewer than 50 shots uses the Popoviciu bound $\sigma_\alpha\le(\max f_\alpha-\min f_\alpha)/2$, which needs no data. Elimination uses the rules of the previous subsection on the independent estimates: the absolute-interval rule is Successive Elimination on $\lvert g\rvert$ in the formulation of Huang and Izmaylov.
 
-\paragraph{Reuse of the energy measurement.} Ikhtiarudin \textit{et al.} save the Pauli outcomes of the last VQE energy evaluation of an ADAPT iteration and reuse them for the Pauli products of $[\hat H,\hat G_i]$ that share a measurement basis with a clique of $\hat H$, and they allocate shots by variance over qubit-wise commuting (QWC) cliques~\cite{ikhtiarudin2025}. We model this as follows. The groups of $\hat H$ (fully commuting by sorted insertion in decreasing $\lvert h_p\rvert$, the grouping of the $C_{\rm opt}$ model, or QWC) are added to the context library as \emph{energy contexts}. They hold the shots of one energy estimate to a standard error $\varepsilon_E$, allocated optimally and drawn once per trial from the state; $\varepsilon_E=1$~mHa as in $C_{\rm opt}$. These shots are part of $C_{\rm opt}$ and are not charged to the selection. Every Pauli product that an energy context measures (its whole maximal group, not only the terms of $\hat H$) is read from the best-funded such context, all others from their parent context. The selection is all-gradient estimation (M1 seq), and new shots are allocated by the optimal allocation of Part I, which is at least as good as their variance-minimizing or variance-preserving rules. To separate the effect of the data from that of the grouping, the QWC variant is also run without the free data. We give II-0 and II-A the same free data on the same library (``II-0 + reuse'', ``II-A + reuse''); II-A may then split a coefficient between an energy context and a parent context. II-A is run with the forced assignment above and from the home design, where the learned splitting alone decides whether to use the energy contexts; the comparison tables report the better variant per state, as the baseline gets the better of its fully commuting and QWC versions. The control without free data uses plain home assignment on the same grouping. The cached Hamiltonian terms are used only after the rebuilt Hamiltonian has reproduced the energy of the state and three stored commutators $[\hat H,\hat G_i]$, because a different orbital choice within a degenerate shell changes the Pauli support, and with it the overlap that reuse exploits.
+\paragraph{Reuse of the energy measurement.} Ikhtiarudin \textit{et al.} save the Pauli outcomes of the last VQE energy evaluation of an ADAPT iteration and reuse them for the Pauli products of $[\hat H,\hat G_i]$ that share a measurement basis with a clique of $\hat H$, and they allocate shots by variance over qubit-wise commuting (QWC) cliques~\cite{ikhtiarudin2025}. We model this as follows. The groups of $\hat H$ (fully commuting by sorted insertion in decreasing $\lvert h_p\rvert$, the grouping of the $C_{\rm opt}$ model, or QWC cliques, measured in a product basis) are added to the context library as \emph{energy contexts}. They hold the shots of one energy estimate to a standard error $\varepsilon_E$, allocated optimally and drawn once per trial from the state; $\varepsilon_E=1$~mHa as in $C_{\rm opt}$. These shots are part of $C_{\rm opt}$ and are not charged to the selection. Every Pauli product that an energy context measures (its whole maximal group, not only the terms of $\hat H$) is read from the best-funded such context, all others from their parent context. The selection is all-gradient estimation (M1 seq), and new shots are allocated by the optimal allocation of Part I, which is at least as good as their variance-minimizing or variance-preserving rules. To separate the effect of the data from that of the grouping, the QWC variant is also run without the free data. We give II-0 and II-A the same free data on the same library (``II-0 + reuse'', ``II-A + reuse''); II-A may then split a coefficient between an energy context and a parent context. II-A is run with the forced assignment above and from the home design, where the learned splitting alone decides whether to use the energy contexts; the comparison tables report the better variant per state, as the baseline gets the better of its fully commuting and QWC versions. The control without free data uses plain home assignment on the same grouping. The cached Hamiltonian terms are used only after the rebuilt Hamiltonian has reproduced the energy of the state and three stored commutators $[\hat H,\hat G_i]$, because a different orbital choice within a degenerate shell changes the Pauli support, and with it the overlap that reuse exploits.
 
 \paragraph{Informationally complete measurements.} AIM-ADAPT-VQE measures every qubit with a single-qubit informationally complete (IC) POVM and estimates the energy and all commutators from the same data~\cite{nykanen2025}. We simulate the data model exactly with the product of tetrahedral (SIC) POVMs, which is the unoptimised member of the family: the outcome distribution on all $4^n$ outcomes, the exact single-shot estimator of every gradient (a Pauli product of weight $w$ has second moment $3^w$) and its exact covariance. The cost is the number of IC shots until the same rules certify the decision, with radii from the exact covariance or from the sample covariance. The adaptive optimisation of the POVM parameters of the paper, which lowers the variance of the energy, is not modelled, so the numbers are an upper bound for the optimised scheme. An IC shot measures all qubits in the IC POVM, so IC shots and context-shots are different resources, and only statistical efficiency is compared.
 
 \paragraph{Operator pools.} Besides the spin-orbital UCCSD pool we use the pools of the ADAPT literature that give the Pauli structure of the gradients a different shape: qubit-ADAPT (each Pauli string of the Jordan--Wigner image of a UCCSD generator, with its $Z$ operators removed, as its own generator), qubit-excitation (QEB) generators with the UCCSD index sets, and, with generalised index sets (all spin-conserving singles and doubles among all spin orbitals), generalised QEB, generalised qubit-ADAPT and the one-parameter coupled exchange operators (OVP-CEO) of CEO-ADAPT-VQE~\cite{ramoa2025ceo}. On four spin orbitals (two $\alpha$, two $\beta$) the two qubit excitations $E_1,E_2$ give the two CEOs $E_1\pm E_2$; on four orbitals of one spin the three qubit excitations give six CEOs; singles are qubit excitations. The Hamiltonian, state and pipeline are those of the UCCSD pool. The symmetry-adapted minimal complete pool of Ref.~\cite{shkolnikov2023} is not included.
+
+\paragraph{Pivot grouping.} Anastasiou \textit{et al.}~\cite{anastasiou2023} do not group the support of all gradients at once. Their pivot is one term $P$ of $\hat H$, and for pool strings $S_j$ that commute with each other the commutators $[P,S_j]$ commute too, since $[[P,S_j],[P,S_k]]=4[S_k,S_j]=0$. The pool strings are partitioned once into commuting classes (the $2N$ anchored classes of the qubit-type pools, in which every string has its single $Y$, or its single $X$, on one qubit; first-fit classes for the UCCSD pool), and the contexts are the pairs (pivot, class); their diagonalising circuits need at most $N-3$ CNOT gates in the original construction. Ikhtiarudin \textit{et al.}\ report, in the published version of their work~\cite{ikhtiarudin2025}, that this grouping alone gives the dominant reduction of the shots of the gradient step. We build the contexts for every pool of this work and read every Pauli product of a gradient from the context of the pivot that produced it, with the coefficient it had there (``pivot, as published''): a product that arises from several pivots is then measured, and its variance paid, in each of them. Because a UCCSD gradient is a sum of up to eight strings this is wasteful, so we also give the baseline the option of reading each product from one pivot context, chosen by a greedy set cover (``pivot, merged''), which is stronger than the published scheme. The shots follow Part I's optimal allocation with exact (static) or estimated (sequential) variances, not their bound $\operatorname{Var}\le1$, and the circuits are synthesised generically, so their gate counts bound those of the original construction from above. The decomposition of every commutator into pivot contributions is checked against the stored expansion to $10^{-8}$, and on the qubit pool the cost of M1 static at a common precision $\varepsilon=10^{-2}$ is $34.8\,(\sum_P\lvert h_P\rvert)^2/\varepsilon^2$ on H$_4$, against the $4N=32$ of their analysis.
+
+\paragraph{M2 with QWC fragments.} Huang and Izmaylov fragment each commutator into qubit-wise commuting groups by sorted insertion~\cite{huang2026}. ``M2 QWC'' is M2 with these groups in place of the fully commuting ones, with the estimated variances, the radii and the rules of this work: product measurements, no entangling gates.
+
+\subsection{Context families of lower depth, and noisy circuits}
+\label{sec:depth}
+
+Fully commuting contexts need $7$--$30$ two-qubit gates per circuit (Q1). To see what the shots cost at lower depth, Paulis are also grouped so that they commute \emph{block by block}: two Paulis are compatible when their restrictions to every block of a partition of the qubits commute, and the circuit of a group is a tensor product of one Clifford per block, with at most $b(b-1)/2$ CZ gates per block of $b$ qubits. Blocks of one qubit are qubit-wise commutation (product measurements, no entangling gate), blocks of all qubits are the grouping of Part I. We use consecutive blocks of $1$, $2$ and $4$ qubits, which in Jordan--Wigner order pairs the two spins of one spatial orbital and two spatial orbitals. Groups are formed by the same first-fit insertion as in Part I, every method of this work runs on every family unchanged, and the QWC cliques of the reuse baseline are measured in a product basis in the same way (the Paulis a context measures are those of its local basis).
+
+To see what depth costs when the gates are imperfect we make the measurement circuits noisy in the way that stays exact for Clifford circuits. After every CZ gate a two-qubit depolarising channel of total error probability $p_2$ acts, and every readout is flipped with probability $p_r$ (zero unless stated). A Pauli observable, propagated back through the circuit, is multiplied by $1-16p_2/15$ at every CZ gate at which it is not the identity on the two qubits, and by $(1-2p_r)$ per qubit of its $Z$-string at the readout; the noisy outcome distribution of a context is the one whose group means are the damped ones. This agrees with a density-matrix simulation of the channels to $10^{-12}$ (unit test). The estimators and intervals are those of the noiseless study and know shot noise only, and a selection counts as correct if it picks the best generator of the \emph{noiseless} gradients.
 
 \subsection{Redesigning the measurable estimators}
 \label{sec:design}
@@ -754,7 +765,7 @@ Every baseline of Sec.~\ref{sec:external} is run from sampled outcomes under the
 \toprule
 state & rule & best baseline & cost & II-0 & II-A & best, with data & cost & ours + data \\
 \midrule
-H$_4$ 1.0 CISD & pairwise & M1 seq & 55\,870 & 1.35 & 2.06 & reuse QWC & 29\,765 & 2.10 \\
+H$_4$ 1.0 CISD & pairwise & M1 seq & 55\,870 & 1.35 & 2.06 & reuse FC & 33\,988 & 2.40 \\
 H$_4$ 1.0 CISD & sign-aware & M1 seq & 53\,260 & 1.13 & 1.59 & reuse FC & 36\,824 & 1.74 \\
 H$_4$ 2.0 CISD & pairwise & M1 seq & 41\,979 & 1.70 & 3.06 & M1 seq & 41\,979 & -- \\
 H$_4$ 2.0 CISD & sign-aware & M1 seq & 45\,085 & 1.73 & 2.35 & M1 seq & 45\,085 & -- \\
@@ -776,6 +787,8 @@ H$_2$O str ADAPT$_8$ & sign-aware & M2 sign-aware & $2.64\times10^{8}$ & 1.46 & 
 H$_4$ 1.0 trajectory & sign-aware & M2 sign-aware & $2.67\times10^{6}$ & 1.42 & 2.41 & M2 sign-aware & $2.67\times10^{6}$ & 5.71 \\
 H$_4$ 2.0 trajectory & sign-aware & M2 sign-aware & $2.31\times10^{7}$ & 1.45 & 2.47 & M2 sign-aware & $2.31\times10^{7}$ & 2.88 \\
 LiH trajectory & sign-aware & M2 sign-aware & $1.21\times10^{8}$ & 1.41 & 2.44 & M2 sign-aware & $1.21\times10^{8}$ & 3.86 \\
+H$_2$O eq trajectory & sign-aware & M2 sign-aware & $2.73\times10^{9}$ & 1.11 & 2.44 & M2 sign-aware & $2.73\times10^{9}$ & -- \\
+H$_2$O str trajectory & sign-aware & M2 sign-aware & $8.45\times10^{9}$ & 1.08 & -- & M2 sign-aware & $8.45\times10^{9}$ & -- \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -819,23 +832,23 @@ II-A + reuse, home start & 21\,197 (0.45) & -- & $3.24\times10^{5}$ (0.59) & -- 
 \caption{Measured ADAPT trajectories to chemical accuracy ($\rho=0.1$, a-priori starting radius, sign-aware rule): median cumulative selection context-shots and, in brackets, the ratio to II-0. M1 static uses the exact gradient scale and variances.}
 \label{tab:q8traj}
 \footnotesize\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrrr}
 \toprule
-Method & H$_4$ 1.0 & H$_4$ 2.0 & LiH \\
+Method & H$_4$ 1.0 & H$_4$ 2.0 & LiH & H$_2$O eq & H$_2$O str \\
 \midrule
-\multicolumn{4}{l}{\emph{external baselines}} \\
-M1 static & $4.14\times10^{7}$ (22.04) & $2.77\times10^{8}$ (17.41) & $5.63\times10^{9}$ (65.70) \\
-M1 seq & $5.74\times10^{6}$ (3.06) & $3.81\times10^{7}$ (2.39) & $3.47\times10^{8}$ (4.05) \\
-M2, Successive Elimination & $3.18\times10^{6}$ (1.69) & $3.49\times10^{7}$ (2.19) & $2.17\times10^{8}$ (2.53) \\
-M2, sign-aware & $2.67\times10^{6}$ (1.42) & $2.31\times10^{7}$ (1.45) & $1.21\times10^{8}$ (1.41) \\
-\multicolumn{4}{l}{\emph{this work}} \\
-II-0 & $1.88\times10^{6}$ (1.00) & $1.59\times10^{7}$ (1.00) & $8.57\times10^{7}$ (1.00) \\
-II-A & $1.11\times10^{6}$ (0.59) & $9.39\times10^{6}$ (0.59) & $4.94\times10^{7}$ (0.58) \\
-II-E & $1.09\times10^{6}$ (0.58) & $8.85\times10^{6}$ (0.56) & $3.41\times10^{7}$ (0.40) \\
-\multicolumn{4}{l}{\emph{with the energy data of the last VQE evaluation (FC)}} \\
-shot reuse of Ikhtiarudin \textit{et al.} & $4.23\times10^{6}$ (2.25) & $3.70\times10^{7}$ (2.32) & $2.79\times10^{8}$ (3.26) \\
-II-0 + reuse & $1.03\times10^{6}$ (0.55) & $1.31\times10^{7}$ (0.82) & $3.94\times10^{7}$ (0.46) \\
-II-A + reuse & $4.67\times10^{5}$ (0.25) & $8.04\times10^{6}$ (0.50) & $3.13\times10^{7}$ (0.37) \\
+\multicolumn{6}{l}{\emph{external baselines}} \\
+M1 static & $4.14\times10^{7}$ (22.04) & $2.77\times10^{8}$ (17.41) & $5.63\times10^{9}$ (65.70) & -- & -- \\
+M1 seq & $5.74\times10^{6}$ (3.06) & $3.81\times10^{7}$ (2.39) & $3.47\times10^{8}$ (4.05) & $2.43\times10^{10}$ (9.85) & $8.39\times10^{10}$ (10.68) \\
+M2, Successive Elimination & $3.18\times10^{6}$ (1.69) & $3.49\times10^{7}$ (2.19) & $2.17\times10^{8}$ (2.53) & -- & -- \\
+M2, sign-aware & $2.67\times10^{6}$ (1.42) & $2.31\times10^{7}$ (1.45) & $1.21\times10^{8}$ (1.41) & $2.73\times10^{9}$ (1.11) & $8.45\times10^{9}$ (1.08) \\
+\multicolumn{6}{l}{\emph{this work}} \\
+II-0 & $1.88\times10^{6}$ (1.00) & $1.59\times10^{7}$ (1.00) & $8.57\times10^{7}$ (1.00) & $2.46\times10^{9}$ (1.00) & $7.85\times10^{9}$ (1.00) \\
+II-A & $1.11\times10^{6}$ (0.59) & $9.39\times10^{6}$ (0.59) & $4.94\times10^{7}$ (0.58) & $1.12\times10^{9}$ (0.46) & -- \\
+II-E & $1.09\times10^{6}$ (0.58) & $8.85\times10^{6}$ (0.56) & $3.41\times10^{7}$ (0.40) & -- & -- \\
+\multicolumn{6}{l}{\emph{with the energy data of the last VQE evaluation (FC)}} \\
+shot reuse of Ikhtiarudin \textit{et al.} & $4.23\times10^{6}$ (2.25) & $3.70\times10^{7}$ (2.32) & $2.79\times10^{8}$ (3.26) & -- & -- \\
+II-0 + reuse & $1.03\times10^{6}$ (0.55) & $1.31\times10^{7}$ (0.82) & $3.94\times10^{7}$ (0.46) & -- & -- \\
+II-A + reuse & $4.67\times10^{5}$ (0.25) & $8.04\times10^{6}$ (0.50) & $3.13\times10^{7}$ (0.37) & -- & -- \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -889,11 +902,11 @@ none & 0 & 55\,870 & 41\,463 & 27\,129 \\
 
 \paragraph{The strongest baseline.} The learned designs are the cheapest method on every state and in every comparison we ran (Table~\ref{tab:q8best}). Without free data, II-A needs $2.1$ to $4.5$ times fewer shots than the strongest of the sequential M1, independent BAI (Successive Elimination or the pairwise rule) on the 9 fixed states, $1.6$ to $4.2$ times fewer with the sign-aware rule on the 9 states where it was run, and $2.4$ to $2.5$ times fewer along the three measured trajectories. Shared elimination with fixed estimators (II-0) wins by less: $1.2$ to $2.7$ times (pairwise rule), $1.1$ to $1.8$ times (sign-aware) and $1.4$ to $1.5$ times along the trajectories. Which baseline is the strongest depends on the pool. The sequential M1 is the strongest on 4 of the 9 states (H$_4$ and LiH at the Hartree--Fock state and after three steps): with a small pool, using the covariance of shared estimates matters more than eliminating. Independent BAI is the strongest on the 5 others (all four H$_2$O states and LiH after five steps) and along every trajectory: with many generators of large variance and small gradient, eliminating matters more than sharing. The two effects have different size. Elimination (II-0 against the sequential M1) is worth $1.3$ to $27.8$ times and sharing (II-0 against independent BAI) $1.2$ to $4.3$ times. The static M1 is never the strongest: it costs $1.1$ to $16.2$ times the sequential M1.
 
-\paragraph{Free data.} One energy evaluation to 1~mHa holds more data than a selection needs on the small systems ($5.2\times10^{5}$ shots on H$_4$ against $4.1\times10^{4}$ for II-0, $5.6\times10^{5}$ on LiH) and far less on H$_2$O ($7\times10^{6}$ against $10^{10}$). The Pauli products that its groups measure are $11\%$ of the gradient support on H$_4$ for the fully commuting groups of $\hat H$ ($22\%$ of the coefficient mass) and $23\%$ ($42\%$) for QWC cliques, and $15\%$ ($34\%$) and $32\%$ ($51\%$) on LiH. Reading them from that data lowers the cost of the sequential M1 by $39\%$ on H$_4$ and by $20$ to $51$\% on LiH, but raises it by $11$ to $95$\% on 3 of the four H$_2$O states, where the free data are negligible (so the loss cannot come from the data themselves) and the cost is that of the forced reassignment of products to the energy contexts, which we expect to split the fragments of the parent contexts but have not isolated. II-0 gains 42\% on H$_4$ and $36$ to $38$\% on LiH. II-A is more delicate: with the same forced assignment it gains $48\%$ on H$_4$ but costs more on LiH at the Hartree--Fock state ($+90\%$, and with the pairwise rule only $92.5\%$ of the selections are correct, the plug-in-sign failure of Q3). Starting from the home design and letting the learned splitting decide whether to use the energy contexts removes the loss: it changes the cost by $-47$ to $-6$\% on H$_4$ and LiH, and never raises it (the extra contexts alone leave it unchanged: $33{,}483$ against $33{,}467$ shots on H$_4$ with the sign-aware rule). On H$_2$O the forced assignment is the better of the two for II-A: the home start changes its cost by $-6$ to $24$\% against $-23$ to $-19$\% for the forced assignment. The ``ours + data'' columns of Table~\ref{tab:q8best} use the best of the three variants per state, as the baseline gets the better of its fully commuting and QWC versions. The benefit is a statement about the energy precision (Table~\ref{tab:q8eps}): it saturates below 1~mHa and has vanished at 30~mHa. QWC cliques need more shots without the data ($111{,}957$ against $55{,}870$ on H$_4$, twice the fully commuting grouping) and fewer with it ($29{,}765$).
+\paragraph{Free data.} One energy evaluation to 1~mHa holds more data than a selection needs on the small systems ($5.2\times10^{5}$ shots on H$_4$ against $4.1\times10^{4}$ for II-0, $5.6\times10^{5}$ on LiH) and far less on H$_2$O ($7\times10^{6}$ against $10^{10}$). The Pauli products that its groups measure are $11\%$ of the gradient support on H$_4$ for the fully commuting groups of $\hat H$ ($22\%$ of the coefficient mass) and $23\%$ ($25\%$) for QWC cliques measured in a product basis, and $15\%$ ($34\%$) and $13\%$ ($31\%$) on LiH. Reading them from that data lowers the cost of the sequential M1 by $39\%$ on H$_4$ and by $20$ to $51$\% on LiH, but raises it by $11$ to $95$\% on 3 of the four H$_2$O states, where the free data are negligible (so the loss cannot come from the data themselves) and the cost is that of the forced reassignment of products to the energy contexts, which we expect to split the fragments of the parent contexts but have not isolated. II-0 gains 42\% on H$_4$ and $36$ to $38$\% on LiH. II-A is more delicate: with the same forced assignment it gains $48\%$ on H$_4$ but costs more on LiH at the Hartree--Fock state ($+90\%$, and with the pairwise rule only $92.5\%$ of the selections are correct, the plug-in-sign failure of Q3). Starting from the home design and letting the learned splitting decide whether to use the energy contexts removes the loss: it changes the cost by $-47$ to $-6$\% on H$_4$ and LiH, and never raises it (the extra contexts alone leave it unchanged: $33{,}483$ against $33{,}467$ shots on H$_4$ with the sign-aware rule). On H$_2$O the forced assignment is the better of the two for II-A: the home start changes its cost by $-6$ to $24$\% against $-23$ to $-19$\% for the forced assignment. The ``ours + data'' columns of Table~\ref{tab:q8best} use the best of the three variants per state, as the baseline gets the better of its fully commuting and QWC versions. The benefit is a statement about the energy precision (Table~\ref{tab:q8eps}): it saturates below 1~mHa and has vanished at 30~mHa. QWC cliques need more shots than the fully commuting grouping both without the data ($113{,}209$ against $55{,}870$ on H$_4$, 2.0 times) and with it ($67{,}205$ against $33{,}988$): the free data of the QWC cliques cover about as much of the gradient coefficient mass as the fully commuting ones, so the cost is set by the grouping of the rest, which is twice as expensive.
 
 \paragraph{Sign-aware rule.} The pairwise rule takes the signs of the estimates at face value, and with the free data it selected a wrong generator in $7.5\%$ of the LiH trials. Every row marked sign-aware was correct in every trial. The sign-aware rule costs more (II-A on LiH: $3.25\times10^{5}$ against $1.85\times10^{5}$ shots), and the comparison with the strongest baseline is then $1.6$ to $4.2$ times for II-A.
 
-\paragraph{Trajectories.} Along the measured trajectories (Table~\ref{tab:q8traj}; 48 trajectories per method on H$_4$, 30 on LiH, every one reaching chemical accuracy in the steps of exact ADAPT except on the stretched geometry, whose pool stalls at 3.2~mHa) independent BAI with the sign-aware rule is the strongest baseline on all three systems, $1.4$ to $1.5$ times II-0 and $2.4$ to $2.5$ times II-A. The sequential M1 costs $3.1$, $2.4$ and $4.1$ times II-0, and the static M1 of Q7 $17$ to $66$ times. With the energy data the learned designs are $2.9$ to $5.7$ times cheaper than independent BAI, and II-A with the data is $4.6$ to $9.1$ times cheaper than the reuse baseline.
+\paragraph{Trajectories.} Along the measured trajectories (Table~\ref{tab:q8traj}; 48 trajectories per method on H$_4$, 30 on LiH, 12 on H$_2$O at equilibrium, every one reaching chemical accuracy in the steps of exact ADAPT except on the stretched H$_4$ geometry, whose pool stalls at 3.2~mHa) independent BAI with the sign-aware rule is the strongest baseline on all four systems, $1.1$ to $1.5$ times II-0 and $2.4$ to $2.5$ times II-A. The sequential M1 costs $3.1$, $2.4$ and $4.1$ times II-0 on H$_4$ (two geometries) and LiH and $9.9$ times on H$_2$O, and the static M1 of Q7 $17$ to $66$ times. With the energy data the learned designs are $2.9$ to $5.7$ times cheaper than independent BAI, and II-A with the data is $4.6$ to $9.1$ times cheaper than the reuse baseline.
 
 \paragraph{Operator pools.} The structure that sharing exploits depends on the pool (Table~\ref{tab:q8pools}). With qubit excitations a Pauli product appears in fewer gradients ($2.0$ instead of $3.3$ per product on H$_4$, $1.7$ instead of $4.0$ on LiH) and the support is larger ($1{,}276\to2{,}036$ and $30{,}196\to83{,}512$ products). The planning gain of shared elimination survives: with the QEB pool M3 is $1.26$ and $2.15$ times cheaper than M1 and M2 on H$_4$ ($1.20$ and $2.07$ with UCCSD) and $9.5$ and $5.6$ times cheaper on LiH ($10.7$ and $3.4$ with UCCSD). The generalised QEB pool of LiH has $570$ generators, $225{,}369$ products and $4.4$ uses per product, and M3 is $10.3$ and $8.0$ times cheaper than M1 and M2. The qubit-ADAPT, generalised qubit and OVP-CEO pools have exactly tied leaders (spin and spatial partners), so exact planning bounds are undefined and only the $\rho$-good runs apply. At $\rho=0.1$ on sampled outcomes II-A is the cheapest method on 12 of 12 pool and state combinations of H$_4$ ($1.7$ to $22.2$ times cheaper than the better of the sequential M1 and independent BAI) and on 5 pool problems of LiH ($2.4$ to $19.5$ times). II-0 alone wins in $11$ of 12 cases on H$_4$ ($0.9$ to $3.0$ times; it loses (0.94) on the OVP-CEO pool at the CISD state) and in all 5 on LiH ($1.5$ to $8.2$ times). The selection was $\rho$-good in at least $99\%$ of the trials of every row.
 
@@ -914,6 +927,199 @@ none & 0 & 55\,870 & 41\,463 & 27\,129 \\
 % Q7: C_sel^tot and C_opt^tot; selection fraction before/after; optimization dominance; end-to-end speedup.
 % ---------------------------------------------------------------------
 
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{What was compared, and how faithfully.} The baselines are our implementations, and three of them differ from the originals in ways that matter. (i)~The pivot grouping of Anastasiou \textit{et al.}~\cite{anastasiou2023}, which the published version of the shot-reuse work finds to be the dominant reduction~\cite{ikhtiarudin2025}, is cheap in circuit depth and dear in shots: as published it needs $12.8$ times the shots of the same estimator on first-fit contexts on H$_4$ (sequential $7.1\times10^{5}$ against $5.6\times10^{4}$; static $12.8$ times) and $21$ times on LiH (sequential $1.8\times10^{7}$ against $8.3\times10^{5}$; static $5.7$ times), as their own estimate of $4N$ energy evaluations for the whole pool implies. Reading each product from one pivot context (``merged'') removes most of the loss ($1.7$ and $5.3$ times sequential, $1.6$ and $1.2$ times static, on H$_4$ and LiH) but is not their scheme. (ii)~Huang and Izmaylov's QWC fragments~\cite{huang2026} cost almost the same as our fully commuting ones when each gradient is measured on its own: $1.02$ to $1.18$ times on LiH and H$_2$O, $1.9$ times on H$_4$, so the independent baseline we used is not a strawman for the original, and it has no entangling gate. (iii)~The QWC cliques of the reuse baseline are measured in a product basis, with no entangling gate, as in the original. A fourth difference favours the baselines: all of them are given the optimal allocation of Part~I and the same radii as our methods, whereas the originals use heuristic schedules or variance bounds.
+
+% BEGIN GENERATED disc_depth
+\begin{table*}[!htb]
+\centering\small
+\caption{Shots against measurement-circuit depth. Every method on every family of measurement contexts: mean context-shots over trials, mean two-qubit gates per shot, and the gain of II-A over the sequential M1 on the same contexts. Blocks of $b$ qubits commute block by block, so each circuit is a product of Cliffords on $b$ qubits (at most $b(b-1)/2$ CZ per block); blocks of one qubit are qubit-wise commuting, and the pivot contexts are those of Anastasiou \textit{et al.}}
+\label{tab:depth}
+\begin{tabular}{lrrrrrr}
+\toprule
+contexts & CZ / shot & M1 static & M1 seq & II-0 & II-A & M1 seq / II-A \\
+\midrule
+\multicolumn{7}{l}{\emph{H$_4$ 1.0 CISD}} \\
+qubit-wise (blocks of 1) & 0.0 & $1.20\times10^{5}$ & $1.13\times10^{5}$ & 80\,015 & 61\,410 & 1.84 \\
+blocks of 2 qubits & 1.4 & 98\,879 & 86\,384 & 62\,659 & 50\,478 & 1.71 \\
+blocks of 4 qubits & 4.5 & 71\,065 & 63\,698 & 48\,622 & 39\,899 & 1.60 \\
+fully commuting & 8.2 & 59\,671 & 55\,870 & 41\,463 & 27\,129 & 2.06 \\
+pivot, as published & 6.5 & $7.63\times10^{5}$ & $7.15\times10^{5}$ & -- & -- & -- \\
+pivot, merged & 6.1 & 98\,132 & 96\,840 & 68\,423 & 44\,917 & 2.16 \\
+M2 FC (independent arms) & 5.7 & -- & $1.01\times10^{5}$ & -- & -- & -- \\
+M2 QWC (independent arms) & 0.0 & -- & $1.96\times10^{5}$ & -- & -- & -- \\
+\midrule
+\multicolumn{7}{l}{\emph{LiH HF}} \\
+qubit-wise (blocks of 1) & 0.0 & $5.29\times10^{6}$ & $5.93\times10^{6}$ & $5.29\times10^{5}$ & $3.63\times10^{5}$ & 16.33 \\
+blocks of 2 qubits & 2.6 & $5.03\times10^{6}$ & $1.40\times10^{6}$ & $5.33\times10^{5}$ & $3.64\times10^{5}$ & 3.85 \\
+blocks of 4 qubits & 6.2 & $4.20\times10^{6}$ & $1.13\times10^{6}$ & $3.99\times10^{5}$ & $3.10\times10^{5}$ & 3.64 \\
+fully commuting & 21.0 & $3.56\times10^{6}$ & $8.33\times10^{5}$ & $3.05\times10^{5}$ & $1.85\times10^{5}$ & 4.52 \\
+pivot, as published & 7.3 & $2.01\times10^{7}$ & $1.78\times10^{7}$ & -- & -- & -- \\
+pivot, merged & 9.7 & $4.18\times10^{6}$ & $4.44\times10^{6}$ & $6.69\times10^{5}$ & $3.95\times10^{5}$ & 11.23 \\
+M2 FC (independent arms) & 7.9 & -- & $1.01\times10^{6}$ & -- & -- & -- \\
+M2 QWC (independent arms) & 0.0 & -- & $1.14\times10^{6}$ & -- & -- & -- \\
+\midrule
+\multicolumn{7}{l}{\emph{H$_2$O eq CISD}} \\
+qubit-wise (blocks of 1) & 0.0 & $4.35\times10^{11}$ & $1.34\times10^{11}$ & $2.11\times10^{10}$ & -- & -- \\
+fully commuting & 30.3 & $4.12\times10^{11}$ & $9.42\times10^{10}$ & $2.05\times10^{10}$ & $8.80\times10^{9}$ & 10.70 \\
+M2 FC (independent arms) & 8.5 & -- & $3.70\times10^{10}$ & -- & -- & -- \\
+M2 QWC (independent arms) & 0.0 & -- & $3.84\times10^{10}$ & -- & -- & -- \\
+\midrule
+\multicolumn{7}{l}{\emph{H$_2$O str CISD}} \\
+qubit-wise (blocks of 1) & 0.0 & $6.34\times10^{9}$ & $9.76\times10^{8}$ & $8.80\times10^{7}$ & -- & -- \\
+fully commuting & 29.4 & $5.72\times10^{9}$ & $1.49\times10^{9}$ & $8.63\times10^{7}$ & $3.95\times10^{7}$ & 37.70 \\
+M2 FC (independent arms) & 10.1 & -- & $1.30\times10^{8}$ & -- & -- & -- \\
+M2 QWC (independent arms) & 0.0 & -- & $1.32\times10^{8}$ & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+% END GENERATED disc_depth
+
+\paragraph{Shots against circuit depth.} The learned designs are not tied to the deep circuits of the fully commuting contexts (Table~\ref{tab:depth}). With product measurements and no entangling gate II-A needs $6.1\times10^{4}$ shots on H$_4$ and $3.6\times10^{5}$ on LiH, against $2.0\times10^{5}$ and $1.1\times10^{6}$ for independent BAI with QWC fragments, $3.2$ and $3.1$ times fewer ($1.9$ times on LiH with the sign-aware rule), and about as many as the best baseline that is allowed the full depth on H$_4$ ($5.6\times10^{4}$ for the sequential M1), $2.3$ times fewer on LiH ($8.3\times10^{5}$). From $0$ to $8$ ($21$ on LiH) two-qubit gates per circuit the cost of II-A falls by $2.3$ ($2.0$ on LiH); blocks of four qubits ($4.5$ and $6.2$ gates) give about half of that gain on H$_4$ and a quarter on LiH, and on both molecules the merged pivot contexts need more shots and more gates than blocks of four qubits ($4.5\times10^{4}$ at $6.1$ gates against $4.0\times10^{4}$ at $4.5$ on H$_4$, $4.0\times10^{5}$ at $9.7$ against $3.1\times10^{5}$ at $6.2$ on LiH). On H$_2$O, where the learned splitting was run on fully commuting contexts only, shared elimination with fixed estimators (II-0) needs the same number of shots on QWC contexts as on fully commuting ones ($2.1\times10^{10}$ against $2.05\times10^{10}$ at equilibrium, $8.8\times10^{7}$ against $8.6\times10^{7}$ stretched) and $1.8$ and $1.5$ times fewer than independent BAI with QWC fragments ($3.8\times10^{10}$ and $1.3\times10^{8}$). How much of the depth is worth having depends on the gate error (Table~\ref{tab:noise}). With a depolarising error $p_2$ after every CZ, no selection went wrong because of it up to $p_2=0.06$ on H$_4$ and LiH, but the cost of the deep contexts grows: on H$_4$ II-A on fully commuting contexts costs $1.5$ times more at $p_2=0.03$ and $3.2$ times more at $0.06$ than at $0.003$, while product measurements do not change. At $p_2=0.03$ the fully commuting contexts are still ahead ($4.2\times10^{4}$ against $6.0\times10^{4}$ shots), and they are overtaken at about $p_2=0.04$; Bansingh \textit{et al.}~\cite{bansingh2022} include the same effect for the energy and find the non-local groupings ahead at realistic gate errors. On LiH, with $21$ gates per circuit, II-A changes by $3\%$ up to $p_2=0.03$ and by $13\%$ at $0.06$ ($2.3\times10^{5}$ against $3.7\times10^{5}$ on product measurements), so there the fully commuting contexts stay ahead. This model damps all signals alike and so preserves the ranking of the candidates; coherent errors and drift, which do not~\cite{haravu2026,larrucea2026}, are not modelled and would call for radii that include a bias.
+
+% BEGIN GENERATED disc_noise
+\begin{table*}[!htb]
+\centering\small
+\caption{Noisy measurement circuits. A depolarising error of probability $p_2$ after every CZ gate; each cell is the share of selections that picked the exact best generator (of the noiseless gradients) and the mean cost. The intervals know shot noise only.}
+\label{tab:noise}
+\begin{tabular}{lrrrrr}
+\toprule
+contexts and method & CZ & $p_2=0.003$ & $p_2=0.01$ & $p_2=0.03$ & $p_2=0.06$ \\
+\midrule
+\multicolumn{6}{l}{\emph{H$_4$ 1.0 CISD}} \\
+M1 seq, FC & 7.9 & 100\% / 56\,544 & 100\% / 58\,607 & 100\% / 88\,949 & 100\% / $1.46\times10^{5}$ \\
+II-A, FC & 7.9 & 100\% / 27\,954 & 100\% / 31\,253 & 100\% / 41\,722 & 100\% / 90\,710 \\
+II-A, blocks of 4 & 4.5 & 100\% / 41\,076 & 100\% / 42\,677 & 100\% / 45\,477 & 100\% / 59\,721 \\
+II-A, blocks of 2 & 1.4 & 100\% / 48\,159 & 100\% / 49\,770 & 100\% / 53\,544 & 100\% / 56\,655 \\
+II-A, QWC & 0.0 & 100\% / 59\,785 & 100\% / 59\,785 & 100\% / 59\,785 & 100\% / 59\,785 \\
+M1 seq, QWC & 0.0 & 100\% / $1.10\times10^{5}$ & 100\% / $1.10\times10^{5}$ & 100\% / $1.10\times10^{5}$ & 100\% / $1.10\times10^{5}$ \\
+II-A, pivot contexts & 6.1 & 100\% / 43\,409 & 100\% / 47\,788 & 100\% / 55\,026 & 100\% / 82\,711 \\
+M2, FC & 5.6 & 100\% / $1.47\times10^{5}$ & 100\% / $1.51\times10^{5}$ & 100\% / $1.59\times10^{5}$ & 100\% / $1.85\times10^{5}$ \\
+M2, QWC & 0.0 & 100\% / $3.45\times10^{5}$ & 100\% / $3.45\times10^{5}$ & 100\% / $3.45\times10^{5}$ & 100\% / $3.45\times10^{5}$ \\
+\multicolumn{6}{l}{\emph{LiH HF}} \\
+M1 seq, FC & 21.1 & 100\% / $8.02\times10^{5}$ & 100\% / $8.53\times10^{5}$ & 100\% / $8.54\times10^{5}$ & 100\% / $1.04\times10^{6}$ \\
+II-A, FC & 21.1 & 100\% / $1.99\times10^{5}$ & 100\% / $2.00\times10^{5}$ & 100\% / $2.05\times10^{5}$ & 100\% / $2.25\times10^{5}$ \\
+II-A, blocks of 4 & 6.2 & 100\% / $2.96\times10^{5}$ & 100\% / $2.98\times10^{5}$ & 100\% / $3.15\times10^{5}$ & 100\% / $3.17\times10^{5}$ \\
+II-A, blocks of 2 & 2.6 & 100\% / $3.60\times10^{5}$ & 100\% / $3.68\times10^{5}$ & 100\% / $3.47\times10^{5}$ & 100\% / $3.58\times10^{5}$ \\
+II-A, QWC & 0.0 & 98\% / $3.71\times10^{5}$ & 98\% / $3.71\times10^{5}$ & 98\% / $3.71\times10^{5}$ & 98\% / $3.71\times10^{5}$ \\
+M1 seq, QWC & 0.0 & 98\% / $5.74\times10^{6}$ & 98\% / $5.74\times10^{6}$ & 98\% / $5.74\times10^{6}$ & 98\% / $5.74\times10^{6}$ \\
+M2, FC & 8.0 & 100\% / $1.68\times10^{6}$ & 100\% / $1.72\times10^{6}$ & 100\% / $1.82\times10^{6}$ & 100\% / $1.98\times10^{6}$ \\
+M2, QWC & 0.0 & 100\% / $1.90\times10^{6}$ & 100\% / $1.90\times10^{6}$ & 100\% / $1.90\times10^{6}$ & 100\% / $1.90\times10^{6}$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+% END GENERATED disc_noise
+
+\paragraph{What the radius buys and costs.} The intervals of the paper are Bonferroni intervals for one look per round (Q3), not a run-wide guarantee. In a two-arm Gaussian idealisation at $\delta=0.05$ they cost $3.6$ to $4.8$ times the lower bound on the samples of Garivier and Kaufmann~\cite{garivier2016}, and the anytime-valid radii $7.3$ to $10.8$ times for $10$ to $50$ rounds ($\texttt{price\_of\_validity.py}$); the ratio of the two, $1.8$ to $2.6$, is what we measured in Q3, so absolute shot counts are upper bounds and none of the methods is optimal. To see whether any ranking rests on the convention we replaced the radius by the less conservative $z=z_{\delta/2}/\sqrt2$ of Part~I (Table~\ref{tab:radius}). The median costs fall by a factor of $1.8$ to $22$ and their ranking is unchanged, but the pairwise rule is no longer safe: II-A selected the best generator in $79\%$ of the trials on H$_4$ and $46\%$ on LiH, the sequential M1 in $76\%$ and $34\%$. With the sign-aware rule II-A and the sequential M1 are correct in every trial on H$_4$, LiH and LiH after three steps (independent BAI in $94$ to $98\%$), at $1.9$ to $2.9$ times lower cost, and II-A keeps its margin over the sequential M1 ($1.23$ on H$_4$, against $1.48$; $5.4$ on LiH, as before); after five steps, where the gradients are small, the loose radius fails for all of them ($48$ to $74\%$). The radius is therefore not what makes the learned designs cheaper, and a less conservative one is usable only with the sign-aware rule and away from near-zero gradients. A small-sample variance bound, which would remove the last exact input (Q3), is not tested.
+
+% BEGIN GENERATED disc_radius
+\begin{table*}[!htb]
+\centering\small
+\caption{The radius rule. Median cost and share of exact selections with the Bonferroni radius of the paper and with the less conservative $z=z_{\delta/2}/\sqrt2$ calibrated to the selection error (about $2.2$ times smaller at $K=26$).}
+\label{tab:radius}
+\begin{tabular}{lrrrr}
+\toprule
+method & median (Bonferroni) & correct & median (selection $z$) & correct \\
+\midrule
+\multicolumn{5}{l}{\emph{H$_4$ 1.0 CISD}} \\
+M1 static & 59\,671 & 100\% & 11\,931 & 88\% \\
+M1 seq & 55\,144 & 100\% & 16\,638 & 76\% \\
+M2, pairwise & 96\,300 & 100\% & 27\,405 & 94\% \\
+II-0 & 38\,390 & 100\% & 10\,183 & 76\% \\
+II-A & 27\,129 & 100\% & 8\,912 & 79\% \\
+M1 seq, sign-aware & 48\,401 & 100\% & 21\,348 & 100\% \\
+M2, sign-aware & 96\,300 & 100\% & 27\,405 & 94\% \\
+II-A, sign-aware & 32\,621 & 100\% & 17\,325 & 100\% \\
+\multicolumn{5}{l}{\emph{LiH HF}} \\
+M1 static & $3.56\times10^{6}$ & 100\% & $5.73\times10^{5}$ & 100\% \\
+M1 seq & $7.56\times10^{5}$ & 100\% & $4.30\times10^{5}$ & 34\% \\
+M2, pairwise & $9.77\times10^{5}$ & 100\% & $1.97\times10^{5}$ & 98\% \\
+II-0 & $2.95\times10^{5}$ & 100\% & 61\,909 & 38\% \\
+II-A & $1.79\times10^{5}$ & 100\% & 48\,933 & 46\% \\
+M1 seq, sign-aware & $1.76\times10^{6}$ & 100\% & $8.21\times10^{5}$ & 100\% \\
+M2, sign-aware & $9.77\times10^{5}$ & 100\% & $1.97\times10^{5}$ & 98\% \\
+II-A, sign-aware & $3.25\times10^{5}$ & 100\% & $1.51\times10^{5}$ & 100\% \\
+\multicolumn{5}{l}{\emph{LiH ADAPT$_3$}} \\
+M1 seq & $1.18\times10^{6}$ & 100\% & $5.43\times10^{5}$ & 46\% \\
+M2, pairwise & $1.86\times10^{6}$ & 100\% & $4.20\times10^{5}$ & 96\% \\
+II-0 & $6.89\times10^{5}$ & 100\% & $1.34\times10^{5}$ & 51\% \\
+II-A & $4.17\times10^{5}$ & 100\% & $1.13\times10^{5}$ & 49\% \\
+M1 seq, sign-aware & $1.80\times10^{6}$ & 100\% & $8.39\times10^{5}$ & 100\% \\
+M2, sign-aware & $1.86\times10^{6}$ & 100\% & $4.20\times10^{5}$ & 96\% \\
+II-A, sign-aware & $8.39\times10^{5}$ & 100\% & $2.93\times10^{5}$ & 100\% \\
+\multicolumn{5}{l}{\emph{LiH ADAPT$_5$}} \\
+M1 seq & $3.99\times10^{8}$ & 100\% & $1.81\times10^{7}$ & 35\% \\
+M2, pairwise & $8.98\times10^{7}$ & 100\% & $9.27\times10^{6}$ & 71\% \\
+II-0 & $6.54\times10^{7}$ & 100\% & $3.70\times10^{6}$ & 35\% \\
+II-A & $3.84\times10^{7}$ & 100\% & $2.65\times10^{6}$ & 74\% \\
+M1 seq, sign-aware & $3.99\times10^{8}$ & 100\% & $1.47\times10^{7}$ & 48\% \\
+M2, sign-aware & $8.98\times10^{7}$ & 100\% & $9.27\times10^{6}$ & 71\% \\
+II-A, sign-aware & $3.19\times10^{7}$ & 100\% & $2.66\times10^{6}$ & 74\% \\
+\bottomrule
+\end{tabular}
+\end{table*}
+% END GENERATED disc_radius
+
+\paragraph{Stopping the run.} The measured trajectories stop at an oracle, chemical accuracy against FCI or $\max\lvert g_i\rvert<10^{-6}$ on the exact gradients, whereas ADAPT stops on the gradient, and with shot noise the squared norm of the estimated gradient exceeds the true one by $\sum_i\sigma_i^2$, which grows with the pool. Certifying $\max\lvert g_i\rvert<\tau$ needs every gradient resolved to a radius up to $\tau-\lvert g_i\rvert$, and no gradient can be dropped, so elimination does not help (Table~\ref{tab:termination}). At the last state of the exact H$_4$ trajectory, whose gradients are zero, the planning bound is $2.1\times10^{6}$ context-shots for $\tau=10^{-2}$, $2.3\times10^{7}$ for $3\times10^{-3}$ and $2.1\times10^{8}$ for $10^{-3}$: $1.9$, $21$ and $190$ times the cost of the whole measured trajectory with II-A. On the stretched H$_4$ trajectory the factors are $0.05$, $0.5$ and $4.6$. A stop test at a practical threshold therefore costs as much as all the selections of the run, or far more, and the end-to-end figures of Q7 do not include it; they stand if the run is stopped by the energy, or by a cheaper criterion, not by the gradient norm.
+
+% BEGIN GENERATED disc_termination
+\begin{table*}[!htb]
+\centering\small
+\caption{Certifying the stop. Planning bound (exact variances, fully commuting contexts) for the shots that give every gradient the radius $\tau-\lvert g_i\rvert$, and the measured selection cost of the whole trajectory with II-A.}
+\label{tab:termination}
+\begin{tabular}{lrrrrr}
+\toprule
+state & $\max\lvert g\rvert$ & $\tau$ & certify $\max\lvert g_i\rvert<\tau$ & trajectory, II-A & ratio \\
+\midrule
+H$_4$ 1.0 ADAPT$_{10}$ & 1.5e-10 & 1.0e-02 & $2.10\times10^{6}$ & $1.11\times10^{6}$ & 1.90 \\
+H$_4$ 1.0 ADAPT$_{10}$ & 1.5e-10 & 3.0e-03 & $2.33\times10^{7}$ & $1.11\times10^{6}$ & 21.08 \\
+H$_4$ 1.0 ADAPT$_{10}$ & 1.5e-10 & 1.0e-03 & $2.10\times10^{8}$ & $1.11\times10^{6}$ & 189.73 \\
+H$_4$ 2.0 ADAPT$_{10}$ & 1.1e-08 & 1.0e-02 & $4.30\times10^{5}$ & $9.39\times10^{6}$ & 0.05 \\
+H$_4$ 2.0 ADAPT$_{10}$ & 1.1e-08 & 3.0e-03 & $4.77\times10^{6}$ & $9.39\times10^{6}$ & 0.51 \\
+H$_4$ 2.0 ADAPT$_{10}$ & 1.1e-08 & 1.0e-03 & $4.30\times10^{7}$ & $9.39\times10^{6}$ & 4.58 \\
+LiH ADAPT$_6$ & 2.1e-02 & 2.6e-02 & $3.67\times10^{7}$ & $4.94\times10^{7}$ & 0.74 \\
+LiH ADAPT$_6$ & 2.1e-02 & 4.2e-02 & $6.16\times10^{6}$ & $4.94\times10^{7}$ & 0.12 \\
+H$_2$O eq ADAPT$_{17}$ & 5.6e-02 & 7.0e-02 & $3.03\times10^{8}$ & -- & -- \\
+H$_2$O eq ADAPT$_{17}$ & 5.6e-02 & 1.1e-01 & $4.88\times10^{7}$ & -- & -- \\
+H$_2$O str ADAPT$_{18}$ & 2.3e-02 & 2.9e-02 & $9.43\times10^{8}$ & -- & -- \\
+H$_2$O str ADAPT$_{18}$ & 2.3e-02 & 4.6e-02 & $2.46\times10^{8}$ & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+% END GENERATED disc_termination
+
+\paragraph{Selection and optimisation.} The measured cost of optimisation is the largest uncertainty of Q7. Hessian recycling~\cite{ramoa2025hessian}, shot-frugal optimisers, and the energy-based or gradient-free routes that avoid global reoptimisation~\cite{feniou2025,jager2025} all lower it, and for strongly correlated systems Rossi \textit{et al.}~\cite{rossi2026} find that full reoptimisation and orbital optimisation govern the cost. With $C_\mathrm{opt}$ ten times smaller the share of selection on LiH is $34$ to $56\%$ (Q7), so the saving of the learned designs is then what an end-to-end comparison sees. A selection that is cheaper but less reliable can cost more in total, because a wrong generator leaves operators that reoptimisation drives to zero~\cite{vaquero2025}; this is one reason to report the share of exact selections next to every cost.
+
+\paragraph{Other scores, other pools, several operators.} The paper fixes the gradient. A gradient is the expectation of one observable on one state, so all $K$ gradients share both the state and the contexts. An energy-based score needs the energy landscape of each candidate (three to five energies) on that candidate's own state, so nothing is shared and the cost grows with $K$ (Table~\ref{tab:score}). With every energy to 1~mHa this is $1.1\times10^{3}$ to $2.5\times10^{3}$ times the cost of II-A on H$_4$ and the first LiH states, $12$ times on LiH after five steps and $59$ to $162$ times on H$_2$O, except at equilibrium, where the gradients are smallest and it is $0.6$ times. Ranking the candidates needs a precision below the difference of their energy lowerings, which at a small gradient is far below 1~mHa, and at that precision the factor is $2\times10^{2}$ to $2\times10^{5}$. Energy-based scores may choose better generators and so need fewer iterations~\cite{rossi2026}, which is not modelled here. The $\rho$-good rule is the single-operator form of the thresholding that TETRIS and multi-operator selection need~\cite{anastasiou2024tetris}, and a cost-weighted utility $\lvert g_i\rvert-\lambda c_i$ is linear in the shared estimates, so the same machinery applies to both.
+
+% BEGIN GENERATED disc_score
+\begin{table*}[!htb]
+\centering\small
+\caption{The cost side of an energy-based score. Each candidate needs its own energy landscape (five energies) on its own state, so nothing is shared across candidates; energies are measured with the fully commuting groups of $\hat H$. Columns 4--5: every energy to 1~mHa. Columns 6--8: every energy to the precision that resolves the energy lowerings $g^2/2h$ of the two best candidates ($h=1$~Ha assumed). Ratios are to the mean cost of II-A.}
+\label{tab:score}
+\begin{tabular}{lrrrrrrr}
+\toprule
+state & $K$ & II-A & energy scores, 1~mHa & ratio & $\varepsilon_E$ matched (mHa) & energy scores, matched & ratio \\
+\midrule
+H$_4$ 1.0 CISD & 26 & 27\,129 & $6.77\times10^{7}$ & 2\,497 & 1.6 & $2.69\times10^{7}$ & 990 \\
+LiH HF & 92 & $1.85\times10^{5}$ & $3.05\times10^{8}$ & 1\,655 & 2.7 & $4.14\times10^{7}$ & 224 \\
+LiH ADAPT$_3$ & 92 & $4.30\times10^{5}$ & $4.67\times10^{8}$ & 1\,084 & 1.6 & $1.72\times10^{8}$ & 399 \\
+LiH ADAPT$_5$ & 92 & $4.34\times10^{7}$ & $5.37\times10^{8}$ & 12 & 0.022 & $1.10\times10^{12}$ & 25\,247 \\
+H$_2$O eq CISD & 140 & $8.80\times10^{9}$ & $5.12\times10^{9}$ & 1 & 0.0017 & $1.76\times10^{15}$ & 200\,403 \\
+H$_2$O str CISD & 140 & $3.95\times10^{7}$ & $6.41\times10^{9}$ & 162 & 0.23 & $1.17\times10^{11}$ & 2\,973 \\
+H$_2$O eq ADAPT$_{11}$ & 140 & $8.17\times10^{7}$ & $5.01\times10^{9}$ & 61 & 0.14 & $2.61\times10^{11}$ & 3\,199 \\
+H$_2$O str ADAPT$_8$ & 140 & $8.57\times10^{7}$ & $5.04\times10^{9}$ & 59 & 0.1 & $4.90\times10^{11}$ & 5\,718 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+% END GENERATED disc_score
+
+\paragraph{Scale, and help from classical computation.} The systems here have $8$ to $14$ qubits, pools of $26$ to $140$ generators and $53$ to $2{,}366$ fully commuting contexts ($314$ to $5{,}289$ QWC contexts on H$_4$ and LiH); the pivot contexts would be $898$ and $21{,}243$ for H$_4$ and LiH and $56{,}242$ for H$_2$O, too many to simulate through their outcome distributions at $14$ qubits. A learned design costs $1$~s of classical time on H$_4$ and $5$ to $6$ minutes on H$_2$O per selection. The number of ADAPT iterations is predicted to grow exponentially with the size of the system~\cite{hagelueken2026}, so selection is paid many times, and there is no scaling claim in this work beyond $14$ qubits. Classical surrogates, such as graph networks that propose a shortlist~\cite{vahedi2026} or a classical pre-optimisation of the ansatz~\cite{mullinax2024}, carry no certificate; the covariance prior of Q4 fails alone on correlated states, which argues for a prior followed by a certified test on the shortlist, not for the prior alone. Whether quantum computers can offer an advantage for ground-state chemistry at all is a separate question~\cite{lee2023}, and measurement as a bottleneck of the variational approach is documented in~\cite{gonthier2022,patel2025}.
+
+\paragraph{Threats to validity.} Three molecules in a minimal basis, $8$ to $14$ qubits; shots sampled from the exact outcome distribution with no device noise other than the depolarising model above; every baseline is our implementation; the schedule $\gamma$, the tolerance $\rho$ and the confidence $\delta$ are the same for all methods; the fixed-state results start from the exact largest gradient, and the trial numbers ($100$ to $200$ per row, $12$ to $48$ trajectories) leave the third digit of the ratios uncertain. The code and every table are generated from the stored trial files.
+
 \section{Conclusions}
 
 \paragraph{What was done.} We treated generator selection in ADAPT-VQE as an adaptive experimental-design problem on shared measurements. All pool gradients are expanded on one set of Pauli products and measured in fully commuting groups common to the whole pool; candidates that cannot win are eliminated using the covariances of the shared estimates; and the estimators of the survivors are redesigned from covariances learned from the same shots. We tested this on H$_4$, LiH and H$_2$O in a minimal basis (8--14 qubits), with sampled measurement outcomes and no device noise. The published baselines were then run under the same rules: static and sequential all-gradient estimation, independent best-arm identification, reuse of the energy measurement of the last VQE evaluation, and an informationally complete measurement, on several operator pools (Q8).
@@ -924,9 +1130,9 @@ Run from sampled outcomes under the same rules, our implementations of the publi
 
 Three extensions did less. Zero-sum auxiliary products added $2$--$10$ points on H$_4$ and nothing resolvable on LiH and H$_2$O. Designing directly for the leader--challenger contrasts paid only at small gaps: it cost $32$--$36\%$ less than splitting on two states with a 15\% relative gap, and $11$--$39\%$ more where the gap was wide. A Hartree--Fock covariance used alone was harmful on correlated states, raising the cost by 95\% and 482\% and producing wrong selections.
 
-\paragraph{What remains limiting.} First, selections were reliable only with safeguards. The elimination rule that plugs in estimated signs removed the best candidate in $5$--$24\%$ of trials on one correlated state; the sign-aware rule that replaces it was correct in every trial there, and costs $21$--$38\%$ more on the H$_4$ CISD states. The same failure appeared with the free energy data, where the pairwise rule selected a wrong generator in $7.5\%$ of the LiH trials, and the sign-aware rule costs $76\%$ more there ($3.25\times10^{5}$ against $1.85\times10^{5}$ shots for II-A). The per-round confidence intervals are not a run-wide guarantee: in $14$--$29\%$ of trials some interval missed the exact value, although the selections stayed correct. Second, the fixed-state results above start from the exact largest gradient. Starting from an a priori bound instead gave only $92$--$99\%$ correct selections on the state with the smallest gradients, because variances estimated from a few tens of shots can be zero. Third, exactly tied generators lead at two or three steps of every trajectory, so selection must accept any candidate within a tolerance of the best, and these steps take $51$--$60\%$ of the selection cost on H$_4$. Fourth, once selection is compressed, parameter reoptimization dominates. Under our cost model, selection falls below 0.7\% of the total on H$_4$ and to $3$--$11\%$ on LiH, and the end-to-end saving is a factor of $5.3$--$9.0$ on LiH but only $1.01$--$1.11$ on H$_4$. The optimization cost is modeled, not measured, and varies by up to about 30\% between Hamiltonian builds. Finally, the evidence is limited to three small molecules; measured trajectories were run only on H$_4$ and LiH, and a learned design costs up to 5--6 minutes of classical time per selection on H$_2$O. Fifth, the comparison with the literature rests on our implementations of the strategies, not on their code. M1 and M2 reproduce the planning bounds of Part~I; the reuse baseline allocates by the optimal rule instead of the variance-based rules of the original, which favours the baseline; the informationally complete baseline uses an unoptimised POVM, so its numbers are an upper bound; and the minimal complete pool of Shkolnikov \textit{et al.}\ was not tested. Two caveats concern our own side. Shot counts are not circuit costs: our fully commuting groups need $8$--$32$ two-qubit gates per diagonalising circuit (Q1) while the QWC cliques of the reuse baseline need none, and we did not run our estimators on QWC groups, where H$_4$ shows that the grouping itself costs a factor of two in shots. And free data are not uniformly good for our own estimator: with the forced assignment II-A lost on LiH, starting from the home design removed the loss on H$_4$ and LiH but made it worse on H$_2$O at equilibrium ($+24\%$, $99\%$ correct), so the tables report the better variant per state, as they do for the baseline. The saving from reuse depends on the precision of the last energy evaluation: it saturates below 1~mHa and has vanished at 30~mHa. The conclusion that reoptimisation dominates depends on the optimiser: with a ten times cheaper optimisation, selection is $34$--$56\%$ of the total on LiH.
+\paragraph{What remains limiting.} First, selections were reliable only with safeguards. The elimination rule that plugs in estimated signs removed the best candidate in $5$--$24\%$ of trials on one correlated state; the sign-aware rule that replaces it was correct in every trial there, and costs $21$--$38\%$ more on the H$_4$ CISD states. The same failure appeared with the free energy data, where the pairwise rule selected a wrong generator in $7.5\%$ of the LiH trials, and the sign-aware rule costs $76\%$ more there ($3.25\times10^{5}$ against $1.85\times10^{5}$ shots for II-A). The per-round confidence intervals are not a run-wide guarantee: in $14$--$29\%$ of trials some interval missed the exact value, although the selections stayed correct. Second, the fixed-state results above start from the exact largest gradient. Starting from an a priori bound instead gave only $92$--$99\%$ correct selections on the state with the smallest gradients, because variances estimated from a few tens of shots can be zero. Third, exactly tied generators lead at two or three steps of every trajectory, so selection must accept any candidate within a tolerance of the best, and these steps take $51$--$60\%$ of the selection cost on H$_4$. Fourth, once selection is compressed, parameter reoptimization dominates. Under our cost model, selection falls below 0.7\% of the total on H$_4$ and to $3$--$11\%$ on LiH, and the end-to-end saving is a factor of $5.3$--$9.0$ on LiH but only $1.01$--$1.11$ on H$_4$. The optimization cost is modeled, not measured, and varies by up to about 30\% between Hamiltonian builds. Finally, the evidence is limited to three small molecules; measured trajectories were run only on H$_4$ and LiH, and a learned design costs up to 5--6 minutes of classical time per selection on H$_2$O. Fifth, the comparison with the literature rests on our implementations of the strategies, not on their code. M1 and M2 reproduce the planning bounds of Part~I; the reuse baseline allocates by the optimal rule instead of the variance-based rules of the original, which favours the baseline; the informationally complete baseline uses an unoptimised POVM, so its numbers are an upper bound; the pivot grouping of Anastasiou \textit{et al.}, which needs $5.7$--$21$ times the shots of first-fit grouping as published, is shown in a stronger variant of our own as well; and the minimal complete pool of Shkolnikov \textit{et al.}\ was not tested. Two caveats concern our own side. Shot counts are not circuit costs: our fully commuting groups need $8$--$32$ two-qubit gates per diagonalising circuit (Q1), while independent BAI with QWC fragments and the reuse baseline with QWC cliques need none. On product measurements the learned designs cost $3.1$--$3.2$ times less than independent BAI with QWC fragments (H$_4$, LiH) and about as many shots as the best baseline given the full depth, but $2.0$--$2.3$ times more than on fully commuting contexts, and with a depolarising error of about $4\%$ per CZ gate the deep contexts lose their advantage on H$_4$, though not on LiH up to $6\%$ (Discussion). And free data are not uniformly good for our own estimator: with the forced assignment II-A lost on LiH, starting from the home design removed the loss on H$_4$ and LiH but made it worse on H$_2$O at equilibrium ($+24\%$, $99\%$ correct), so the tables report the better variant per state, as they do for the baseline. The saving from reuse depends on the precision of the last energy evaluation: it saturates below 1~mHa and has vanished at 30~mHa. The conclusion that reoptimisation dominates depends on the optimiser: with a ten times cheaper optimisation, selection is $34$--$56\%$ of the total on LiH.
 
-\paragraph{What follows.} A variance bound that is valid at small sample sizes would remove the last exact input. A rule that switches from gradient-wise to contrast designs as the gap closes is suggested by the small-gap results but is untested. Measured trajectories on H$_2$O are still to be run, as are our estimators on QWC groups and the comparison of measurement-circuit depth. The optimised IC measurement and the minimal complete pool are the two remaining baselines of the literature that are not covered; the sequential experimental designs for transductive linear bandits~\cite{soare2014,fiez2019} are the natural statistical comparator once a measurement context is allowed to return one scalar at a time. The larger remaining cost is the repeated reoptimization, which this work does not reduce and which Paper B addresses by changing the adaptive trajectory itself.
+\paragraph{What follows.} A variance bound that is valid at small sample sizes would remove the last exact input. A rule that switches from gradient-wise to contrast designs as the gap closes is suggested by the small-gap results but is untested. The cost of certifying the stop of a run is in no total of this paper and is large at practical thresholds (Discussion), so a cheaper stopping criterion is needed. The optimised IC measurement and the minimal complete pool are the two remaining baselines of the literature that are not covered; the sequential experimental designs for transductive linear bandits~\cite{soare2014,fiez2019} are the natural statistical comparator once a measurement context is allowed to return one scalar at a time. The larger remaining cost is the repeated reoptimization, which this work does not reduce and which Paper B addresses by changing the adaptive trajectory itself.
 
 \section{References: what must be covered}
 
@@ -974,11 +1180,24 @@ Students should not begin the final Results narrative until the following are av
 \bibitem{ramoa2025hessian} M.~Ram\^oa, L.~P.~Santos, N.~J.~Mayhall, E.~Barnes, and S.~E.~Economou, Quantum Sci. Technol. \textbf{10}, 015031 (2025).
 \bibitem{ramoa2026co} M.~Ram\^oa, L.~P.~Santos, N.~J.~Mayhall, E.~Barnes, and S.~E.~Economou, arXiv:2601.20681 (2026).
 \bibitem{nykanen2025} A.~Nyk\"anen, M.~A.~C.~Rossi, E.-M.~Borrelli, S.~Maniscalco, G.~Garc\'ia-P\'erez, and A.~Glos, Phys. Rev. Research \textbf{7}, 043114 (2025).
-\bibitem{ikhtiarudin2025} A.~Ikhtiarudin, G.~K.~Sunnardianto, F.~Fathurrahman, M.~K.~Agusta, and H.~K.~Dipojono, arXiv:2507.16879 (2025).
+\bibitem{ikhtiarudin2025} A.~Ikhtiarudin, G.~K.~Sunnardianto, F.~Fathurrahman, M.~K.~Agusta, and H.~K.~Dipojono, Phys. Scr. \textbf{101}, 255103 (2026); arXiv:2507.16879 (2025).
 \bibitem{huang2026} R.~Huang and A.~F.~Izmaylov, J. Chem. Theory Comput. \textbf{22}, 4475 (2026).
 \bibitem{yen2023} T.-C.~Yen, A.~Ganeshram, and A.~F.~Izmaylov, npj Quantum Inf. \textbf{9}, 14 (2023).
 \bibitem{choi2022} S.~Choi, T.-C.~Yen, and A.~F.~Izmaylov, J. Chem. Theory Comput. \textbf{18}, 7394 (2022).
 \bibitem{soare2014} M.~Soare, A.~Lazaric, and R.~Munos, Adv. Neural Inf. Process. Syst. \textbf{27} (2014).
 \bibitem{fiez2019} T.~Fiez, L.~Jain, K.~G.~Jamieson, and L.~Ratliff, Adv. Neural Inf. Process. Syst. \textbf{32} (2019).
+\bibitem{garivier2016} A.~Garivier and E.~Kaufmann, in \textit{Proceedings of the 29th Conference on Learning Theory}, PMLR \textbf{49}, 998 (2016).
+\bibitem{gonthier2022} J.~F.~Gonthier \textit{et al.}, Phys. Rev. Research \textbf{4}, 033154 (2022).
+\bibitem{bansingh2022} Z.~P.~Bansingh, T.-C.~Yen, P.~D.~Johnson, and A.~F.~Izmaylov, J. Phys. Chem. A (2022), arXiv:2205.07113.
+\bibitem{dalton2024} K.~Dalton, C.~K.~Long, Y.~S.~Yordanov, C.~G.~Smith, C.~H.~W.~Barnes, N.~Mertig, and D.~R.~M.~Arvidsson-Shukur, npj Quantum Inf. \textbf{10}, 18 (2024).
+\bibitem{haravu2026} S.~Haravu, M.~Ram\^oa, and B.~Sambasivam, arXiv:2609.17501 (2026).
+\bibitem{larrucea2026} J.~Larrucea, arXiv:2609.27704 (2026).
+\bibitem{utama2026} G.~Utama and H.~K.~Dipojono, arXiv:2607.17443 (2026).
+\bibitem{hagelueken2026} M.~Hagelueken, D.~A.~Kreplin, F.~Wieland, M.~F.~Huber, and M.~Roth, arXiv:2603.13073 (2026).
+\bibitem{lee2023} S.~Lee \textit{et al.}, Nat. Commun. \textbf{14}, 1952 (2023).
+\bibitem{patel2025} S.~Patel, P.~Jayakumar, T.-C.~Yen, and A.~F.~Izmaylov, Chem. Rev. \textbf{125}, 7490 (2025).
+\bibitem{vahedi2026} J.~Vahedi and H.~H.~Arefi, arXiv:2606.08794 (2026).
+\bibitem{mullinax2024} J.~W.~Mullinax, P.~G.~Anastasiou, J.~Larson, S.~E.~Economou, and N.~M.~Tubman, arXiv:2411.07920 (2024).
+\bibitem{vaquero2025} N.~Vaquero-Sabater, A.~Carreras, and D.~Casanova, J. Chem. Theory Comput. \textbf{21}, 8720 (2025).
 \end{thebibliography}
 \end{document}

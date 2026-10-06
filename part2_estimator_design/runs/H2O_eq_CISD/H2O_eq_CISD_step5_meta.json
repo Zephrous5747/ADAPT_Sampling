@@ -8,7 +8,12 @@
     "M1 static": "M1 static (gap/2, exact variances)",
     "II-A data + reuse (home), FC": "II-A/prior=none/nu=0/estimated radii/guard=on/fc/reuse/assign=home",
     "M2 safe": "M2 independent/rule=safe/start=oracle",
-    "II-A data, safe": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50"
+    "II-A data, safe": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50",
+    "M2 QWC pairwise": "M2 independent/rule=pairwise/start=oracle/grouping=qwc",
+    "M2 QWC safe": "M2 independent/rule=safe/start=oracle/grouping=qwc",
+    "II-0, blocks=1": "II-0/estimated radii/1-qubit block contexts",
+    "M1 static, blocks=1": "M1 static (gap/2, exact variances)/1-qubit block contexts",
+    "M1 seq, blocks=1": "II-0/estimated radii/no-elimination/1-qubit block contexts"
   },
   "reuse_libraries": {
     "fc": {
@@ -24,7 +29,7 @@
       }
     }
   },
-  "trials": 100,
+  "trials": 24,
   "seed": 5,
   "strategy": "mass",
   "energy_error": 0.001,
@@ -41,5 +46,16 @@
     },
     "git_commit": null,
     "part2_tree_dirty": null
+  },
+  "block_libraries": {
+    "1": {
+      "classes": "blocks=1",
+      "n_classes": 14,
+      "contexts": 13609,
+      "members_mean": 91.4309648027041,
+      "two_qubit_mean": 0.0,
+      "two_qubit_max": 0,
+      "bound_two_qubit": 0
+    }
   }
 }
