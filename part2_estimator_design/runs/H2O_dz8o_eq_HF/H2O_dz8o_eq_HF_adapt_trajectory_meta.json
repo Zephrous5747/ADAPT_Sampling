@@ -5,7 +5,7 @@
   "pool_size": 360,
   "converged": false,
   "steps": 40,
-  "states_file": "<project>/.cache/trajectory/H2O_dz8o_eq_HF_adapt.npz",
+  "states_file": "/scratch/zephrous/adapt_sampling/part2_estimator_design/.cache/trajectory/H2O_dz8o_eq_HF_adapt.npz",
   "seconds": 11901.9,
   "run": {
     "python": "3.11.4",

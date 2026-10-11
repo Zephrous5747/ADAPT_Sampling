@@ -919,8 +919,10 @@ LiH 1.6~\AA, ADAPT 4 & II-A & 50 & 100 & $2.27\times10^{8}$ & 100 & 94 & 86 & 0 
  & II-0 & 1000 & 100 & $2.26\times10^{8}$ & 100 & 10 & 60 & 0 & 1.00 \\
  & II-0 anytime & 200 & 100 & $5.38\times10^{8}$ & 100 & 0 & -- & -- & -- \\
 \midrule
-H$_2$O eq, CISD & II-A & 200 & 40 & $4.62\times10^{9}$ & 100 & 38 & 78 & 0 & 1.00 \\
+H$_2$O eq, CISD & II-A & 50 & 40 & $1.82\times10^{9}$ & 98 & 98 & 74 & 0 & 0.18 \\
+ & II-A & 200 & 40 & $4.62\times10^{9}$ & 100 & 38 & 78 & 0 & 1.00 \\
  & II-A & 1000 & 40 & $4.70\times10^{9}$ & 100 & 32 & 85 & 0 & 1.00 \\
+ & II-A anytime & 200 & 40 & $9.21\times10^{9}$ & 100 & 0 & -- & -- & -- \\
  & II-A anytime & 1000 & 40 & $9.19\times10^{9}$ & 100 & 0 & -- & -- & -- \\
  & II-0 & 50 & 40 & $1.92\times10^{10}$ & 100 & 75 & 76 & 0 & 1.00 \\
  & II-0 & 1000 & 40 & $2.10\times10^{10}$ & 100 & 38 & 83 & 0 & 1.00 \\
@@ -1028,7 +1030,7 @@ On the small systems the certification is expensive (Table~\ref{tab:fixedbudget}
 
 \begin{table}[!htb]
 \centering\small
-\caption{Certified II-A and II-0 along the ADAPT trajectories at four tolerances $\rho$ (median total selection shots, mean steps in brackets) against the cheapest adequate fixed budget (designed allocation), which does not depend on $\rho$. Stretched H$_2$O at $\rho=0.2$ and $0.3$ was still running when the table was made.}
+\caption{Certified II-A and II-0 along the ADAPT trajectories at four tolerances $\rho$ (median total selection shots, mean steps in brackets) against the cheapest adequate fixed budget (designed allocation), which does not depend on $\rho$.}
 \label{tab:fixedrho}
 \footnotesize\setlength{\tabcolsep}{3pt}
 \fitcol{%
@@ -1042,8 +1044,8 @@ H$_2$O eq & 0.1 & $1.1\times10^{9}$ (17.0) & $2.5\times10^{9}$ (17.0) & $2.3\tim
  & 0.3 & $5.8\times10^{8}$ (17.0) & $1.9\times10^{9}$ (17.0) & $2.3\times10^{9}$ & 0.26 \\
 \midrule
 H$_2$O str & 0.1 & $3.0\times10^{9}$ (18.0) & $7.9\times10^{9}$ (18.0) & $7.6\times10^{9}$ & 0.39 \\
- & 0.2 & -- & $7.5\times10^{9}$ (18.0) & $7.6\times10^{9}$ & -- \\
- & 0.3 & -- & $6.6\times10^{9}$ (18.0) & $7.6\times10^{9}$ & -- \\
+ & 0.2 & $2.4\times10^{9}$ (18.0) & $7.5\times10^{9}$ (18.0) & $7.6\times10^{9}$ & 0.32 \\
+ & 0.3 & $2.0\times10^{9}$ (18.0) & $6.6\times10^{9}$ (18.0) & $7.6\times10^{9}$ & 0.27 \\
 \midrule
 H$_4$ 1.0 \AA & 0.05 & $3.7\times10^{6}$ (10.0) & $5.8\times10^{6}$ (10.0) & $1.5\times10^{5}$ & 25.19 \\
  & 0.1 & $1.1\times10^{6}$ (10.0) & $1.9\times10^{6}$ (10.0) & $1.5\times10^{5}$ & 7.16 \\
@@ -1098,9 +1100,9 @@ LiH 3.0~\AA, HF & $3.09\times10^{5}$ & 0.78 & 1.33 & 1.89 & 0.98 & 1.09 & 1.15 &
 }
 \end{table}
 
-\paragraph{Tolerance $\rho$.} On fixed states the cost falls as $\rho$ grows on H$_4$ (II-A: $2.6\times10^{4}$ at $\rho=0$ to $2.0\times10^{4}$ at $0.3$) and not at all on LiH at 3.0~\AA, where the gap is large. Along trajectories it falls faster (Table~\ref{tab:fixedrho}): for II-A on H$_4$ at 1.0~\AA\ the total is $3.7\times10^{6}$, $1.1\times10^{6}$, $3.9\times10^{5}$ and $2.7\times10^{5}$ shots at $\rho=0.05$, $0.1$, $0.2$ and $0.3$, and the ratio II-A/II-0 stays between $0.37$ and $0.77$ on H$_4$ and LiH at every tolerance; on H$_2$O at equilibrium it is $0.43$, $0.34$ and $0.30$ at $0.1$, $0.2$ and $0.3$.
+\paragraph{Tolerance $\rho$.} On fixed states the cost falls as $\rho$ grows on H$_4$ (II-A: $2.6\times10^{4}$ at $\rho=0$ to $2.0\times10^{4}$ at $0.3$) and not at all on LiH at 3.0~\AA, where the gap is large. Along trajectories it falls faster (Table~\ref{tab:fixedrho}): for II-A on H$_4$ at 1.0~\AA\ the total is $3.7\times10^{6}$, $1.1\times10^{6}$, $3.9\times10^{5}$ and $2.7\times10^{5}$ shots at $\rho=0.05$, $0.1$, $0.2$ and $0.3$, and the ratio II-A/II-0 stays between $0.37$ and $0.77$ on H$_4$ and LiH at every tolerance; on H$_2$O it is $0.43$, $0.34$ and $0.30$ at equilibrium and $0.38$, $0.32$ and $0.30$ stretched, at $\rho=0.1$, $0.2$ and $0.3$.
 
-\paragraph{Scale.} The structure of the problem and the cost of the classical design grow with the molecule (Table~\ref{tab:scaling}). From H$_4$ to N$_2$ in STO-3G (8 to 20 qubits) the pool grows from 26 to 609 generators, the Pauli products of the commutators from $1.3\times10^{3}$ to $7.4\times10^{5}$, the measurement contexts from 53 to $1.5\times10^{4}$ and the two-qubit gates per circuit from 8 to 72; the coordinates of one II-A design problem grow from 308 to $1.9\times10^{4}$ per generator. We added a case in a larger basis: H$_2$O in cc-pVDZ restricted to a window of eight orbitals (the frozen-core Hamiltonian of the four occupied orbitals and four virtual ones, two of $a_1$ and two of in-plane $b$ symmetry, after the larger-basis note of our colleagues; 16 qubits, $K=360$, $2.2\times10^{5}$ products, 5{,}408 contexts, 44 two-qubit gates per circuit). One refit of all generators takes seconds on H$_4$ and LiH (13--17 s for $K=92$), about 30 s on BeH$_2$ and H$_2$O, a little over a minute for the cc-pVDZ window and $5.5$ minutes for N$_2$ ($0.54$ s per generator for 609 generators). One complete II-A selection costs $3$ s (H$_4$), $137$--$191$ s (LiH), about 17 min (BeH$_2$) and 74 min (H$_2$O, STO-3G) of classical time on one core. Building the problem (the commutator expansions) took $8.4$ h serially for N$_2$; we distributed the generators over processes, which gave the cc-pVDZ window in two minutes on a cluster node, with identical results. The simulation of the 20-qubit state needs 250 GB, which is why the shot-level comparison of this work stops at 14 qubits; the exact ADAPT trajectory of the cc-pVDZ window is still $5.9$~mHa (equilibrium) and $3.7$~mHa (stretched) from FCI after the 40 steps we allowed, with gradients above $3\times10^{-2}$, which is why no measured trajectory is reported for it. These timings are for the classical design on one core; nothing here is a measurement of the quantum cost, and larger molecules are not tested at shot level.
+\paragraph{Scale.} The structure of the problem and the cost of the classical design grow with the molecule (Table~\ref{tab:scaling}). From H$_4$ to N$_2$ in STO-3G (8 to 20 qubits) the pool grows from 26 to 609 generators, the Pauli products of the commutators from $1.3\times10^{3}$ to $7.4\times10^{5}$, the measurement contexts from 53 to $1.5\times10^{4}$ and the two-qubit gates per circuit from 8 to 72; the coordinates of one II-A design problem grow from 308 to $1.9\times10^{4}$ per generator. We added a case in a larger basis: H$_2$O in cc-pVDZ restricted to a window of eight orbitals (the frozen-core Hamiltonian of the four occupied orbitals and four virtual ones, two of $a_1$ and two of in-plane $b$ symmetry, after the larger-basis note of our colleagues; 16 qubits, $K=360$, $2.2\times10^{5}$ products, 5{,}408 contexts, 44 two-qubit gates per circuit). One refit of all generators takes seconds on H$_4$ and LiH (13--17 s for $K=92$), about 30 s on BeH$_2$ and H$_2$O, a little over a minute for the cc-pVDZ window and $5.5$ minutes for N$_2$ ($0.54$ s per generator for 609 generators). One complete II-A selection costs $3$ s (H$_4$), $137$--$191$ s (LiH), about 17 min (BeH$_2$) and 74 min (H$_2$O, STO-3G) of classical time on one core. Building the problem (the commutator expansions) took $8.4$ h serially for N$_2$; we distributed the generators over processes, which gave the cc-pVDZ window in two minutes on a cluster node, with identical results. The simulation of the 20-qubit state needs 250 GB, which is why the shot-level comparison of this work stops at 14 qubits; the exact ADAPT trajectory of the cc-pVDZ window is still $5.9$~mHa (equilibrium) and $3.7$~mHa (stretched) from FCI after the 40 steps we allowed, with gradients above $3\times10^{-2}$, which is why no measured trajectory is reported for it. A sizing run on its CISD state (two trials per method, exact identification, a priori start) shows what the larger basis does to the selection: II-A needed $1.3\times10^{9}$ shots and $13$~h of classical time per trial ($32$~GB), II-0 $5.9\times10^{12}$, the sequential all-gradient estimator $1.3\times10^{14}$ and independent elimination $6.1\times10^{10}$ without ever selecting the best generator, because the two leading gradients are nearly tied; the fixed states of this window are therefore run at $\rho=0.1$. \note{Fixed-state results of the cc-pVDZ window (II-A, II-0, M1 seq, M2 on the CISD and ADAPT-10 states at both geometries, $\rho=0.1$, 16 trials) are running on the cluster and will be added here.} These timings are for the classical design on one core; nothing here is a measurement of the quantum cost, and larger molecules are not tested at shot level.
 
 \begin{table*}[!htb]
 \centering\small

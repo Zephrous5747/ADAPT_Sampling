@@ -39,7 +39,10 @@
     "II-A data, safe, bound start, min shots=1000, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=1000/min_fold_shots=1000",
     "II-A data, safe, bound start, anytime, min shots=1000, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=1000/anytime/min_fold_shots=1000",
     "II-A data, safe, bound start, min shots=400, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=400/min_fold_shots=400",
-    "II-A data, safe, bound start, min shots=200, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=200/min_fold_shots=200"
+    "II-A data, safe, bound start, min shots=200, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=200/min_fold_shots=200",
+    "II-A data, safe, bound start, anytime, min shots=200, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=200/anytime/min_fold_shots=200",
+    "II-A data, safe, bound start, min shots=100, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=100/min_fold_shots=100",
+    "II-A data, safe, bound start, min shots=50, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50"
   },
   "reuse_libraries": {
     "fc": {
