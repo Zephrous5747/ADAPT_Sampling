@@ -23,11 +23,11 @@
     "II-0 safe": 55.0,
     "II-A data, contrast": 2668.4,
     "II-A oracle, contrast": 225.4,
-    "II-0 safe, bound start": 330.5,
+    "II-0 safe, bound start": 2032.4,
     "II-A data, contrast, bound start": 6456.7,
     "II-A data, contrast, bound start, anytime": 6773.0
   },
-  "trials": 100,
+  "trials": 400,
   "seed": 2,
   "strategy": "mass",
   "seeding": "trial i uses SeedSequence(seed).spawn(trials)[i]",

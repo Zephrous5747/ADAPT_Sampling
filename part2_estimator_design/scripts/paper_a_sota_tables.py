@@ -121,10 +121,19 @@ def trajectories(runs: Path) -> list[dict]:
         if not phase4.exists():
             continue
         medians = {}
-        for path in sorted(phase4.glob(f"{case}_phase4*_trajectories.csv")):
+        paths = sorted(phase4.glob(f"{case}_phase4*_trajectories.csv"))
+        pooled: dict[str, list] = {}
+        for path in [p for p in paths if "_phase4_extra" not in p.name] + [p for p in paths if "_phase4_extra" in p.name]:
+            if f"{case}_phase4_sens_" in path.name or f"{case}_phase4_fixed_" in path.name:
+                continue  # sensitivity sweeps and fixed-budget runs have their own tables (paper_a_fixed_budget.py, paper_a_sensitivity.py)
             rows = list(csv.DictReader(path.open()))
             for method in dict.fromkeys(r["method"] for r in rows):
+                if method.startswith("Fixed "):  # uncertified fixed-budget runs: scripts/paper_a_fixed_budget.py
+                    continue
                 mine = [r for r in rows if r["method"] == method]
+                if "_phase4_extra" in path.name and method in pooled:  # extra trajectories (another seed) join the main runs
+                    mine = pooled[method] + mine
+                pooled[method] = mine
                 totals = np.array([float(r["total_shots"]) for r in mine])
                 medians[method] = {
                     "case": case, "method": method, "trajectories": len(mine),

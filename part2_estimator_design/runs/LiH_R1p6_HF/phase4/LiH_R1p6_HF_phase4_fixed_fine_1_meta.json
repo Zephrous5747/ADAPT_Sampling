@@ -1,0 +1,61 @@
+{
+  "rho": 0.1,
+  "tolerance": 0.0016,
+  "trajectories": 60,
+  "seed": 7,
+  "strategy": "mass",
+  "methods": {
+    "Fixed 316228, designed": "Fixed budget 316,228 shots/designed allocation, no certificate",
+    "Fixed 316228, pilot": "Fixed budget 316,228 shots/pilot allocation, no certificate",
+    "Fixed 421697, designed": "Fixed budget 421,697 shots/designed allocation, no certificate",
+    "Fixed 421697, pilot": "Fixed budget 421,697 shots/pilot allocation, no certificate",
+    "Fixed 562341, designed": "Fixed budget 562,341 shots/designed allocation, no certificate",
+    "Fixed 562341, pilot": "Fixed budget 562,341 shots/pilot allocation, no certificate"
+  },
+  "energy_error": 0.001,
+  "exact_adapt": [
+    {
+      "iteration": 0,
+      "energy_error": 0.020459609074844565,
+      "added": "D 2,3 -> 10,11"
+    },
+    {
+      "iteration": 1,
+      "energy_error": 0.005890072615857278,
+      "added": "D 2,3 -> 4,11"
+    },
+    {
+      "iteration": 2,
+      "energy_error": 0.003979918450000675,
+      "added": "D 2,3 -> 5,10"
+    },
+    {
+      "iteration": 3,
+      "energy_error": 0.002211387006883392,
+      "added": "D 0,1 -> 4,5"
+    },
+    {
+      "iteration": 4,
+      "energy_error": 0.0021237649908636413,
+      "added": "D 2,3 -> 4,5"
+    },
+    {
+      "iteration": 5,
+      "energy_error": 0.0015282409096917249,
+      "added": null
+    }
+  ],
+  "counted": "gradient-selection context-shots only; VQE energies are exact",
+  "run": {
+    "python": "3.11.4",
+    "packages": {
+      "numpy": "2.4.2",
+      "scipy": "1.17.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": null,
+    "part2_tree_dirty": null
+  }
+}

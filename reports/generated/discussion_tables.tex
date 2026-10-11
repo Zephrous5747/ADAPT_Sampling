@@ -3,7 +3,7 @@
 % --- depth ---
 \begin{table*}[!htb]
 \centering\small
-\caption{Shots against measurement-circuit depth. Every method on every family of measurement contexts: mean context-shots over trials, mean two-qubit gates per shot, and the gain of II-A over the sequential M1 on the same contexts. Blocks of $b$ qubits commute block by block, so each circuit is a product of Cliffords on $b$ qubits (at most $b(b-1)/2$ CZ per block); blocks of one qubit are qubit-wise commuting, and the pivot contexts are those of Anastasiou \textit{et al.}}
+\caption{Shots against measurement-circuit depth. Every method on every family of measurement contexts: mean context-shots over trials, mean two-qubit gates per shot, and the gain of II-A over the sequential M1 on the same contexts. Blocks of $b$ qubits commute block by block, so each circuit is a product of Cliffords on $b$ qubits (at most $b(b-1)/2$ CZ per block); blocks of one qubit are qubit-wise commuting, and the pivot contexts are those of Anastasiou \textit{et al.} The rows of independent arms give the cost of independent BAI (M2) in the column of the sequential M1, and a dash marks the columns that do not apply to it; $^\ddagger$its ratio is to II-A on the same family of contexts (fully commuting or qubit-wise commuting). $^\dagger$Sign-aware rule, and the sign-aware M1 seq in the ratio: on the published pivot contexts every product is measured in several contexts with few shots each, the plug-in variances of such contexts are unreliable, and the pairwise II-A selected the wrong generator in 34\% of the trials on H$_4$ 1.0 CISD and 76\% of the trials on LiH HF.}
 \label{tab:depth}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -14,32 +14,32 @@ qubit-wise (blocks of 1) & 0.0 & $1.20\times10^{5}$ & $1.13\times10^{5}$ & 80\,0
 blocks of 2 qubits & 1.4 & 98\,879 & 86\,384 & 62\,659 & 50\,478 & 1.71 \\
 blocks of 4 qubits & 4.5 & 71\,065 & 63\,698 & 48\,622 & 39\,899 & 1.60 \\
 fully commuting & 8.2 & 59\,671 & 55\,870 & 41\,463 & 27\,129 & 2.06 \\
-pivot, as published & 6.5 & $7.63\times10^{5}$ & $7.15\times10^{5}$ & -- & -- & -- \\
+pivot, as published & 6.2 & $7.63\times10^{5}$ & $7.15\times10^{5}$ & $5.09\times10^{5}$ & $1.10\times10^{5}$$^\dagger$ & 6.71$^\dagger$ \\
 pivot, merged & 6.1 & 98\,132 & 96\,840 & 68\,423 & 44\,917 & 2.16 \\
-M2 FC (independent arms) & 5.7 & -- & $1.01\times10^{5}$ & -- & -- & -- \\
-M2 QWC (independent arms) & 0.0 & -- & $1.96\times10^{5}$ & -- & -- & -- \\
+M2 FC (independent arms) & 5.7 & -- & $1.01\times10^{5}$ & -- & -- & 3.73$^\ddagger$ \\
+M2 QWC (independent arms) & 0.0 & -- & $1.96\times10^{5}$ & -- & -- & 3.19$^\ddagger$ \\
 \midrule
 \multicolumn{7}{l}{\emph{LiH HF}} \\
 qubit-wise (blocks of 1) & 0.0 & $5.29\times10^{6}$ & $5.93\times10^{6}$ & $5.29\times10^{5}$ & $3.63\times10^{5}$ & 16.33 \\
 blocks of 2 qubits & 2.6 & $5.03\times10^{6}$ & $1.40\times10^{6}$ & $5.33\times10^{5}$ & $3.64\times10^{5}$ & 3.85 \\
 blocks of 4 qubits & 6.2 & $4.20\times10^{6}$ & $1.13\times10^{6}$ & $3.99\times10^{5}$ & $3.10\times10^{5}$ & 3.64 \\
 fully commuting & 21.0 & $3.56\times10^{6}$ & $8.33\times10^{5}$ & $3.05\times10^{5}$ & $1.85\times10^{5}$ & 4.52 \\
-pivot, as published & 7.3 & $2.01\times10^{7}$ & $1.78\times10^{7}$ & -- & -- & -- \\
+pivot, as published & 7.5 & $2.01\times10^{7}$ & $1.78\times10^{7}$ & $3.28\times10^{6}$ & $9.08\times10^{5}$$^\dagger$ & 16.79$^\dagger$ \\
 pivot, merged & 9.7 & $4.18\times10^{6}$ & $4.44\times10^{6}$ & $6.69\times10^{5}$ & $3.95\times10^{5}$ & 11.23 \\
-M2 FC (independent arms) & 7.9 & -- & $1.01\times10^{6}$ & -- & -- & -- \\
-M2 QWC (independent arms) & 0.0 & -- & $1.14\times10^{6}$ & -- & -- & -- \\
+M2 FC (independent arms) & 7.9 & -- & $1.01\times10^{6}$ & -- & -- & 5.45$^\ddagger$ \\
+M2 QWC (independent arms) & 0.0 & -- & $1.14\times10^{6}$ & -- & -- & 3.13$^\ddagger$ \\
 \midrule
 \multicolumn{7}{l}{\emph{H$_2$O eq CISD}} \\
-qubit-wise (blocks of 1) & 0.0 & $4.35\times10^{11}$ & $1.34\times10^{11}$ & $2.11\times10^{10}$ & -- & -- \\
+qubit-wise (blocks of 1) & 0.0 & $4.35\times10^{11}$ & $1.34\times10^{11}$ & $2.11\times10^{10}$ & $1.21\times10^{10}$ & 11.10 \\
 fully commuting & 30.3 & $4.12\times10^{11}$ & $9.42\times10^{10}$ & $2.05\times10^{10}$ & $8.80\times10^{9}$ & 10.70 \\
-M2 FC (independent arms) & 8.5 & -- & $3.70\times10^{10}$ & -- & -- & -- \\
-M2 QWC (independent arms) & 0.0 & -- & $3.84\times10^{10}$ & -- & -- & -- \\
+M2 FC (independent arms) & 8.5 & -- & $3.70\times10^{10}$ & -- & -- & 4.21$^\ddagger$ \\
+M2 QWC (independent arms) & 0.0 & -- & $3.84\times10^{10}$ & -- & -- & 3.19$^\ddagger$ \\
 \midrule
 \multicolumn{7}{l}{\emph{H$_2$O str CISD}} \\
-qubit-wise (blocks of 1) & 0.0 & $6.34\times10^{9}$ & $9.76\times10^{8}$ & $8.80\times10^{7}$ & -- & -- \\
+qubit-wise (blocks of 1) & 0.0 & $6.34\times10^{9}$ & $9.76\times10^{8}$ & $8.80\times10^{7}$ & $6.06\times10^{7}$ & 16.11 \\
 fully commuting & 29.4 & $5.72\times10^{9}$ & $1.49\times10^{9}$ & $8.63\times10^{7}$ & $3.95\times10^{7}$ & 37.70 \\
-M2 FC (independent arms) & 10.1 & -- & $1.30\times10^{8}$ & -- & -- & -- \\
-M2 QWC (independent arms) & 0.0 & -- & $1.32\times10^{8}$ & -- & -- & -- \\
+M2 FC (independent arms) & 10.1 & -- & $1.30\times10^{8}$ & -- & -- & 3.28$^\ddagger$ \\
+M2 QWC (independent arms) & 0.0 & -- & $1.32\times10^{8}$ & -- & -- & 2.17$^\ddagger$ \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -47,7 +47,7 @@ M2 QWC (independent arms) & 0.0 & -- & $1.32\times10^{8}$ & -- & -- & -- \\
 % --- noise ---
 \begin{table*}[!htb]
 \centering\small
-\caption{Noisy measurement circuits. A depolarising error of probability $p_2$ after every CZ gate; each cell is the share of selections that picked the exact best generator (of the noiseless gradients) and the mean cost. The intervals know shot noise only.}
+\caption{Noisy measurement circuits. A depolarizing error of probability $p_2$ after every CZ gate; each cell is the share of selections that picked the exact best generator (of the noiseless gradients) and the mean cost. The intervals know shot noise only.}
 \label{tab:noise}
 \begin{tabular}{lrrrrr}
 \toprule
@@ -140,10 +140,10 @@ H$_4$ 2.0 ADAPT$_{10}$ & 1.1e-08 & 3.0e-03 & $4.77\times10^{6}$ & $9.39\times10^
 H$_4$ 2.0 ADAPT$_{10}$ & 1.1e-08 & 1.0e-03 & $4.30\times10^{7}$ & $9.39\times10^{6}$ & 4.58 \\
 LiH ADAPT$_6$ & 2.1e-02 & 2.6e-02 & $3.67\times10^{7}$ & $4.94\times10^{7}$ & 0.74 \\
 LiH ADAPT$_6$ & 2.1e-02 & 4.2e-02 & $6.16\times10^{6}$ & $4.94\times10^{7}$ & 0.12 \\
-H$_2$O eq ADAPT$_{17}$ & 5.6e-02 & 7.0e-02 & $3.03\times10^{8}$ & -- & -- \\
-H$_2$O eq ADAPT$_{17}$ & 5.6e-02 & 1.1e-01 & $4.88\times10^{7}$ & -- & -- \\
-H$_2$O str ADAPT$_{18}$ & 2.3e-02 & 2.9e-02 & $9.43\times10^{8}$ & -- & -- \\
-H$_2$O str ADAPT$_{18}$ & 2.3e-02 & 4.6e-02 & $2.46\times10^{8}$ & -- & -- \\
+H$_2$O eq ADAPT$_{17}$ & 5.6e-02 & 7.0e-02 & $3.03\times10^{8}$ & $1.12\times10^{9}$ & 0.27 \\
+H$_2$O eq ADAPT$_{17}$ & 5.6e-02 & 1.1e-01 & $4.88\times10^{7}$ & $1.12\times10^{9}$ & 0.04 \\
+H$_2$O str ADAPT$_{18}$ & 2.3e-02 & 2.9e-02 & $9.43\times10^{8}$ & $2.97\times10^{9}$ & 0.32 \\
+H$_2$O str ADAPT$_{18}$ & 2.3e-02 & 4.6e-02 & $2.46\times10^{8}$ & $2.97\times10^{9}$ & 0.08 \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -161,7 +161,7 @@ H$_4$ 1.0 CISD & 26 & 27\,129 & $6.77\times10^{7}$ & 2\,497 & 1.6 & $2.69\times1
 LiH HF & 92 & $1.85\times10^{5}$ & $3.05\times10^{8}$ & 1\,655 & 2.7 & $4.14\times10^{7}$ & 224 \\
 LiH ADAPT$_3$ & 92 & $4.30\times10^{5}$ & $4.67\times10^{8}$ & 1\,084 & 1.6 & $1.72\times10^{8}$ & 399 \\
 LiH ADAPT$_5$ & 92 & $4.34\times10^{7}$ & $5.37\times10^{8}$ & 12 & 0.022 & $1.10\times10^{12}$ & 25\,247 \\
-H$_2$O eq CISD & 140 & $8.80\times10^{9}$ & $5.12\times10^{9}$ & 1 & 0.0017 & $1.76\times10^{15}$ & 200\,403 \\
+H$_2$O eq CISD & 140 & $8.80\times10^{9}$ & $5.12\times10^{9}$ & 0.58 & 0.0017 & $1.76\times10^{15}$ & 200\,403 \\
 H$_2$O str CISD & 140 & $3.95\times10^{7}$ & $6.41\times10^{9}$ & 162 & 0.23 & $1.17\times10^{11}$ & 2\,973 \\
 H$_2$O eq ADAPT$_{11}$ & 140 & $8.17\times10^{7}$ & $5.01\times10^{9}$ & 61 & 0.14 & $2.61\times10^{11}$ & 3\,199 \\
 H$_2$O str ADAPT$_8$ & 140 & $8.57\times10^{7}$ & $5.04\times10^{9}$ & 59 & 0.1 & $4.90\times10^{11}$ & 5\,718 \\

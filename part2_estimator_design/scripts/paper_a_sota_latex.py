@@ -68,10 +68,53 @@ def sci(x: float) -> str:
     return rf"${x / 10 ** exponent:.2f}\times10^{{{exponent}}}$"
 
 
-def table(rows, columns, cells, caption, label, header_note) -> str:
+# Not stored with the runs: the molecular basis, the pool of the main tables and the confidence level (``delta`` of Part I).
+SETUP = r"STO-3G, UCCSD pool, $\delta=0.05$"
+MOLECULES = (("H4", r"H$_4$"), ("LiH", "LiH"), ("H2O", r"H$_2$O"))
+
+
+def count_text(counts) -> str:
+    """``100`` or ``100 to 200`` for the numbers in ``counts``."""
+    counts = sorted(set(counts))
+    return f"{counts[0]}" if len(counts) == 1 else f"{counts[0]} to {counts[-1]}"
+
+
+def per_molecule(counts_by_case: dict, unit: str) -> str:
+    """``200 <unit> on H$_4$, 100 to 200 on LiH, 100 on H$_2$O`` from {case: counts} (the molecule is the case name up to ``_``)."""
+    groups = collections.defaultdict(list)
+    for case, counts in counts_by_case.items():
+        groups[case.split("_")[0]] += list(counts)
+    parts = [f"{count_text(groups[m])} on {name}" for m, name in MOLECULES if groups.get(m)]
+    parts[0] = parts[0].replace(" on ", f" {unit} on ", 1)
+    return ", ".join(parts)
+
+
+def fixed_trials(runs: Path, cases, rho: str = "0", settings=("oracle start", "sign-aware")) -> dict:
+    """{case: set of trial counts} of ``sota_fixed_state.csv`` for the cases at this rho and these settings."""
+    counts = collections.defaultdict(set)
+    path = runs / "paper_a" / "sota_fixed_state.csv"
+    if path.exists():
+        for r in csv.DictReader(path.open()):
+            if r["case"] in cases and r["rho"] == rho and r["setting"] in settings:
+                counts[r["case"]].add(int(r["trials"]))
+    return dict(counts)
+
+
+def trajectory_counts(runs: Path, cases) -> dict:
+    """{case: set of trajectory counts per method} of ``sota_trajectories.csv``."""
+    counts = collections.defaultdict(set)
+    path = runs / "paper_a" / "sota_trajectories.csv"
+    if path.exists():
+        for r in csv.DictReader(path.open()):
+            if r["case"] in cases:
+                counts[r["case"]].add(int(r["trajectories"]))
+    return dict(counts)
+
+
+def table(rows, columns, cells, caption, label, header_note, tabcolsep: str = "4pt") -> str:
     cols = "l" + "r" * len(columns)
     out = ["\\begin{table*}[!htb]", "\\centering\\small", f"\\caption{{{caption}}}", f"\\label{{{label}}}",
-           "\\footnotesize\\setlength{\\tabcolsep}{4pt}", f"\\begin{{tabular}}{{{cols}}}", "\\toprule",
+           f"\\footnotesize\\setlength{{\\tabcolsep}}{{{tabcolsep}}}", f"\\begin{{tabular}}{{{cols}}}", "\\toprule",
            f"{header_note} & " + " & ".join(c[1] for c in columns) + " \\\\", "\\midrule"]
     for name, key in rows:
         if key is None:
@@ -82,9 +125,10 @@ def table(rows, columns, cells, caption, label, header_note) -> str:
     return "\n".join(out)
 
 
-POOL_ROWS = [("uccsd", "UCCSD"), ("qeb", "QEB"), ("qubit", "qubit-ADAPT"), ("gsd_qeb", "generalised QEB"),
-             ("gsd_qubit", "generalised qubit"), ("ceo", "OVP-CEO")]
-POOL_CASES = [("H4_square_eq_side1p0_CISD", r"H$_4$ 1.0 CISD"), ("LiH_R3p0_HF", "LiH HF")]
+POOL_ROWS = [("uccsd", "UCCSD"), ("qeb", "QEB"), ("qubit", "qubit-ADAPT"), ("gsd_qeb", "generalized QEB"),
+             ("gsd_qubit", "generalized qubit"), ("ceo", "OVP-CEO")]
+POOL_CASES = [("H4_square_eq_side1p0_CISD", r"H$_4$ 1.0 CISD"), ("H4_square_eq_side1p0_HF", r"H$_4$ 1.0 HF"),
+              ("LiH_R3p0_HF", "LiH HF")]
 
 
 def pools_table(runs: Path) -> str | None:
@@ -100,11 +144,14 @@ def pools_table(runs: Path) -> str | None:
                 base, _, pool = r["case"].partition("@")
                 shots[(base, pool, r["method"])] = float(r["shots_mean"])
     lines = [r"\begin{table*}[!htb]", r"\centering\small",
-             r"\caption{Operator pools (CISD state of H$_4$ at 1.0~\AA, HF state of LiH). $K$: generators; $\lvert\mathcal B_0\rvert$: "
+             r"\caption{Operator pools (CISD and HF states of H$_4$ at 1.0~\AA, HF state of LiH; STO-3G, $\delta=0.05$, "
+             + count_text(c for v in fixed_trials(runs, [f"{case}@{pool}" for case, _ in POOL_CASES for pool, _ in POOL_ROWS], "0.1",
+                                                   ("oracle start",)).values() for c in v)
+             + r" trials per row). $K$: generators; $\lvert\mathcal B_0\rvert$: "
              r"parent support; $N$: parent FC contexts; uses: gradients per Pauli product. Planning bounds (exact "
              r"gradients and variances) are given as ratios M1/M3 and M2/M3 where the leader is unique; qubit-type pools have exactly "
              r"tied leaders. Right: sampled outcomes with estimated variances and a $\rho=0.1$ stop, mean context-shots; "
-             r"a dash means not run.}", r"\label{tab:q8pools}", r"\footnotesize\setlength{\tabcolsep}{3pt}"]
+             r"a dash: no planning bound, because the leaders are tied.}", r"\label{tab:q8pools}", r"\footnotesize\setlength{\tabcolsep}{3pt}"]
     lines.append(r"\begin{tabular}{llrrrrrrrrrr}")
     lines += [r"\toprule", r"state & pool & $K$ & $\lvert\mathcal B_0\rvert$ & $N$ & uses & M1/M3 & M2/M3 & II-0 & II-A & M1 seq & M2 pairw. \\", r"\midrule"]
     for case, case_label in POOL_CASES:
@@ -162,7 +209,9 @@ def best_table(runs: Path) -> str | None:
 
     lines = [r"\begin{table*}[!htb]", r"\centering\small",
              r"\caption{The strongest baseline against our methods, per state (mean context-shots; ratios of the baseline's cost to ours, "
-             r"so a value above one is a win). Without free data: the best of M1 static, M1 seq and M2 against II-0 and II-A. With the energy "
+             r"so a value above one is a win). " + SETUP + "; " + count_text(c for v in fixed_trials(runs, [s for s, _ in BEST_STATES]).values() for c in v)
+             + " trials per state and " + count_text(c for v in trajectory_counts(runs, [s for s, _ in TRAJ_CASES]).values() for c in v)
+             + r" trajectories per method. Without free data: the best of M1 static, M1 seq and M2 against II-0 and II-A. With the energy "
              r"data of the last VQE evaluation (1~mHa): the best of all baselines including the reuse baseline against the better of II-0 + "
              r"reuse and II-A + reuse. Rows marked sign-aware use the sign-aware rule throughout. Rows whose selections were correct in fewer "
              r"than 95\% of the trials are excluded.}", r"\label{tab:q8best}", r"\footnotesize\setlength{\tabcolsep}{3.5pt}",
@@ -241,7 +290,7 @@ def eps_table(runs: Path) -> str | None:
              r"\caption{Reuse of the energy measurement against the standard error $\varepsilon_E$ of the last energy evaluation "
              r"(H$_4$ 1.0~\AA, CISD; mean context-shots, 100 trials, 200 at 1~mHa). The data held for free scale as "
              r"$\varepsilon_E^{-2}$. Last row: the same methods without free data.}", r"\label{tab:q8eps}",
-             r"\footnotesize\setlength{\tabcolsep}{4pt}", r"\begin{tabular}{rrrrr}", r"\toprule",
+             r"\footnotesize\setlength{\tabcolsep}{2.2pt}", r"\begin{tabular}{rrrrr}", r"\toprule",
              r"$\varepsilon_E$ (mHa) & free shots & Ikhtiarudin FC & II-0 + reuse & II-A + reuse \\", r"\midrule"]
     for eps, rows, held in sweep:
         lines.append(" & ".join([f"{1000 * eps:g}", sci(float(held)) if held else "--",
@@ -262,7 +311,8 @@ def splice(paper: Path, text: str) -> None:
         raise SystemExit(f"{paper}: markers {begin!r} / {end!r} not found")
     head, rest = source.split(begin, 1)
     _, tail = rest.split(end, 1)
-    paper.write_text(head + begin + "\n" + text + "\n" + end + tail, encoding="utf-8")
+    with paper.open("w", encoding="utf-8", newline="\n") as handle:  # the paper is LF-only; write_text would give CRLF on Windows
+        handle.write(head + begin + "\n" + text + "\n" + end + tail)
 
 
 def main() -> None:
@@ -286,10 +336,11 @@ def main() -> None:
         parts.append(table(FIXED_ROWS, CASES, cells,
                            "Fixed states, sampled outcomes, covariances and radii estimated from the shots (exact "
                            "identification, starting radius $\\max_i\\lvert g_i\\rvert$): mean context-shots and, in "
-                           "brackets, the ratio to II-0. M1 static is handed the exact gap and variances. The "
+                           "brackets, the ratio to II-0. " + SETUP + "; "
+                           + per_molecule(fixed_trials(args.runs, [c for c, _ in CASES]), "trials") + ". M1 static is handed the exact gap and variances. The "
                            "``reuse'' rows hold the shots of one energy evaluation to 1~mHa for free (they are part "
-                           "of $C_{\\rm opt}$) and charge only new shots. In square brackets, the percentage of "
-                           "correct selections when it is below 100\\%.", "tab:q8fixed", "Method"))
+                           "of $C_{\\mathrm{opt}}$) and charge only new shots. In square brackets, the percentage of "
+                           "correct selections when it is below 100\\%.", "tab:q8fixed", "Method", tabcolsep="2.4pt"))
     if traj_path.exists():
         cells = {}
         for r in csv.DictReader(traj_path.open()):
@@ -297,7 +348,11 @@ def main() -> None:
         parts.append(table(TRAJ_ROWS, TRAJ_CASES, cells,
                            "Measured ADAPT trajectories to chemical accuracy ($\\rho=0.1$, a-priori starting radius, "
                            "sign-aware rule): median cumulative selection context-shots and, in brackets, the ratio to "
-                           "II-0. M1 static uses the exact gradient scale and variances.", "tab:q8traj", "Method"))
+                           "II-0. " + SETUP + "; " + per_molecule(trajectory_counts(args.runs, [c for c, _ in TRAJ_CASES]), "trajectories per method")
+                           + ". M1 static uses the exact gradient scale and variances."
+                           + (" A dash means that the configuration was not run."
+                              if any(key is not None and (case[0], key) not in cells for _, key in TRAJ_ROWS for case in TRAJ_CASES)
+                              else ""), "tab:q8traj", "Method"))
     best = best_table(args.runs)
     if best:
         parts.insert(0, best)

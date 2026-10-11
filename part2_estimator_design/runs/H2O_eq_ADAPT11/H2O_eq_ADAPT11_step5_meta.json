@@ -10,7 +10,21 @@
     "M2 safe": "M2 independent/rule=safe/start=oracle",
     "II-A data, safe": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50",
     "M2 QWC pairwise": "M2 independent/rule=pairwise/start=oracle/grouping=qwc",
-    "M2 QWC safe": "M2 independent/rule=safe/start=oracle/grouping=qwc"
+    "M2 QWC safe": "M2 independent/rule=safe/start=oracle/grouping=qwc",
+    "M1 seq, safe": "II-0/estimated radii/rule=safe/radius_min_shots=50/no-elimination",
+    "Ikh reuse, FC, safe": "II-0/estimated radii/rule=safe/radius_min_shots=50/no-elimination/fc/reuse",
+    "II-0 safe + reuse, FC": "II-0/estimated radii/rule=safe/radius_min_shots=50/fc/reuse",
+    "II-A data, safe + reuse, FC": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/fc/reuse",
+    "II-A data, safe + reuse (home), FC": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/fc/reuse/assign=home",
+    "II-0, safe, bound start, anytime": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50/anytime",
+    "II-A data, safe, bound start, anytime": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50/anytime",
+    "II-A data, safe, bound start": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50",
+    "M1 seq, safe, bound start": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50/no-elimination",
+    "M2 safe, bound start": "M2 independent/rule=safe",
+    "M2 marginal, bound start": "M2 independent/rule=marginal",
+    "Ikh reuse, FC, safe, bound start": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50/no-elimination/fc/reuse",
+    "II-0 safe + reuse, FC, bound start": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50/fc/reuse",
+    "II-A data, safe + reuse, FC, bound start": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50/fc/reuse"
   },
   "reuse_libraries": {
     "fc": {

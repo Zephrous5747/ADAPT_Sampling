@@ -1,0 +1,24 @@
+{
+  "configs": {
+    "II-0 safe, bound start": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50"
+  },
+  "seconds": {
+    "II-0 safe, bound start": 1365.9
+  },
+  "trials": 100,
+  "seed": 2,
+  "strategy": "mass",
+  "seeding": "trial i uses SeedSequence(seed).spawn(trials)[i]",
+  "run": {
+    "python": "3.11.4",
+    "packages": {
+      "numpy": "2.4.2",
+      "scipy": "1.17.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": null,
+    "part2_tree_dirty": null
+  }
+}

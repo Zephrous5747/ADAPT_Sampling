@@ -47,7 +47,7 @@ from contexts import qwc_groups
 from online import OnlineConfig, OnlineM3, OnlineOutcome
 from part1_bridge import confidence_z, epsilon_from_radius
 from rules import RULES, eliminate, rho_good_stop
-from sampler import walsh_hadamard
+from sampler import empirical_covariance, walsh_hadamard
 from symplectic import masks_from_xz, pack, xz_from_labels
 
 CHUNK = 256  # contexts per multinomial draw: bounds the transient histogram memory
@@ -82,6 +82,120 @@ class StaticM1(OnlineM3):
             "miscovered_rounds": int(miss.any()),
             "best_eliminated": False,
             "stopped_rho": False,
+            "contexts_used": int((shots > 0).sum()),
+            "cz_per_shot_mean": float((shots * self.cz).sum() / max(shots.sum(), 1)),
+        }
+        return OnlineOutcome(selected, selected == int(np.argmax(truth)), float(shots.sum()), 1, extra=extra)
+
+
+@dataclass(frozen=True)
+class FixedBudgetSpec:
+    """The practical default of ADAPT-VQE: a fixed number of shots per selection, no certificate.
+
+    ``shots`` context-shots are spread over the contexts of the pool's universal measurement
+    library, every gradient is estimated once from them, and the generator with the largest
+    ``|g_hat|`` is added.  Nothing is eliminated and nothing is stopped: whether the choice is
+    right is not known to the run.  ``allocation``: ``"designed"`` splits the budget as the
+    static M1 allocation does (proportional to the minimax-optimal shots for the fixed II-0
+    coefficients, with the exact fragment variances: the best a fixed budget can do);
+    ``"uniform"`` gives every context that carries a coefficient the same number of shots;
+    ``"pilot"`` is the variant that needs no exact variance: a fifth of the budget is spread uniformly,
+    the fragment variances are estimated from those shots, and the rest follows the minimax allocation
+    of the estimated variances (all shots enter the estimate).
+    """
+
+    shots: int
+    allocation: str = "designed"
+
+    def __post_init__(self) -> None:
+        if self.shots < 1:
+            raise ValueError("the budget must be at least one shot")
+        if self.allocation not in ("designed", "uniform", "pilot"):
+            raise ValueError("allocation must be 'designed', 'uniform' or 'pilot'")
+
+    @property
+    def label(self) -> str:
+        return f"Fixed budget {self.shots:,} shots/{self.allocation} allocation, no certificate"
+
+
+class FixedBudgetM1(StaticM1):
+    """One draw of ``shots`` context-shots, argmax of the estimated ``|g|`` (an uncertified selection)."""
+
+    def __init__(self, problem, library, moments, design, spec: FixedBudgetSpec, *, delta: float = 0.05) -> None:
+        super().__init__(problem, library, moments, design, radius=1.0, delta=delta)
+        used = self._minimum > 0
+        if spec.allocation == "uniform":
+            shape = used.astype(float)
+        else:
+            shape = allocate(self.sigmas, 1.0)  # shots of the minimax allocation at epsilon = 1
+        total = float(shape.sum())
+        if total <= 0:  # every gradient is deterministic: one look at each context suffices
+            self.planned = self._minimum.copy()
+        else:
+            planned = np.ceil(shape * (spec.shots / total) - 1e-9).astype(np.int64)
+            self.planned = np.maximum(np.where(used, planned, 0), self._minimum)
+        funded = self.planned > 0
+        self.standard_deviations = np.sqrt((self.squared[:, funded] / self.planned[funded]).sum(axis=1))
+        self.spec = spec
+
+
+class _PilotCovariance:
+    """Plug-in covariances of the group elements of a context from pilot histograms (needs two shots)."""
+
+    def __init__(self, library, counts: np.ndarray) -> None:
+        self.library, self.counts = library, counts
+
+    def covariance(self, alpha: int, paulis: np.ndarray) -> np.ndarray:
+        context = self.library.contexts[alpha]
+        positions = context.positions(paulis)
+        return empirical_covariance(self.counts[alpha], context.member_zmask[positions], context.member_sign[positions])
+
+
+class FixedBudgetPilotM1(StaticM1):
+    """A fixed budget whose allocation is estimated, not given: no exact variance enters.
+
+    ``PILOT_FRACTION`` of the budget goes uniformly to the contexts that carry a coefficient; the fragment standard
+    deviations ``sigma[i, alpha]`` of the fixed (II-0) coefficients are estimated from those shots, the remaining
+    budget is spread by the minimax allocation of the estimated deviations, and the estimate of every gradient uses
+    all the shots.  The design's covariance model is restored after every selection, so the object can be reused.
+    """
+
+    PILOT_FRACTION = 0.2
+
+    def __init__(self, problem, library, moments, design, spec: FixedBudgetSpec, *, delta: float = 0.05) -> None:
+        super().__init__(problem, library, moments, design, radius=1.0, delta=delta)
+        self.spec, self.library, self.design = spec, library, design
+        self.exact_covariance = moments.covariance
+        self.used = self._minimum > 0
+        n_used = max(int(self.used.sum()), 1)
+        per_context = max(2, int(spec.shots * self.PILOT_FRACTION // n_used))
+        self.pilot = np.where(self.used, per_context, 0).astype(np.int64)
+
+    def run(self, rng: np.random.Generator, *, record: bool = False) -> OnlineOutcome:
+        truth = self.problem.abs_gradients
+        pilot_counts = rng.multinomial(self.pilot, self.distributions)
+        estimated = _PilotCovariance(self.library, pilot_counts)
+        for p in self.design.problems:
+            p.update_blocks(estimated.covariance)
+        try:
+            sigmas = self.design.sigmas(list(range(self.n_arms)))
+        finally:
+            for p in self.design.problems:
+                p.update_blocks(self.exact_covariance)
+        rest = max(self.spec.shots - int(self.pilot.sum()), 0)
+        shape = allocate(sigmas, 1.0)
+        total = float(shape.sum())
+        main = np.zeros_like(self.pilot)
+        if rest > 0 and total > 0:
+            main = np.where(self.used, np.ceil(shape * (rest / total) - 1e-9), 0).astype(np.int64)
+        counts = pilot_counts + rng.multinomial(main, self.distributions)
+        shots = self.pilot + main
+        means = walsh_hadamard(counts) / np.maximum(shots, 1)[:, None]
+        estimates = np.bincount(self._gen, weights=self._weight * means[self._ctx, self._zmask], minlength=self.n_arms)
+        selected = int(np.argmax(np.abs(estimates)))
+        extra = {
+            "shortfall": float(1.0 - truth[selected] / truth.max()) if truth.max() > 0 else 0.0,
+            "miscovered_rounds": 0, "best_eliminated": False, "stopped_rho": False,
             "contexts_used": int((shots > 0).sum()),
             "cz_per_shot_mean": float((shots * self.cz).sum() / max(shots.sum(), 1)),
         }

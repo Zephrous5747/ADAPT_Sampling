@@ -1,0 +1,22 @@
+{
+  "tolerance": 0.0016,
+  "fci_energy": -76.0592814868405,
+  "sector_dimension": 4900,
+  "pool_size": 360,
+  "converged": false,
+  "steps": 40,
+  "states_file": "<project>/.cache/trajectory/H2O_dz8o_eq_HF_adapt.npz",
+  "seconds": 11901.9,
+  "run": {
+    "python": "3.11.4",
+    "packages": {
+      "numpy": "2.4.2",
+      "scipy": "1.17.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": null,
+    "part2_tree_dirty": null
+  }
+}

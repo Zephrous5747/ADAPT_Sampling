@@ -1,0 +1,22 @@
+{
+  "eps": [
+    0.001,
+    0.0003,
+    0.0001
+  ],
+  "seeds": 10,
+  "min_sweeps": 2,
+  "max_sweeps": 12,
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "582c9b08a4aa3ba13306790a33f1190bbf26e144",
+    "part2_tree_dirty": true
+  }
+}

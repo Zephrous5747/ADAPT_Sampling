@@ -17,7 +17,7 @@ Checks
   C7  zero-CZ noise identity: noisy runs of 0-CZ contexts are identical across p and consistent with noiseless runs
   C8  noise monotonicity: shots do not decrease with the two-qubit error for contexts with CZ > 0
   C9  shot orderings that must hold: II-A <= II-0, safe >= pairwise, M1 seq <= M1 static, FC <= blocks=4 <= blocks=1
-  C10 identities: M2 safe == M2 pairwise (independent arms); M1 static equals the exact planning value
+  C10 identities: M2 safe == M2 pairwise within 2% (independent arms); M1 static equals the exact planning value
   C11 planning ceiling: realised oracle-variance shots within [0.5, 2] x the step-3 planning value
   C12 exact ADAPT trajectory: energy decreases, error >= 0, gaps in [0,1], logged best == added_next
   C13 Phase 4 trajectories: all reached, the selected arm equals the exact best or is rho-good, shots add up
@@ -46,6 +46,9 @@ KNOWN_UNSAFE = [
     (r"reuse(?! \(home\))(?!.*safe)", "reuse with the pairwise rule shares samples across arms (not covered by the guarantee)"),
     (r"reuse \(home\)(?!.*safe)", "reuse with the pairwise rule shares samples across arms (not covered by the guarantee)"),
     (r"bound start", "bound-start designs are not claimed to be valid"),
+    (r"^Pivot II-A(?!, safe)", "pairwise rule on the published pivot contexts: every product is measured in several contexts with few shots each, "
+                               "and plug-in covariances from folds with fewer than 50 shots give invalid intervals (H4 66%, LiH 24% correct); "
+                               "the sign-aware rule bounds them (radius_min_shots) and is correct in every trial"),
 ]
 
 OUT: list[dict] = []
@@ -240,9 +243,11 @@ def check_case(case: str, delta: float):
     pairs = [("II-A data", "II-0 estimated"), ("II-A data, safe", "II-0 safe"), ("II-A data, blocks=4", "II-0, blocks=4"),
              ("II-A data, blocks=2", "II-0, blocks=2"), ("II-A data, blocks=1", "II-0, blocks=1"),
              ("II-A data, safe, blocks=4", "II-0, safe, blocks=4"), ("II-A data, safe, blocks=2", "II-0, safe, blocks=2"),
-             ("II-A data, safe, blocks=1", "II-0, safe, blocks=1")]
+             ("II-A data, safe, blocks=1", "II-0, safe, blocks=1"),
+             ("Pivot II-A", "Pivot II-0"), ("Pivot merged II-A", "Pivot merged II-0"),
+             ("Pivot II-0", "Pivot M1 seq"), ("Pivot merged II-0", "Pivot merged M1 seq")]
     for a, b in pairs:
-        le(a, b, "II-A should not exceed II-0")
+        le(a, b, "II-A should not exceed II-0, nor II-0 the sequential M1")
     for a, b in (("II-0 estimated", "II-0 safe"), ("II-A data", "II-A data, safe"), ("M2 pairwise", "M2 marginal")):
         le(a, b, "pairwise/safe cost ordering (looser rule must be cheaper)")
     for lab in list(mean):
@@ -255,8 +260,10 @@ def check_case(case: str, delta: float):
         le(f, f"{b_}{sep}blocks=4", "FC <= blocks=4")
         le(f"{b_}{sep}blocks=4", f"{b_}{sep}blocks=1", "blocks=4 <= blocks=1")
     for a, b in (("M2 safe", "M2 pairwise"), ("M2 QWC safe", "M2 QWC pairwise")):
-        if a in mean and b in mean and abs(mean[a] - mean[b]) > 1e-6 * mean[b]:
-            rec("FAIL", case, a, "C10", f"identical-by-construction rows differ ({mean[a]:.6g} vs {mean[b]:.6g})")
+        # independent arms: the sign-aware rule differs from the pairwise one only when an estimated sign is near zero,
+        # so the rows agree to a few trials (H4 2.0: 2 of 200 trials, 0.09%); a real difference is a bug
+        if a in mean and b in mean and abs(mean[a] - mean[b]) > 0.02 * mean[b]:
+            rec("FAIL", case, a, "C10", f"M2 sign-aware and pairwise rows differ by more than 2% ({mean[a]:.6g} vs {mean[b]:.6g})")
     # M1 static against the exact planning value from step 3
     p3 = ROOT / "runs" / case / f"{case}_step3_oracle_ceiling.csv"
     plan = pd.read_csv(p3) if p3.exists() else None

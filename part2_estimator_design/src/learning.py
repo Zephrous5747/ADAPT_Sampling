@@ -128,6 +128,7 @@ class LearningConfig:
     anytime: bool = False  # union bound over rounds: delta_r = 6 delta / (pi^2 r^2)
     elimination: str = "on"  # "off": every arm stays in the allocation (sequential M1)
     confidence: str = "bonferroni"  # or "selection": the less conservative z of part1_bridge.confidence_z
+    diagnose: bool = False  # record, for every interval that misses, how it missed (validation output only; not part of the label)
 
     def __post_init__(self) -> None:
         confidence_z(self.delta, 1, self.confidence)  # validates the mode
@@ -159,6 +160,8 @@ class LearningConfig:
         extras += [f"start={self.start}"] if self.start != "oracle" else []
         extras += [f"radius_min_shots={self.radius_min_shots}"] if self.radius_min_shots else []
         extras += ["anytime"] if self.anytime else []
+        extras += [f"refit_growth={self.refit_growth:g}"] if self.refit_growth != 1.5 else []
+        extras += [f"min_fold_shots={self.min_fold_shots}"] if self.min_fold_shots not in (0, 50) else []
         extras += ["no-elimination"] if self.elimination == "off" else []
         extras += [f"confidence={self.confidence}"] if self.confidence != "bonferroni" else []
         return "/".join([label] + extras)
@@ -300,6 +303,10 @@ class LearnedM3:
                 if i in active and supported[p.ctx_ids].any():
                     p.x = home.copy()
                     p.optimise(learnable[f])
+                    # The Hessian structure is built for this refit's shots and used once: dropping it keeps the
+                    # refit at one arm's worth of memory instead of all arms and folds (H2O on QWC contexts:
+                    # about 100 GB per worker after a few arms, out-of-memory kills of whole nodes).
+                    p._structures.clear()
                     candidate = p.x
                     if not self.config.guard or (
                         check.variance(shots[1 - f], candidate) < check.variance(shots[1 - f], home)
@@ -367,6 +374,7 @@ class LearnedM3:
                 if self.config.level != "II-0" and supported[p.ctx_ids].any():
                     p.x = start.copy()
                     p.optimise(learnable[f])
+                    p._structures.clear()  # used once, see _refit
                     if not self.config.guard or (
                         check.variance(shots[1 - f], p.x) < check.variance(shots[1 - f], start)
                     ):
@@ -403,7 +411,7 @@ class LearnedM3:
             return float(len(paulis)) * np.eye(len(paulis))
         return model.covariance(alpha, paulis, fold)
 
-    def _covariance_matrix(self, model, designs, active) -> np.ndarray:
+    def _covariance_matrix(self, model, designs, active, exact: bool = False) -> np.ndarray:
         """Cov(g_i, g_j) of the cross-fitted estimate over the active arms."""
         index = {arm: k for k, arm in enumerate(active)}
         result = np.zeros((len(active), len(active)))
@@ -423,7 +431,7 @@ class LearnedM3:
                 X = np.zeros((paulis.size, len(parts)))
                 for column, (_, ids, values) in enumerate(parts):
                     X[np.searchsorted(paulis, ids), column] = values
-                if self.config.radii == "oracle":
+                if exact or self.config.radii == "oracle":
                     sigma = self.oracle.covariance(alpha, paulis)
                 else:
                     # The held-out fold only: fold f's design was fitted to fold f's
@@ -436,6 +444,29 @@ class LearnedM3:
                 rows = [k for k, _, _ in parts]
                 result[np.ix_(rows, rows)] += 0.25 * K
         return result
+
+    def _diagnose_miss(self, record, active, estimates, covariance, radius, model, designs, rounds) -> None:
+        """How the intervals of one round missed: the standardised error against the *true* sd of the estimator, the ratio of the
+        estimated to the true sd, the shots in the arm's thinnest context, and whether the missing arm was the best one."""
+        truth = self.problem.gradients
+        sd_est = np.sqrt(np.maximum(np.diag(covariance), 0.0))
+        sd_true = np.sqrt(np.maximum(np.diag(self._covariance_matrix(model, designs, active, exact=True)), 0.0))
+        error = np.abs(estimates[active] - truth[active])
+        best = int(np.argmax(self.problem.abs_gradients))
+        diag = record.setdefault("diag", {"first_round": rounds, "arms": 0, "zero_sd": 0, "max_ztrue": 0.0, "min_sdratio": np.inf,
+                                          "min_shots": np.inf, "best_missed": False, "rounds": 0})
+        diag["rounds"] += 1
+        for row, arm in enumerate(active):
+            if error[row] <= radius[row]:
+                continue
+            diag["arms"] += 1
+            diag["zero_sd"] += int(sd_est[row] == 0.0)
+            if sd_true[row] > 0:
+                diag["max_ztrue"] = max(diag["max_ztrue"], float(error[row] / sd_true[row]))
+                diag["min_sdratio"] = min(diag["min_sdratio"], float(sd_est[row] / sd_true[row]))
+            thin = min(int(model.shots(1 - f)[alpha]) for f in (0, 1) for alpha in np.unique(designs[f][arm][0]))
+            diag["min_shots"] = min(diag["min_shots"], thin)
+            diag["best_missed"] |= arm == best
 
     def _variance_by_context(self, model, designs, arm) -> list[tuple]:
         """(context, fold shots, estimated variance, planning sigma) for one arm, largest first."""
@@ -506,7 +537,7 @@ class LearnedM3:
             keys.extend((lead, sign, arm, t) for t in ts)
         return keys
 
-    def _validate(self, record: dict, active, estimates, covariance, decision, contrasts) -> None:
+    def _validate(self, record: dict, active, estimates, covariance, decision, contrasts, model=None, designs=None, rounds=0) -> None:
         """Oracle check of every interval the round used (validation output only)."""
         truth = self.problem.gradients
         radius = self.z_round * np.sqrt(np.maximum(np.diag(covariance), 0.0))
@@ -515,6 +546,8 @@ class LearnedM3:
             exact = np.sign(estimates[lead]) * truth[lead] - t * truth[other]
             missed |= bool(abs(value - exact) > self.z_round * math.sqrt(max(var, 0.0)))
         record["miscovered_rounds"] += int(missed)
+        if self.config.diagnose and missed:
+            self._diagnose_miss(record, active, estimates, covariance, radius, model, designs, rounds)
         best = int(np.argmax(self.problem.abs_gradients))
         record["best_eliminated"] |= any(arm == best for arm, _, _ in decision.eliminated)
 
@@ -637,7 +670,7 @@ class LearnedM3:
                 decision = eliminate(alive, estimates, covariance[np.ix_(alive, alive)], z, config.rule)
             else:
                 decision = eliminate(active, estimates, covariance, z, config.rule, contrasts)
-            self._validate(check, active, estimates, covariance, decision, contrasts)
+            self._validate(check, active, estimates, covariance, decision, contrasts, model, designs, rounds)
 
             if trace is not None:
                 self._trace(trace, rounds, radius, active, spent, estimates, covariance, model, designs)
@@ -669,6 +702,13 @@ class LearnedM3:
             "cz_per_shot_mean": float(((spent - self.credit) * self.cz).sum() / max(spent.sum() - self.credit.sum(), 1)),
             **{f"{k}_seconds": round(v, 3) for k, v in seconds.items()},
         }
+        if config.diagnose:
+            d = check.get("diag") or {}
+            extra.update({"miss_first_round": d.get("first_round", 0), "miss_rounds": d.get("rounds", 0), "miss_arms": d.get("arms", 0),
+                          "miss_zero_sd": d.get("zero_sd", 0), "miss_max_ztrue": round(d.get("max_ztrue", 0.0), 3),
+                          "miss_min_sdratio": round(d["min_sdratio"], 4) if d and np.isfinite(d["min_sdratio"]) else -1.0,
+                          "miss_min_shots": d["min_shots"] if d and np.isfinite(d["min_shots"]) else -1,
+                          "miss_best_arm": int(bool(d.get("best_missed", False)))})
         if log is not None:
             log.final(self, model, spent, selected, extra)
         return OnlineOutcome(selected, selected == leader, float(spent.sum() - self.credit.sum()), rounds,

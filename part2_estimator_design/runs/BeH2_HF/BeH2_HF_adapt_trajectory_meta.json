@@ -1,0 +1,22 @@
+{
+  "tolerance": 0.0016,
+  "fci_energy": -15.595117562573078,
+  "sector_dimension": 1225,
+  "pool_size": 204,
+  "converged": true,
+  "steps": 10,
+  "states_file": "/mnt/d/Dev Tools/Python/Scripts/codes/VQE_Measurement/part2_estimator_design/.cache/trajectory/BeH2_HF_adapt.npz",
+  "seconds": 1026.7,
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "582c9b08a4aa3ba13306790a33f1190bbf26e144",
+    "part2_tree_dirty": true
+  }
+}

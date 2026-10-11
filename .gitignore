@@ -57,3 +57,6 @@ part2_estimator_design/cluster/
 *.partial.jsonl
 **/trials_superseded/
 **/runs/**/phase3/*_designs.npz
+
+# Artifact archives built by part2_estimator_design/scripts/make_archive.py
+dist/

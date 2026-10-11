@@ -1,0 +1,2 @@
+case_id,method,label,trajectories,exact_adapt_iterations,exact_adapt_final_error,reached_rate,iterations_mean,iterations_max,final_error_median,final_error_p90,shots_median,shots_mean,shots_p90,selections,exact_best_rate,rho_good_rate,mean_shortfall,seconds
+H4_square_eq_side1p0_HF,"M1 seq, safe",II-0/estimated radii/rule=safe/rho=0.1/start=bound/radius_min_shots=50/no-elimination,48,10,0.0010895443421787832,1.0,10.0,10,0.001089544342177895,0.0010895443421792272,6190306.5,6539194.875,8530454.6,480,0.9166666666666666,1.0,0.0018065165269996468,221.5

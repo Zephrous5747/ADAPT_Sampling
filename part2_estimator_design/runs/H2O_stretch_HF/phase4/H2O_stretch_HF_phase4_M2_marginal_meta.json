@@ -1,0 +1,121 @@
+{
+  "rho": 0.1,
+  "tolerance": 0.0016,
+  "trajectories": 12,
+  "seed": 7,
+  "strategy": "mass",
+  "methods": {
+    "M2 marginal": "M2 independent/rule=marginal/rho=0.1"
+  },
+  "energy_error": 0.001,
+  "exact_adapt": [
+    {
+      "iteration": 0,
+      "energy_error": 0.2594643984610485,
+      "added": "D 6,7 -> 12,13"
+    },
+    {
+      "iteration": 1,
+      "energy_error": 0.19290734904383555,
+      "added": "D 8,9 -> 10,11"
+    },
+    {
+      "iteration": 2,
+      "energy_error": 0.11911386075395569,
+      "added": "D 6,9 -> 10,13"
+    },
+    {
+      "iteration": 3,
+      "energy_error": 0.08334446298840703,
+      "added": "D 7,8 -> 11,12"
+    },
+    {
+      "iteration": 4,
+      "energy_error": 0.035248354691646,
+      "added": "D 3,8 -> 10,11"
+    },
+    {
+      "iteration": 5,
+      "energy_error": 0.03328130452857181,
+      "added": "D 7,8 -> 10,13"
+    },
+    {
+      "iteration": 6,
+      "energy_error": 0.029216179921789376,
+      "added": "D 6,9 -> 11,12"
+    },
+    {
+      "iteration": 7,
+      "energy_error": 0.01878972981111815,
+      "added": "D 2,9 -> 10,11"
+    },
+    {
+      "iteration": 8,
+      "energy_error": 0.01712469001398631,
+      "added": "D 2,3 -> 12,13"
+    },
+    {
+      "iteration": 9,
+      "energy_error": 0.016244615624231074,
+      "added": "D 6,7 -> 10,11"
+    },
+    {
+      "iteration": 10,
+      "energy_error": 0.0131651541167912,
+      "added": "D 8,9 -> 12,13"
+    },
+    {
+      "iteration": 11,
+      "energy_error": 0.005600024545941551,
+      "added": "D 2,3 -> 10,11"
+    },
+    {
+      "iteration": 12,
+      "energy_error": 0.005097926034451916,
+      "added": "S 3 -> 11"
+    },
+    {
+      "iteration": 13,
+      "energy_error": 0.004386932723406289,
+      "added": "S 8 -> 10"
+    },
+    {
+      "iteration": 14,
+      "energy_error": 0.0030032328978393252,
+      "added": "S 2 -> 10"
+    },
+    {
+      "iteration": 15,
+      "energy_error": 0.0023313713955985804,
+      "added": "D 3,6 -> 11,12"
+    },
+    {
+      "iteration": 16,
+      "energy_error": 0.0019947958343777827,
+      "added": "D 2,7 -> 11,12"
+    },
+    {
+      "iteration": 17,
+      "energy_error": 0.0017072710855785544,
+      "added": "D 3,6 -> 10,13"
+    },
+    {
+      "iteration": 18,
+      "energy_error": 0.0014253260834777848,
+      "added": null
+    }
+  ],
+  "counted": "gradient-selection context-shots only; VQE energies are exact",
+  "run": {
+    "python": "3.11.4",
+    "packages": {
+      "numpy": "2.4.2",
+      "scipy": "1.17.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": null,
+    "part2_tree_dirty": null
+  }
+}

@@ -175,3 +175,18 @@ def test_reconstruction_residual_fails_hard(setup):
 def test_contrast_objective_requires_the_safe_rule():
     with pytest.raises(ValueError):
         LearningConfig(objective="contrast", rule="pairwise")
+
+
+def test_miss_diagnostics_are_recorded_when_intervals_miss(setup):
+    """With a tiny minimum shot count the intervals miss in some trials: the diagnostic fields say how."""
+    problem, library, oracle, prior, base, coords = setup
+    config = LearningConfig(prior="none", nu=0.0, rule="safe", start="bound", radius_min_shots=2, min_fold_shots=2, diagnose=True)
+    learner = LearnedM3(problem, library, oracle, prior, base, coords, config)
+    extras = [learner.run(np.random.default_rng(seed)).extra for seed in range(30)]
+    missed = [e for e in extras if e["miscovered_rounds"] > 0]
+    assert missed, "expected at least one missed interval with a minimum of two shots"
+    for e in missed:
+        assert e["miss_first_round"] >= 1 and e["miss_rounds"] >= 1 and e["miss_arms"] >= 1
+        assert e["miss_max_ztrue"] >= 0.0 and e["miss_min_shots"] >= 1
+    clean = [e for e in extras if e["miscovered_rounds"] == 0]
+    assert all(e["miss_arms"] == 0 for e in clean)

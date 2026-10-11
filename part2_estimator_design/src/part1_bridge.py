@@ -31,6 +31,12 @@ if str(PART1_SRC) not in sys.path:
     sys.path.insert(0, str(PART1_SRC))
 
 from cases import CASES, SMALL_CASES, get_case  # noqa: E402  (Part I)
+from cases_extra import register as _register_extra_cases  # noqa: E402
+
+_register_extra_cases(CASES)  # LiH at equilibrium, BeH2, H6, N2 (Paper A scale checks)
+from cases_window import install as _install_window_cases  # noqa: E402
+
+_install_window_cases(CASES)  # H2O in cc-pVDZ / 6-31G orbital windows (larger-basis checks)
 from gradients import GradientProblem  # noqa: E402
 from problem_cache import load_or_build  # noqa: E402
 from shot_models import (  # noqa: E402

@@ -44,6 +44,11 @@ def sci(x: float) -> str:
     return f"{x:,.0f}".replace(",", r"\,")
 
 
+def ratio_text(x: float) -> str:
+    """A ratio to the cost of II-A: two decimals below 10 (0.58 must not print as 1), thin-spaced integers above."""
+    return f"{x:.2f}" if x < 10 else f"{x:,.0f}".replace(",", r"\,")
+
+
 def read(path: Path) -> list[dict]:
     if not path.exists():
         return []
@@ -66,6 +71,7 @@ def depth_table(runs: Path) -> str | None:
         return None
     index = {(r["case"], r["family"], r["method"]): r for r in data}
     rows: list[list[str]] = []
+    swapped: dict[str, float] = {}  # state -> share of wrong selections of the pairwise II-A that its sign-aware row replaces
     for case, name in STATES:
         found = [f for f, _ in FAMILIES if any((case, f, m) in index for m in ("M1 seq", "II-A", "II-0"))]
         if not found:
@@ -77,22 +83,43 @@ def depth_table(runs: Path) -> str | None:
                 continue
             cz = next((float(c["cz_per_shot"]) for c in reversed(cells) if c and c["cz_per_shot"] not in ("", "nan")), float("nan"))
             seq, a = cells[1], cells[3]
-            ratio = f"{float(seq['shots_mean']) / float(a['shots_mean']):.2f}" if seq and a else "--"
+            dagger = [""] * 4
+            mark = ""
+            # Where the pairwise II-A is not valid (the published pivot contexts: every product is measured in several contexts with few
+            # shots each) its cell is replaced by the sign-aware row, with the sign-aware M1 seq in the ratio, and marked.
+            safe_a, safe_seq = index.get((case, family, "II-A, safe")), index.get((case, family, "M1 seq, safe"))
+            if a and float(a["correct_rate"]) < 0.95 and safe_a and float(safe_a["correct_rate"]) >= 0.95:
+                swapped[case] = 1.0 - float(a["correct_rate"])
+                cells[3], a = safe_a, safe_a
+                seq = safe_seq or seq
+                dagger[3], mark = r"$^\dagger$", r"$^\dagger$"
+            ratio = f"{float(seq['shots_mean']) / float(a['shots_mean']):.2f}{mark}" if seq and a else "--"
             rows.append([text, "--" if cz != cz else f"{cz:.1f}"]
-                        + [sci(float(c["shots_mean"])) if c else "--" for c in cells] + [ratio])
-        for method in ("M2 FC", "M2 QWC"):
+                        + [(sci(float(c["shots_mean"])) + d) if c else "--" for c, d in zip(cells, dagger)] + [ratio])
+        for method, family in (("M2 FC", "FC"), ("M2 QWC", "QWC")):
             r = index.get((case, "independent arms", method))
             if r:
-                rows.append([f"{method} (independent arms)", f"{float(r['cz_per_shot']):.1f}", "--", sci(float(r["shots_mean"])), "--", "--", "--"])
+                # independent BAI over II-A on the same family of contexts (both with the pairwise rule)
+                a = index.get((case, family, "II-A"))
+                ratio = rf"{float(r['shots_mean']) / float(a['shots_mean']):.2f}$^\ddagger$" if a else "--"
+                rows.append([f"{method} (independent arms)", f"{float(r['cz_per_shot']):.1f}", "--", sci(float(r["shots_mean"])), "--", "--", ratio])
         rows.append([r"\midrule"])
     if rows and rows[-1] == [r"\midrule"]:
         rows.pop()
+    caption = ("Shots against measurement-circuit depth. Every method on every family of measurement contexts: "
+               "mean context-shots over trials, mean two-qubit gates per shot, and the gain of II-A over the sequential M1 "
+               "on the same contexts. Blocks of $b$ qubits commute block by block, so each circuit is a product of Cliffords "
+               "on $b$ qubits (at most $b(b-1)/2$ CZ per block); blocks of one qubit are qubit-wise commuting, and the pivot "
+               "contexts are those of Anastasiou \\textit{et al.} The rows of independent arms give the cost of independent BAI (M2) "
+               "in the column of the sequential M1, and a dash marks the columns that do not apply to it; $^\\ddagger$its ratio is to II-A on "
+               "the same family of contexts (fully commuting or qubit-wise commuting).")
+    if swapped:
+        wrong = " and ".join(f"{100 * w:.0f}\\% of the trials on {dict(STATES)[c]}" for c, w in swapped.items())
+        caption += (r" $^\dagger$Sign-aware rule, and the sign-aware M1 seq in the ratio: on the published pivot contexts every product is "
+                    r"measured in several contexts with few shots each, the plug-in variances of such contexts are unreliable, and the "
+                    r"pairwise II-A selected the wrong generator in " + wrong + ".")
     return tabular(["contexts", "CZ / shot", "M1 static", "M1 seq", "II-0", "II-A", "M1 seq / II-A"], rows, "lrrrrrr",
-                   "Shots against measurement-circuit depth. Every method on every family of measurement contexts: "
-                   "mean context-shots over trials, mean two-qubit gates per shot, and the gain of II-A over the sequential M1 "
-                   "on the same contexts. Blocks of $b$ qubits commute block by block, so each circuit is a product of Cliffords "
-                   "on $b$ qubits (at most $b(b-1)/2$ CZ per block); blocks of one qubit are qubit-wise commuting, and the pivot "
-                   "contexts are those of Anastasiou \\textit{et al.}", "tab:depth", wide=True)
+                   caption, "tab:depth", wide=True)
 
 
 def merged_rows(runs: Path, case: str) -> dict[str, dict]:
@@ -135,7 +162,7 @@ def noise_table(runs: Path, cases=("H4_square_eq_side1p0_CISD", "LiH_R3p0_HF")) 
     if not any_found:
         return None
     return tabular(["contexts and method", "CZ"] + [f"$p_2={p:g}$" for p in NOISE_LEVELS], rows, "lr" + "r" * len(NOISE_LEVELS),
-                   "Noisy measurement circuits. A depolarising error of probability $p_2$ after every CZ gate; each cell is the share "
+                   "Noisy measurement circuits. A depolarizing error of probability $p_2$ after every CZ gate; each cell is the share "
                    "of selections that picked the exact best generator (of the noiseless gradients) and the mean cost. "
                    "The intervals know shot noise only.", "tab:noise", wide=True)
 
@@ -178,11 +205,19 @@ def termination_table(runs: Path) -> str | None:
     if not keep:
         return None
     rows = []
+    # measured II-A trajectory totals (Q8); the H2O certification rows were computed before those runs existed
+    totals = {r["case"]: float(r["total_shots_median"]) for r in read(runs / "paper_a" / "sota_trajectories.csv")
+              if r["method"] == "II-A data, safe"}
     for r in keep:
         traj = r.get("trajectory_II-A", "")
+        if traj in ("", "nan"):
+            traj = totals.get(r["case"].split("_ADAPT")[0] + "_HF", "")
+        ratio = r.get("over_trajectory_II-A")
+        if ratio in ("", "nan", None) and traj != "":
+            ratio = float(r["certify_shots"]) / float(traj)
         rows.append([pretty(r["case"]), f"{float(r['max_abs_gradient']):.1e}", f"{float(r['tau']):.1e}",
                      sci(float(r["certify_shots"])), sci(float(traj)) if traj not in ("", "nan") else "--",
-                     f"{float(r['over_trajectory_II-A']):.2f}" if r.get("over_trajectory_II-A") not in ("", "nan", None) else "--"])
+                     f"{float(ratio):.2f}" if ratio not in ("", "nan", None) else "--"])
     return tabular(["state", r"$\max\lvert g\rvert$", r"$\tau$", "certify $\\max\\lvert g_i\\rvert<\\tau$", "trajectory, II-A", "ratio"], rows,
                    "lrrrrr", "Certifying the stop. Planning bound (exact variances, fully commuting contexts) for the shots that give every gradient "
                    "the radius $\\tau-\\lvert g_i\\rvert$, and the measured selection cost of the whole trajectory with II-A.", "tab:termination", wide=True)
@@ -201,9 +236,9 @@ def score_table(runs: Path) -> str | None:
         if not (matched and fixed):
             continue
         rows.append([pretty(case), fixed["n_generators"], sci(float(fixed["II-A"])),
-                     sci(float(fixed["energy_score_cost"])), f"{float(fixed['over_II-A']):,.0f}".replace(",", r"\,"),
+                     sci(float(fixed["energy_score_cost"])), ratio_text(float(fixed["over_II-A"])),
                      f"{1e3 * float(matched['epsilon']):.2g}", sci(float(matched["energy_score_cost"])),
-                     f"{float(matched['over_II-A']):,.0f}".replace(",", r"\,")])
+                     ratio_text(float(matched["over_II-A"]))])
     header = ["state", "$K$", "II-A", "energy scores, 1~mHa", "ratio", r"$\varepsilon_E$ matched (mHa)", "energy scores, matched", "ratio"]
     caption = (r"The cost side of an energy-based score. Each candidate needs its own energy landscape (five energies) on its own state, so "
                r"nothing is shared across candidates; energies are measured with the fully commuting groups of $\hat H$. Columns 4--5: every energy to 1~mHa. "
@@ -224,7 +259,8 @@ def splice_named(paper: Path, parts: dict[str, str | None]) -> list[str]:
         _, tail = rest.split(end, 1)
         text = head + begin + "\n" + block + "\n" + end + tail
         done.append(name)
-    paper.write_text(text, encoding="utf-8")
+    with paper.open("w", encoding="utf-8", newline="\n") as handle:  # the paper is LF-only; write_text would give CRLF on Windows
+        handle.write(text)
     return done
 
 

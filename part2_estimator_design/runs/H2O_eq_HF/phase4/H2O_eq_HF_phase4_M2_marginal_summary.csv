@@ -1,0 +1,2 @@
+case_id,method,label,trajectories,exact_adapt_iterations,exact_adapt_final_error,reached_rate,iterations_mean,iterations_max,shots_median,shots_mean,shots_p90,selections,exact_best_rate,rho_good_rate,mean_shortfall,seconds
+H2O_eq_HF,M2 marginal,M2 independent/rule=marginal/rho=0.1,12,17,0.0015366858598042654,1.0,17.0,17,5246436596.0,5171392451.25,5456649464.2,204,0.9019607843137255,1.0,0.0013407256164813858,1596.6

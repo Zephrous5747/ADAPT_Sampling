@@ -28,7 +28,26 @@
     "II-A data, safe, selection z": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/confidence=selection",
     "Pivot M1 static": "M1 static (gap/2, exact variances)/pivot contexts/classes=auto/assign=split",
     "Pivot merged M1 static": "M1 static (gap/2, exact variances)/pivot contexts/classes=auto/assign=merged",
-    "Pivot merged M1 seq": "II-0/estimated radii/no-elimination/pivot contexts/classes=auto/assign=merged"
+    "Pivot merged M1 seq": "II-0/estimated radii/no-elimination/pivot contexts/classes=auto/assign=merged",
+    "M2 QWC marginal": "M2 independent/rule=marginal/start=oracle/grouping=qwc",
+    "M1 seq, safe, blocks=1": "II-0/estimated radii/rule=safe/radius_min_shots=50/no-elimination/1-qubit block contexts",
+    "II-0, safe, blocks=1": "II-0/estimated radii/rule=safe/radius_min_shots=50/1-qubit block contexts",
+    "II-A data, blocks=1": "II-A/prior=none/nu=0/estimated radii/guard=on/1-qubit block contexts",
+    "M1 static, blocks=1": "M1 static (gap/2, exact variances)/1-qubit block contexts",
+    "M1 seq, blocks=1": "II-0/estimated radii/no-elimination/1-qubit block contexts",
+    "II-0, blocks=1": "II-0/estimated radii/1-qubit block contexts",
+    "II-A data, safe, blocks=1": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/radius_min_shots=50/1-qubit block contexts",
+    "II-A data, safe, bound start": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50",
+    "M1 seq, safe, bound start": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50/no-elimination",
+    "M2 safe, bound start": "M2 independent/rule=safe",
+    "M2 marginal, bound start": "M2 independent/rule=marginal",
+    "Ikh reuse, FC, safe, bound start": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50/no-elimination/fc/reuse",
+    "II-0 safe + reuse, FC, bound start": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50/fc/reuse",
+    "II-A data, safe + reuse, FC, bound start": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50/fc/reuse",
+    "II-0, safe, bound start, anytime": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50/anytime",
+    "II-A data, safe, bound start, anytime": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50/anytime",
+    "M1 seq, safe, bound start, anytime": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50/anytime/no-elimination",
+    "M2 safe, bound start, anytime": "M2 independent/rule=safe/anytime"
   },
   "reuse_libraries": {
     "fc": {
@@ -102,6 +121,17 @@
       "two_qubit_mean": 8.70446735395189,
       "two_qubit_max": 35,
       "bound_n_minus_3": 9
+    }
+  },
+  "block_libraries": {
+    "1": {
+      "classes": "blocks=1",
+      "n_classes": 12,
+      "contexts": 5289,
+      "members_mean": 57.42975987899414,
+      "two_qubit_mean": 0.0,
+      "two_qubit_max": 0,
+      "bound_two_qubit": 0
     }
   }
 }

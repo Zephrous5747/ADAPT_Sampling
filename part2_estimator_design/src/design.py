@@ -70,6 +70,16 @@ from allocation import allocate, reconstruction_variances
 
 LEVELS = ("II-0", "II-A", "II-B")
 DENSE_LIMIT = 2500
+# A generator's design problem has one free variable per extra copy of a Pauli (the primal).  With many copies per Pauli
+# (QWC contexts of H2O: about 32,000 variables per generator, up to 112,000) its Hessian is almost dense and the sparse
+# factorisation needs hundreds of GB.  Above this many variables the same minimiser is computed in the dual, a system with
+# one unknown per Pauli (about 1,200 on those problems), see FragmentProblem._optimise_dual.
+DUAL_ABOVE = 12000  # free variables of the primal
+DUAL_TRIPLETS = 5e7  # entries of the primal Hessian before duplicates are summed (the structure costs about 120 bytes each)
+# relative to the mean diagonal of each covariance block.  On LiH (every generator, 3 usable fractions, oracle and
+# sampled covariances) the dual matches the primal minimum to 3e-8 for 1e-6 and 1e-5; below 1e-7 the system is
+# too ill-conditioned (errors up to 5e-3), above 1e-4 the ridge itself costs 2e-6 and more.
+DUAL_RIDGE = 1e-5
 TARGET_TOLERANCE = 1e-9
 DELTA_START, DELTA_SHRINK, DELTA_FLOOR = 0.3, 0.3, 1e-7
 
@@ -96,6 +106,8 @@ class FragmentProblem:
         self.update_blocks(covariance)
 
         self.pauli_ids, inverse = np.unique(self.coord_pauli, return_inverse=True)
+        self._pauli_of = inverse  # Pauli (row of pauli_ids) of every coordinate
+        self.solver = "auto"  # "primal", "dual", or "auto": the primal up to DUAL_ABOVE free variables
         by_pauli = np.argsort(inverse, kind="stable")
         counts = np.bincount(inverse, minlength=self.pauli_ids.size)
         self.pauli_coords = np.split(by_pauli, np.cumsum(counts)[:-1])
@@ -220,15 +232,42 @@ class FragmentProblem:
         self._structures[key] = structure
         return structure
 
+    def primal_cost(self, usable: np.ndarray) -> tuple[int, int]:
+        """Size of the primal formulation: its free variables (the usable copies of every Pauli, less one) and the number of
+        Hessian entries before duplicates are summed (see :meth:`_structure`: a context block holds one entry for each variable
+        living in it and one for each variable whose reference coordinate is in it, and contributes their square)."""
+        usable_coord = usable[self.coord_block]
+        count = np.bincount(self._pauli_of[usable_coord], minlength=self.pauli_ids.size)
+        free_pauli = count >= 2
+        free = np.flatnonzero(usable_coord & free_pauli[self._pauli_of])
+        if free.size == 0:
+            return 0, 0
+        pauli = self._pauli_of[free]
+        first = np.full(self.pauli_ids.size, -1, dtype=np.int64)
+        first[pauli[::-1]] = free[::-1]  # the lowest-index usable copy of each Pauli
+        reference = np.where(usable_coord[self.reference], self.reference, first)
+        variables = free[free != reference[pauli]]
+        blocks = self.ctx_ids.size
+        entries = (np.bincount(self.coord_block[variables], minlength=blocks)
+                   + np.bincount(self.coord_block[reference[self._pauli_of[variables]]], minlength=blocks))
+        return int(variables.size), int((entries.astype(np.int64) ** 2).sum())
+
+    def _too_large_for_primal(self, usable: np.ndarray) -> bool:
+        variables, triplets = self.primal_cost(usable)
+        return variables > DUAL_ABOVE or triplets > DUAL_TRIPLETS
+
     def optimise(self, shots: np.ndarray) -> float:
         """Minimise this generator's variance at fixed ``shots``; return it."""
         block_shots = shots[self.ctx_ids]
         usable = block_shots > 0
+        inverse = np.zeros(self.ctx_ids.size)
+        inverse[usable] = 1.0 / block_shots[usable]
+        if self.solver == "dual" or (self.solver == "auto" and self._too_large_for_primal(usable)):
+            self._optimise_dual(inverse, usable)
+            return self.variance(shots)
         structure = self._structure(usable)
         if structure is None:
             return self.variance(shots)
-        inverse = np.zeros(self.ctx_ids.size)
-        inverse[usable] = 1.0 / block_shots[usable]
         data = np.bincount(
             structure["slot"],
             weights=structure["vals"] * inverse[structure["labels"]],
@@ -249,6 +288,66 @@ class FragmentProblem:
             self.x = candidate
             return self.variance(shots)
         return self.variance(shots)
+
+    def _optimise_dual(self, inverse: np.ndarray, usable: np.ndarray) -> None:
+        """The primal's minimiser from the dual: one unknown per Pauli instead of one per extra copy.
+
+        With ``W = blockdiag(inverse_k B_k)`` on the free coordinates (the usable copies of the Paulis that have at least
+        two) and ``C`` summing the copies of each Pauli, the step ``d`` minimising ``g.d + d.W.d/2`` subject to ``C d = 0``
+        is ``d = -W^-1 (g + C^T mu)`` with ``(C W^-1 C^T) mu = -C W^-1 g``.  The system matrix has one row per Pauli and is
+        assembled from the small per-context blocks.  Blocks are regularised by ``DUAL_RIDGE`` times their mean diagonal
+        (zero-variance directions are exploited fully either way), and the sum of the copies of every Pauli is restored
+        exactly on its reference coordinate, which is how the primal parametrises it.
+        """
+        usable_coord = usable[self.coord_block]
+        count = np.bincount(self._pauli_of[usable_coord], minlength=self.pauli_ids.size)
+        free_pauli = count >= 2
+        free = np.flatnonzero(usable_coord & free_pauli[self._pauli_of])
+        if free.size == 0:
+            return
+        rank = np.cumsum(free_pauli) - 1
+        row = rank[self._pauli_of[free]]
+        n_rows = int(free_pauli.sum())
+        position = np.full(self.n_coordinates, -1, dtype=np.int64)
+        position[free] = np.arange(free.size)
+        first = np.full(n_rows, free.size, dtype=np.int64)
+        np.minimum.at(first, row, np.arange(free.size))
+        ref = position[self.reference[free_pauli]]
+        ref = np.where(ref >= 0, ref, first)  # the first usable copy where the reference context has no shots
+        gradient = ((self._block_matrix @ self.x) * inverse[self.coord_block])[free]
+        block = self.coord_block[free]
+        cuts = np.flatnonzero(np.diff(block)) + 1
+        spans = list(zip(np.concatenate(([0], cuts)), np.concatenate((cuts, [free.size]))))
+        weights = []
+        for lo, hi in spans:
+            k = block[lo]
+            local = free[lo:hi] - self.ctx_ptr[k]
+            weights.append(inverse[k] * self.blocks[k][np.ix_(local, local)])
+        scales = np.array([np.trace(w) / w.shape[0] for w in weights])
+        floor = DUAL_RIDGE * float(scales.mean())
+        if not floor > 0:
+            return
+        schur = np.zeros((n_rows, n_rows))
+        tilted = np.empty(free.size)
+        inverses = []
+        for (lo, hi), w, scale in zip(spans, weights, scales):
+            w_inv = np.linalg.inv(w + max(DUAL_RIDGE * scale, floor) * np.eye(hi - lo))
+            inverses.append(w_inv)
+            schur[np.ix_(row[lo:hi], row[lo:hi])] += w_inv
+            tilted[lo:hi] = w_inv @ gradient[lo:hi]
+        rhs = np.bincount(row, weights=tilted, minlength=n_rows)
+        try:
+            mu = -scipy.linalg.solve(schur, rhs, assume_a="pos")
+        except (np.linalg.LinAlgError, scipy.linalg.LinAlgError):
+            mu = -np.linalg.lstsq(schur, rhs, rcond=None)[0]
+        step = np.empty(free.size)
+        for (lo, hi), w_inv in zip(spans, inverses):
+            step[lo:hi] = -(tilted[lo:hi] + w_inv @ mu[row[lo:hi]])
+        step[ref] -= np.bincount(row, weights=step, minlength=n_rows)
+        candidate = self.x.copy()
+        candidate[free] += step
+        if self._usable_variance(inverse, candidate) <= self._usable_variance(inverse, self.x):
+            self.x = candidate
 
     def _usable_variance(self, inverse_shots: np.ndarray, x: np.ndarray) -> float:
         return float((np.maximum(self.context_second_moments(x), 0.0) * inverse_shots).sum())

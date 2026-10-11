@@ -1,0 +1,102 @@
+{
+  "rho": 0.1,
+  "tolerance": 0.0016,
+  "trajectories": 48,
+  "seed": 7,
+  "strategy": "mass",
+  "methods": {
+    "Fixed 100, designed": "Fixed budget 100 shots/designed allocation, no certificate",
+    "Fixed 100, uniform": "Fixed budget 100 shots/uniform allocation, no certificate",
+    "Fixed 316, designed": "Fixed budget 316 shots/designed allocation, no certificate",
+    "Fixed 316, uniform": "Fixed budget 316 shots/uniform allocation, no certificate",
+    "Fixed 1000, designed": "Fixed budget 1,000 shots/designed allocation, no certificate",
+    "Fixed 1000, uniform": "Fixed budget 1,000 shots/uniform allocation, no certificate",
+    "Fixed 3162, designed": "Fixed budget 3,162 shots/designed allocation, no certificate",
+    "Fixed 3162, uniform": "Fixed budget 3,162 shots/uniform allocation, no certificate",
+    "Fixed 10000, designed": "Fixed budget 10,000 shots/designed allocation, no certificate",
+    "Fixed 10000, uniform": "Fixed budget 10,000 shots/uniform allocation, no certificate",
+    "Fixed 31623, designed": "Fixed budget 31,623 shots/designed allocation, no certificate",
+    "Fixed 31623, uniform": "Fixed budget 31,623 shots/uniform allocation, no certificate",
+    "Fixed 100000, designed": "Fixed budget 100,000 shots/designed allocation, no certificate",
+    "Fixed 100000, uniform": "Fixed budget 100,000 shots/uniform allocation, no certificate",
+    "Fixed 316228, designed": "Fixed budget 316,228 shots/designed allocation, no certificate",
+    "Fixed 316228, uniform": "Fixed budget 316,228 shots/uniform allocation, no certificate",
+    "Fixed 1000000, designed": "Fixed budget 1,000,000 shots/designed allocation, no certificate",
+    "Fixed 1000000, uniform": "Fixed budget 1,000,000 shots/uniform allocation, no certificate",
+    "Fixed 3162278, designed": "Fixed budget 3,162,278 shots/designed allocation, no certificate",
+    "Fixed 3162278, uniform": "Fixed budget 3,162,278 shots/uniform allocation, no certificate",
+    "Fixed 10000000, designed": "Fixed budget 10,000,000 shots/designed allocation, no certificate",
+    "Fixed 10000000, uniform": "Fixed budget 10,000,000 shots/uniform allocation, no certificate"
+  },
+  "energy_error": 0.001,
+  "exact_adapt": [
+    {
+      "iteration": 0,
+      "energy_error": 0.35659412642187727,
+      "added": "D 2,3 -> 6,7"
+    },
+    {
+      "iteration": 1,
+      "energy_error": 0.28889866070759007,
+      "added": "D 0,3 -> 5,6"
+    },
+    {
+      "iteration": 2,
+      "energy_error": 0.21581517186176802,
+      "added": "D 0,1 -> 4,5"
+    },
+    {
+      "iteration": 3,
+      "energy_error": 0.11885530954845214,
+      "added": "D 1,2 -> 4,7"
+    },
+    {
+      "iteration": 4,
+      "energy_error": 0.04791664260834949,
+      "added": "D 0,3 -> 4,7"
+    },
+    {
+      "iteration": 5,
+      "energy_error": 0.04669892905173878,
+      "added": "D 1,2 -> 5,6"
+    },
+    {
+      "iteration": 6,
+      "energy_error": 0.03949718015268955,
+      "added": "D 2,3 -> 4,5"
+    },
+    {
+      "iteration": 7,
+      "energy_error": 0.03666283035126572,
+      "added": "D 0,1 -> 6,7"
+    },
+    {
+      "iteration": 8,
+      "energy_error": 0.0051875286146154664,
+      "added": "D 1,3 -> 5,7"
+    },
+    {
+      "iteration": 9,
+      "energy_error": 0.005104230186598446,
+      "added": "D 0,2 -> 4,6"
+    },
+    {
+      "iteration": 10,
+      "energy_error": 0.003220397597392566,
+      "added": null
+    }
+  ],
+  "counted": "gradient-selection context-shots only; VQE energies are exact",
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "582c9b08a4aa3ba13306790a33f1190bbf26e144",
+    "part2_tree_dirty": true
+  }
+}

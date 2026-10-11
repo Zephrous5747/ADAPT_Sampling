@@ -1,0 +1,2 @@
+case_id,method,label,trajectories,exact_adapt_iterations,exact_adapt_final_error,reached_rate,iterations_mean,iterations_max,shots_median,shots_mean,shots_p90,selections,exact_best_rate,rho_good_rate,mean_shortfall,seconds
+H2O_stretch_HF,M2 marginal,M2 independent/rule=marginal/rho=0.1,12,18,0.0014253260834777848,1.0,18.0,18,17275786007.5,17000946537.5,18556949654.0,216,0.9490740740740741,1.0,0.001194612844817622,1945.4

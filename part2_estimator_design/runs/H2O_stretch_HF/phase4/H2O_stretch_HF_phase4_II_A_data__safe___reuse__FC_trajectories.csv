@@ -1,0 +1,13 @@
+method,trajectory,iterations,final_error,reached,total_shots,exact_best_selections
+"II-A data, safe + reuse, FC",0,18,0.0014701513303805314,True,2452961193.0,17
+"II-A data, safe + reuse, FC",1,18,0.0014249941306445635,True,2626317664.0,15
+"II-A data, safe + reuse, FC",2,18,0.0014246285212635712,True,2909745917.0,16
+"II-A data, safe + reuse, FC",3,18,0.0014253260834351522,True,2310643980.0,17
+"II-A data, safe + reuse, FC",4,18,0.0014253260834777848,True,1835259699.0,18
+"II-A data, safe + reuse, FC",5,18,0.0014257159988346757,True,2428561910.0,16
+"II-A data, safe + reuse, FC",6,18,0.0014253260834777848,True,2877536442.0,18
+"II-A data, safe + reuse, FC",7,18,0.0014736057366349087,True,2024707105.0,16
+"II-A data, safe + reuse, FC",8,18,0.0014701513303947422,True,2583904923.0,17
+"II-A data, safe + reuse, FC",9,18,0.0014257159988346757,True,1867765790.0,17
+"II-A data, safe + reuse, FC",10,18,0.0014257159988346757,True,2146196830.0,17
+"II-A data, safe + reuse, FC",11,18,0.0014255724353517962,True,2245575542.0,17

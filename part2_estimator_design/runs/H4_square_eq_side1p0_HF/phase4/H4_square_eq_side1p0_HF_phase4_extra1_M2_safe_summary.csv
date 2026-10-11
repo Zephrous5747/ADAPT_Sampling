@@ -1,0 +1,2 @@
+case_id,method,label,trajectories,exact_adapt_iterations,exact_adapt_final_error,reached_rate,iterations_mean,iterations_max,final_error_median,final_error_p90,shots_median,shots_mean,shots_p90,selections,exact_best_rate,rho_good_rate,mean_shortfall,seconds
+H4_square_eq_side1p0_HF,M2 safe,M2 independent/rule=safe/rho=0.1,48,10,0.0010895443421787832,1.0,10.0,10,0.001089544342177895,0.0010895443421790052,2724251.5,2773801.1875,3371996.3000000003,480,0.9083333333333333,1.0,0.0024487287256258557,25.1

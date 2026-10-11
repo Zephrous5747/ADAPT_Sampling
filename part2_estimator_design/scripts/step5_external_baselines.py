@@ -162,8 +162,10 @@ CONFIGS = {
     "Pivot M1 static": PivotSpec("static"),
     "Pivot M1 seq": PivotSpec(M1_SEQ),
     "Pivot II-0": PivotSpec(II_0),
+    "Pivot II-A": PivotSpec(II_A),  # the learned splitting on the published pivot contexts (the home design is the published one)
     "Pivot M1 seq, safe": PivotSpec(M1_SEQ_SAFE),
     "Pivot II-0, safe": PivotSpec(II_0_SAFE),
+    "Pivot II-A, safe": PivotSpec(II_A_SAFE),
     "Pivot M1 static, first-fit classes": PivotSpec("static", "firstfit"),
     "Pivot M1 seq, first-fit classes": PivotSpec(M1_SEQ, "firstfit"),
     # each product read from one pivot context (greedy set cover): stronger than the published scheme
@@ -203,10 +205,48 @@ CONFIGS.update({
     "M2 marginal, selection z": IndependentConfig(rule="marginal", start="oracle", confidence=SEL),
     "M2 safe, selection z": IndependentConfig(rule="safe", start="oracle", confidence=SEL),
 })
+# The headline rows without any oracle input (referee points on the oracle start and on the rule): the sign-aware family
+# with the a priori starting radius (the bound on max|g|), its anytime version (a union bound over the rounds, so that the
+# guarantee covers the whole run), and the thresholds that were fixed without a test (shots below which a fold's covariance
+# is replaced by the bound k I, and the growth of the shots between refits).
+II_0_SAFE_B = dataclasses.replace(II_0_SAFE, start="bound")
+II_A_SAFE_B = dataclasses.replace(II_A_SAFE, start="bound")
+M1_SEQ_SAFE_B = dataclasses.replace(M1_SEQ_SAFE, start="bound")
+REFEREE = {
+    "II-A data, safe, bound start": II_A_SAFE_B,
+    "II-0, safe, bound start": II_0_SAFE_B,  # same method as step 4's "II-0 safe, bound start" (used for the rho sweeps)
+    "Ikh reuse, FC, safe, bound start": Reuse(M1_SEQ_SAFE_B, "fc"),
+    "II-0 safe + reuse, FC, bound start": Reuse(II_0_SAFE_B, "fc"),
+    "II-A data, safe + reuse, FC, bound start": Reuse(II_A_SAFE_B, "fc"),
+    "II-0, safe, bound start, anytime": dataclasses.replace(II_0_SAFE_B, anytime=True),
+    "II-A data, safe, bound start, anytime": dataclasses.replace(II_A_SAFE_B, anytime=True),
+    "M1 seq, safe, bound start, anytime": dataclasses.replace(M1_SEQ_SAFE_B, anytime=True),
+    "M2 safe, bound start, anytime": IndependentConfig(rule="safe", start="bound", anytime=True),
+}
+for _n in (20, 100, 200):
+    REFEREE[f"II-0, safe, bound start, min shots={_n}"] = dataclasses.replace(II_0_SAFE_B, radius_min_shots=_n, min_fold_shots=_n)
+    REFEREE[f"II-A data, safe, bound start, min shots={_n}"] = dataclasses.replace(II_A_SAFE_B, radius_min_shots=_n, min_fold_shots=_n)
+for _g in (1.25, 2.0, 3.0):
+    REFEREE[f"II-A data, safe, bound start, refit factor={_g:g}"] = dataclasses.replace(II_A_SAFE_B, refit_growth=_g)
+# Why do the intervals miss on the late, small-gap states?  Higher minimum shots (a small-sample variance bound) and the diagnostic
+# fields miss_* of the trial files (src/learning.py, LearningConfig.diagnose): the standardised error against the true sd of the estimator,
+# the ratio of estimated to true sd, the shots in the thinnest context, zero-sd intervals.
+for _n in (50, 100, 200, 400, 1000):
+    REFEREE[f"II-A data, safe, bound start, min shots={_n}, diagnose"] = dataclasses.replace(
+        II_A_SAFE_B, radius_min_shots=_n, min_fold_shots=_n, diagnose=True)
+for _n in (50, 200, 1000):
+    REFEREE[f"II-0, safe, bound start, min shots={_n}, diagnose"] = dataclasses.replace(
+        II_0_SAFE_B, radius_min_shots=_n, min_fold_shots=_n, diagnose=True)
+    REFEREE[f"II-A data, safe, bound start, anytime, min shots={_n}, diagnose"] = dataclasses.replace(
+        II_A_SAFE_B, radius_min_shots=_n, min_fold_shots=_n, anytime=True, diagnose=True)
+    REFEREE[f"II-0, safe, bound start, anytime, min shots={_n}, diagnose"] = dataclasses.replace(
+        II_0_SAFE_B, radius_min_shots=_n, min_fold_shots=_n, anytime=True, diagnose=True)
+CONFIGS.update(REFEREE)
 EXTENSIONS = (Reuse, PivotSpec, BlockSpec, StaticSpec)
 DEFAULT = [n for n, c in CONFIGS.items() if not isinstance(c, EXTENSIONS) and not n.startswith("M2 QWC")
            and not n.endswith("selection z") and n not in ("II-0 estimated", "II-A data", "II-A data, safe", "M1 seq, safe")]
 POOL_CONFIGS = ["II-0 estimated", "II-A data", "M1 static", "M1 seq", "M2 pairwise", "M2 marginal"]
+DEFAULT = [n for n in DEFAULT if n not in REFEREE]
 REUSE_NAMES = [n for n, c in CONFIGS.items() if isinstance(c, Reuse)]
 PIVOT_NAMES = [n for n, c in CONFIGS.items() if isinstance(c, PivotSpec)]
 BLOCK_NAMES = [n for n, c in CONFIGS.items() if isinstance(c, BlockSpec)]

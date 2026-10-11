@@ -1,0 +1,23 @@
+{
+  "epsilon": 0.001,
+  "rounds": 10,
+  "radius_factor": 8.0,
+  "chemical_accuracy": 0.00159,
+  "published": {
+    "H4_chain1p0_HF": 93.0,
+    "LiH_R1p0_HF": 80.8,
+    "BeH2_R1p0_HF": 90.0
+  },
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "582c9b08a4aa3ba13306790a33f1190bbf26e144",
+    "part2_tree_dirty": true
+  }
+}
