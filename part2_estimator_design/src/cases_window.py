@@ -230,6 +230,10 @@ def _expand_one(index: int):
     return terms, mean
 
 
+def _expand_indexed(index: int):
+    return index, _expand_one(index)
+
+
 def build_problem_parallel(case_id: str, cache_dir, workers: int, validate: bool = True, log=print):
     """Build and cache the gradient problem of a case with ``workers`` processes; returns the problem."""
     import multiprocessing as mp
@@ -260,8 +264,32 @@ def build_problem_parallel(case_id: str, cache_dir, workers: int, validate: bool
     evaluator = PauliEvaluator(state)
     log(f"{case_id}: Hamiltonian {hamiltonian.n_pauli_terms} terms, {len(generators)} generators, validated in {time.time() - t0:.0f} s")
     _BUILD.update(ham=hamiltonian, gens=generators, evaluator=evaluator)
+    # The expansions are checkpointed in batches under <cache key>.parts: a job that is stopped (24 h limit, requeue) resumes with the
+    # generators already expanded.
+    import shutil
+    import uuid
+
+    parts = path.with_suffix(".parts")
+    parts.mkdir(parents=True, exist_ok=True)
+    done: dict = {}
+    for part in parts.glob("part_*.pkl"):
+        with part.open("rb") as handle:
+            done.update(pickle.load(handle))
+    todo = [i for i in range(len(generators)) if i not in done]
+    log(f"{case_id}: {len(done)} of {len(generators)} expansions found in {parts.name}, {len(todo)} to do")
+    batch: dict = {}
     with mp.get_context("fork").Pool(workers) as pool:
-        results = pool.map(_expand_one, range(len(generators)), chunksize=1)
+        for n, (index, result) in enumerate(pool.imap_unordered(_expand_indexed, todo, chunksize=1), 1):
+            batch[index] = result
+            if len(batch) >= 32 or n == len(todo):
+                temporary = parts / f"part_{uuid.uuid4().hex}.tmp"
+                with temporary.open("wb") as handle:
+                    pickle.dump(batch, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                temporary.replace(temporary.with_suffix(".pkl"))
+                done.update(batch)
+                batch = {}
+                log(f"{case_id}: {len(done)} of {len(generators)} expanded, {time.time() - t0:.0f} s")
+    results = [done[i] for i in range(len(generators))]
     log(f"{case_id}: commutators expanded in {time.time() - t0:.0f} s")
     problem = GradientProblem(
         case_id=spec.case_id, state_name=spec.state.upper(), n_qubits=hamiltonian.n_qubits, state_energy=state_energy,
@@ -278,4 +306,5 @@ def build_problem_parallel(case_id: str, cache_dir, workers: int, validate: bool
     with temporary.open("wb") as handle:
         pickle.dump(problem, handle, protocol=pickle.HIGHEST_PROTOCOL)
     temporary.replace(path)
+    shutil.rmtree(parts, ignore_errors=True)
     return problem

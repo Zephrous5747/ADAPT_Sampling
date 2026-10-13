@@ -252,9 +252,12 @@ def tab_scaling(out: Path) -> None:
              r"System & qubits & $K$ & Pauli products & contexts & CZ per circuit & coordinates per generator & II-A, one selection (s) \\", r"\midrule"]
     print("\nScaling (structure only)")
     for r in rows:
-        f = lambda k: float(r[k])  # noqa: E731
+        f = lambda k: float(r[k]) if r.get(k) not in (None, "") else float("nan")  # noqa: E731
+
+        def cell(key, fmt):
+            return "--" if not np.isfinite(f(key)) else format(f(key), fmt)
         lines.append(f"{names.get(r['case'], r['case'])} & {int(f('qubits'))} & {int(f('generators'))} & {int(f('universal_support')):,} & "
-                     f"{int(f('library_contexts')):,} & {f('two_qubit_mean'):.1f} & {f('coordinates_per_generator_mean'):,.0f} & "
+                     f"{int(f('library_contexts')):,} & {cell('two_qubit_mean', '.1f')} & {cell('coordinates_per_generator_mean', ',.0f')} & "
                      f"{dash(classical_seconds(r['case']))} \\\\".replace(",", "{,}"))
         print(f"  {r['case']:28s} {int(f('qubits')):3d}q  K {int(f('generators')):4d}  support {int(f('universal_support')):9,d}  contexts {int(f('library_contexts')):7,d}  "
               f"CZ {f('two_qubit_mean'):5.1f}  coords/gen {f('coordinates_per_generator_mean'):10,.0f}  II-A selection {classical_seconds(r['case']):7.0f} s  "
@@ -366,8 +369,42 @@ def tab_interval_diag(out: Path) -> None:
     write(out, "tab_interval_diag", "\n".join(lines) + "\n")
 
 
+WINDOW_STATES = [("H2O_dz8o_eq_CISD", "eq, CISD"), ("H2O_dz8o_eq_ADAPT10", "eq, ADAPT 10"),
+                 ("H2O_dz8o_str_CISD", "str, CISD"), ("H2O_dz8o_str_ADAPT10", "str, ADAPT 10")]
+
+
+def tab_window(out: Path) -> None:
+    """Fixed states of the 16-qubit H2O cc-pVDZ window (8 orbitals), a priori start, sign-aware rule, rho = 0.1."""
+    methods = [("II-A", "II-A data, safe, bound start, rho=0.1"), ("II-0", "II-0, safe, bound start, rho=0.1"),
+               ("M1 seq", "M1 seq, safe, bound start, rho=0.1"), ("M2", "M2 safe, bound start, rho=0.1")]
+    lines = [r"\begin{tabular}{@{}llrrrrr@{}}", r"\toprule",
+             r"State & method & trials & mean shots & ratio to II-A & within $\rho$ of the best (\%) & exactly the best (\%) \\", r"\midrule"]
+    print("\nH2O cc-pVDZ window (16 qubits), fixed states, rho = 0.1")
+    for case, name in WINDOW_STATES:
+        rows = {r["config"]: r for r in read_rows(RUNS / case / f"{case}_step5_external_baselines.csv")}
+        base = rows.get(methods[0][1])
+        if base is None:
+            continue
+        first = True
+        for method, label in methods:
+            r = rows.get(label)
+            if r is None:
+                continue
+            ratio = float(r["shots_mean"]) / float(base["shots_mean"])
+            lines.append(f"{'H$_2$O ' + name if first else ''} & {method} & {r['n_trials']} & {sci(float(r['shots_mean']))} & {ratio:.2f} & "
+                         f"{100 * float(r['good_10pct_rate']):.0f} & {100 * float(r['correct_rate']):.0f} \\\\")
+            print(f"  {case:22s} {method:7s} n={r['n_trials']:>3s} shots {float(r['shots_mean']):.3e}  x{ratio:6.2f}  good10 {float(r['good_10pct_rate']):.2f}  exact {float(r['correct_rate']):.2f}  "
+                  f"design+stat {(float(r['design_seconds_mean'] or 0) + float(r['statistics_seconds_mean'] or 0)) / 3600:.1f} h")
+            first = False
+        lines.append(r"\midrule")
+    if lines[-1] == r"\midrule":
+        lines.pop()
+    lines += [r"\bottomrule", r"\end{tabular}"]
+    write(out, "tab_window", "\n".join(lines) + "\n")
+
+
 TABLES = {"tab_apriori": tab_apriori, "tab_anytime": tab_anytime, "tab_sensitivity": tab_sensitivity, "tab_scaling": tab_scaling,
-          "tab_reproduction": tab_reproduction, "tab_sampled_optimizer": tab_sampled_optimizer, "tab_interval_diag": tab_interval_diag}
+          "tab_reproduction": tab_reproduction, "tab_sampled_optimizer": tab_sampled_optimizer, "tab_interval_diag": tab_interval_diag, "tab_window": tab_window}
 
 
 def main() -> None:

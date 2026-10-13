@@ -47,7 +47,7 @@ def timed(fn):
     return value, time.perf_counter() - start
 
 
-def measure(case: str, strategy: str, shots: float, arms: int, seed: int, structure_only: bool = False) -> dict:
+def measure(case: str, strategy: str, shots: float, arms: int, seed: int, structure_only: bool = False, problem_only: bool = False) -> dict:
     row: dict = {"case": case}
     problem, row["build_problem_s"] = timed(lambda: part1_bridge.load_problem(case))
     row.update(qubits=problem.n_qubits, generators=problem.n_generators,
@@ -56,6 +56,10 @@ def measure(case: str, strategy: str, shots: float, arms: int, seed: int, struct
                commutator_terms_mean=float(np.mean([len(t) for t in problem.commutator_terms])))
     parent, row["parent_groups_s"] = timed(problem.parent_fc_groups)
     row["parent_contexts"] = len(parent)
+    if problem_only:  # the problem of the cached build and its parent grouping; no library (its memory grows with the contexts)
+        row.update(simulation_skipped=True, problem_only=True, library_contexts=len(parent),
+                   peak_rss_gb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1e6)
+        return row
     library, row["library_s"] = timed(lambda: build_context_library(problem, strategy))
     cz = library.two_qubit_counts()
     uses = library.contexts_of()
@@ -106,6 +110,9 @@ def main() -> None:
     parser.add_argument("--structure-only", action="store_true",
                         help="stop after the context library and the II-0 / II-A coordinates (no sigmas, no refit): for cases "
                              "above about 20 qubits, where the simulator's 2^n outcome distributions do not fit")
+    parser.add_argument("--problem-only", action="store_true",
+                        help="stop after the problem and its parent grouping (qubits, generators, products, parent contexts): for the "
+                             "22 and 24 qubit windows, whose context library does not fit in a node")
     args = parser.parse_args()
     out = args.out / "scaling.csv"
     existing = {}
@@ -115,15 +122,16 @@ def main() -> None:
     rows = []
     for case in args.cases:
         try:
-            row = measure(case, args.strategy, args.shots, args.arms, args.seed, args.structure_only)
+            row = measure(case, args.strategy, args.shots, args.arms, args.seed, args.structure_only, args.problem_only)
         except MemoryError as error:  # pragma: no cover
             print(f"{case}: out of memory ({error})", flush=True)
             continue
         rows.append(row)
+        nan = float("nan")
         print(f"{case:28s} {row['qubits']} qubits  K={row['generators']:4d}  support {row['universal_support']:8,d}  "
-              f"contexts {row['library_contexts']:6,d} (parent {row['parent_contexts']:5,d})  CZ {row['two_qubit_mean']:5.1f}  "
-              f"coords/gen {row['coordinates_per_generator_mean']:9,.0f}  refit/gen {row.get('refit_seconds_per_generator_median', float('nan')):7.2f}s "
-              f"(all {row.get('refit_seconds_extrapolated', float('nan')) / 60:6.1f} min)  II-A coords {row['design_iia_coordinates_s']:6.1f}s  "
+              f"contexts {row['library_contexts']:6,d} (parent {row['parent_contexts']:5,d})  CZ {row.get('two_qubit_mean', nan):5.1f}  "
+              f"coords/gen {row.get('coordinates_per_generator_mean', nan):9,.0f}  refit/gen {row.get('refit_seconds_per_generator_median', nan):7.2f}s "
+              f"(all {row.get('refit_seconds_extrapolated', nan) / 60:6.1f} min)  II-A coords {row.get('design_iia_coordinates_s', nan):6.1f}s  "
               f"build {row['build_problem_s']:6.0f}s", flush=True)
         merged = {**existing, **{r["case"]: r for r in rows}}
         ordered = list(merged.values())

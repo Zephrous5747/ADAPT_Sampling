@@ -1,0 +1,2 @@
+case_id,method,label,trajectories,exact_adapt_iterations,exact_adapt_final_error,reached_rate,iterations_mean,iterations_max,final_error_median,final_error_p90,shots_median,shots_mean,shots_p90,selections,exact_best_rate,rho_good_rate,mean_shortfall,seconds
+H2O_stretch_HF,II-0 safe,II-0/estimated radii/rule=safe/rho=0.1/start=bound/radius_min_shots=50,24,18,0.0014253260834777848,1.0,18.0,18,0.001470151330373426,0.0014738446906051195,7998331594.0,7983749541.666667,9583991579.0,432,0.9004629629629629,1.0,0.0021097399518170534,54293.4
