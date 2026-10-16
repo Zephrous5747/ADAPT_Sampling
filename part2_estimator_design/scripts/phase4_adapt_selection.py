@@ -67,6 +67,11 @@ METHODS = {
     "II-A data, safe": II_A_SAFE,
     "II-A data, contrast": LearningConfig(prior="none", nu=0.0, rule="safe", objective="contrast",
                                           start="bound", radius_min_shots=50),
+    # Trajectory-level test of the small-sample repair (min shots 200 / 400 per fold, as in the fixed-state tables of Q9)
+    "II-A data, safe, min shots=200": LearningConfig(prior="none", nu=0.0, rule="safe", start="bound",
+                                                     radius_min_shots=200, min_fold_shots=200),
+    "II-A data, safe, min shots=400": LearningConfig(prior="none", nu=0.0, rule="safe", start="bound",
+                                                     radius_min_shots=400, min_fold_shots=400),
     # External baselines (Paper A, SOTA comparison): run with ``--methods``.
     "M1 seq, safe": M1_SEQ_SAFE,
     "M1 static": "static",  # radius rho max|g| / 2, exact gradient scale and variances (an oracle bound)
