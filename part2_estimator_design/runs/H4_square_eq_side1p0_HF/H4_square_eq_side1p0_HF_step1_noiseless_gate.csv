@@ -1,0 +1,3 @@
+case_id,check,rule,accounting,gamma,part1_shots,part2_shots_real,part2_shots,ratio,integer_ratio,passed
+H4_square_eq_side1p0_HF,noiseless,marginal,maxima,0.5,917731.9696459229,917731.969645923,917749.0,1.0000000000000002,1.000018557002088,True
+H4_square_eq_side1p0_HF,noiseless,pairwise,maxima,0.5,906356.8387248311,906356.8387248314,906387.0,1.0000000000000002,1.0000332774839669,True

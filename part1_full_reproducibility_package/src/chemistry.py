@@ -116,6 +116,36 @@ def _spin_orbital_tensors(
     return one_body, two_body
 
 
+MAX_STABILITY_STEPS = 10
+
+
+def converge_stable_rhf(mean_field) -> tuple[float, int]:
+    """Converge RHF and follow internal instabilities until the solution is stable.
+
+    PySCF's default guess is not a well-defined target on square H4: at side
+    1.0 Angstrom one numerical environment converges to -1.761075054 Ha and another,
+    with the same PySCF version, to an internally unstable solution at
+    -1.694889592 Ha whose gradients differ by up to 0.25.  Which one a run lands on
+    must not depend on the BLAS build.  Following the lowest internal instability
+    until the stability analysis passes gives a solution that is a local minimum
+    of the RHF energy, independent of where the iteration started.
+
+    Returns the energy and the number of instability steps taken.
+    """
+    energy = float(mean_field.kernel())
+    steps = 0
+    for steps in range(MAX_STABILITY_STEPS + 1):
+        orbitals, _, stable, _ = mean_field.stability(return_status=True)
+        if stable:
+            break
+        if steps == MAX_STABILITY_STEPS:
+            raise RuntimeError("RHF still internally unstable after "
+                               f"{MAX_STABILITY_STEPS} stability steps")
+        density = mean_field.make_rdm1(orbitals, mean_field.mo_occ)
+        energy = float(mean_field.kernel(dm0=density))
+    return energy, steps
+
+
 def build_qubit_hamiltonian(spec: CaseSpec) -> QubitHamiltonian:
     """Run RHF and return the Jordan-Wigner qubit Hamiltonian."""
     from openfermion import InteractionOperator, get_fermion_operator, jordan_wigner
@@ -131,7 +161,7 @@ def build_qubit_hamiltonian(spec: CaseSpec) -> QubitHamiltonian:
     )
     mean_field = scf.RHF(molecule)
     mean_field.conv_tol = 1e-12
-    rhf_energy = float(mean_field.kernel())
+    rhf_energy, _stability_steps = converge_stable_rhf(mean_field)
     if not mean_field.converged:
         raise RuntimeError(f"RHF did not converge for {spec.case_id}")
 

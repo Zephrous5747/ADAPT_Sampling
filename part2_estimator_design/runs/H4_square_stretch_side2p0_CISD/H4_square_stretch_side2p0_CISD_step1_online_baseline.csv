@@ -1,0 +1,7 @@
+case_id,check,rule,accounting,gamma,part2_n_trials,part2_correct_rate,part2_correct_low,part2_correct_high,part2_failures,part2_shots_mean,part2_shots_sem,part2_shots_median,part2_shots_q25,part2_shots_q75,part2_shots_p90,part2_rounds_mean,part2_seconds,part1_noise_model,part1_shots_mean,part1_shots_sem,part1_correct_rate,difference_in_sem,part1_seconds,passed
+H4_square_stretch_side2p0_CISD,noisy,marginal,maxima,0.5,250,1.0,0.9848661527503766,1.0,0,102348.384,2423.7997229983757,128284.0,63808.0,134573.0,141580.3,4.564,2.3,correlated,102018.22250454828,2498.168190263676,1.0,0.09485343746990824,5.1,True
+H4_square_stretch_side2p0_CISD,noisy,pairwise,maxima,0.5,250,1.0,0.9848661527503766,1.0,0,51058.676,1749.882169291898,41234.0,34613.0,55952.5,68016.49999999977,4.052,2.2,correlated,51725.59074623102,1928.412864070954,1.0,-0.25611075136359696,7.2,True
+H4_square_stretch_side2p0_CISD,baseline,pairwise,maxima,0.5,250,1.0,0.9848661527503766,1.0,0,51058.676,1749.882169291898,41234.0,34613.0,55952.5,68016.49999999977,4.052,2.7,,,,,,,
+H4_square_stretch_side2p0_CISD,baseline,pairwise,topup,0.5,250,1.0,0.9848661527503766,1.0,0,50144.708,1686.4094042401994,39342.5,34394.0,55386.25,63808.0,4.044,14.7,,,,,,,
+H4_square_stretch_side2p0_CISD,baseline,pairwise,maxima,0.9,250,1.0,0.9848661527503766,1.0,0,23748.144,597.8246644785506,22093.5,16833.75,29721.75,36893.299999999996,12.116,9.6,,,,,,,
+H4_square_stretch_side2p0_CISD,baseline,pairwise,topup,0.9,250,1.0,0.9848661527503766,1.0,0,23827.092,613.4932785102483,22135.5,16885.75,30198.5,37671.2,12.46,49.3,,,,,,,

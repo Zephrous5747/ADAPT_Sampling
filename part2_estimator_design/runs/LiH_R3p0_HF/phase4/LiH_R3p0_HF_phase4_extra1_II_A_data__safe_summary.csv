@@ -1,0 +1,2 @@
+case_id,method,label,trajectories,exact_adapt_iterations,exact_adapt_final_error,reached_rate,iterations_mean,iterations_max,final_error_median,final_error_p90,shots_median,shots_mean,shots_p90,selections,exact_best_rate,rho_good_rate,mean_shortfall,seconds
+LiH_R3p0_HF,"II-A data, safe",II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/rho=0.1/start=bound/radius_min_shots=50,60,6,0.0006843313945408269,1.0,6.066666666666666,7,0.0006843313945354979,0.0006843313945408269,49946192.5,51452241.55,74251976.9,364,0.9120879120879121,0.989010989010989,0.002776627625217205,8846.8

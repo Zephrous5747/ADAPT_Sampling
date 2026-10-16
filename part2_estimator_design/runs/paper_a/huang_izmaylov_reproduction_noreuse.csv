@@ -1,0 +1,4 @@
+case,reuse,seeds,published_reduction_pct,reduction_pct_mean,reduction_pct_sd,naive_measurements_mean,se_measurements_mean,naive_iterations,se_iterations,naive_reached,se_reached,exact_adapt_iterations
+H4_chain1p0_HF,False,10,93.0,91.83270116568755,1.999991920041937,79090781.8,6459580.5,9.0,9.3,1.0,1.0,
+LiH_R1p0_HF,False,10,80.8,80.65153830114595,7.771951676156402,923627401.4,178707694.0,7.5,15.6,1.0,1.0,
+BeH2_R1p0_HF,False,10,90.0,90.31968246444087,4.907487836248519,6904516892.6,668379159.5,10.1,18.1,1.0,1.0,

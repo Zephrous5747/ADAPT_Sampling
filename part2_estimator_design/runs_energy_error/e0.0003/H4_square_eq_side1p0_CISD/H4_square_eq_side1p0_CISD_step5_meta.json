@@ -1,0 +1,39 @@
+{
+  "configs": {
+    "Ikh reuse, FC": "II-0/estimated radii/no-elimination/fc/reuse",
+    "II-0 + reuse, FC": "II-0/estimated radii/fc/reuse",
+    "II-A data + reuse, FC": "II-A/prior=none/nu=0/estimated radii/guard=on/fc/reuse"
+  },
+  "reuse_libraries": {
+    "fc": {
+      "contexts": 57,
+      "energy_groups": 4,
+      "credit_shots": 5788979,
+      "overlap": {
+        "support": 1276,
+        "covered": 140,
+        "covered_fraction": 0.109717868338558,
+        "covered_mass_fraction": 0.22070848900667142,
+        "in_h_support": 44
+      }
+    }
+  },
+  "trials": 100,
+  "seed": 5,
+  "strategy": "mass",
+  "energy_error": 0.0003,
+  "rho": 0.0,
+  "seeding": "trial i uses SeedSequence(seed).spawn(trials)[i]",
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "af38836cce7ff6e59c452bef15d90e9bab1a8a05",
+    "part2_tree_dirty": true
+  }
+}

@@ -107,9 +107,16 @@ class PauliEvaluator:
             return 0.0, 0.0
         vector = self.fragment_vector(terms)
         mean = float(np.vdot(self.state, vector).real)
-        second_moment = float(np.vdot(vector, vector).real)
-        variance = max(0.0, second_moment - mean * mean)
-        return mean, math.sqrt(variance)
+        # Centre before squaring.  Forming <F^2> - <F>^2 subtracts two large
+        # nearly equal numbers whenever the state is close to an eigenstate of
+        # F, which is exactly the case for the symmetry-forbidden fragments that
+        # dominate a parent context.  The cancellation there is total: the
+        # result is floating-point noise of either sign, and the max(0, .)
+        # clamp that used to guard it hid the failure rather than fixing it.
+        # ||(F - <F>)|psi>||^2 is the same quantity with no cancellation.
+        centred = vector - mean * self.state
+        variance = float(np.vdot(centred, centred).real)
+        return mean, math.sqrt(max(0.0, variance))
 
     def fragment_std(self, terms: Mapping[str, float]) -> float:
         """Return the one-shot standard deviation of ``F = sum_l c_l R_l``."""

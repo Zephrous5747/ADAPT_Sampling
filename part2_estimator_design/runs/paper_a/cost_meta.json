@@ -1,0 +1,19 @@
+{
+  "rho": 0.1,
+  "delta": 0.05,
+  "energy_error": 0.001,
+  "grouping": "sorted insertion of H (decreasing |h_p|), first-fit FC",
+  "energy_state": "optimised state of each iteration",
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "af38836cce7ff6e59c452bef15d90e9bab1a8a05",
+    "part2_tree_dirty": true
+  }
+}

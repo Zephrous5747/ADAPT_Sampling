@@ -1,0 +1,3 @@
+case_id,check,rule,accounting,gamma,part1_shots,part2_shots_real,part2_shots,ratio,integer_ratio,passed
+H4_square_stretch_side2p0_CISD,noiseless,marginal,maxima,0.5,37000.93332048081,37000.93332048081,37029.0,1.0,1.0007585397718508,True
+H4_square_stretch_side2p0_CISD,noiseless,pairwise,maxima,0.5,36712.07076027302,36712.07076027301,36739.0,0.9999999999999998,1.0007335254909162,True

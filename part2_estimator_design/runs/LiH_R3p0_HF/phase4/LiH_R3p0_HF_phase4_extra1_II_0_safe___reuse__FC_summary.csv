@@ -1,0 +1,2 @@
+case_id,method,label,trajectories,exact_adapt_iterations,exact_adapt_final_error,reached_rate,iterations_mean,iterations_max,final_error_median,final_error_p90,shots_median,shots_mean,shots_p90,selections,exact_best_rate,rho_good_rate,mean_shortfall,seconds
+LiH_R3p0_HF,"II-0 safe + reuse, FC",II-0/estimated radii/rule=safe/rho=0.1/start=bound/radius_min_shots=50/fc/reuse,60,6,0.0006843313945408269,1.0,6.0,6,0.0006843313945354979,0.0006843313945408269,43010393.5,50707235.733333334,78975746.20000002,360,0.9333333333333333,1.0,0.0011364753357042366,3769.2

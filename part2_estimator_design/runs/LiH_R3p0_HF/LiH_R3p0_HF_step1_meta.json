@@ -1,0 +1,17 @@
+{
+  "trials": 100,
+  "seed": 1,
+  "seeding": "trial i uses SeedSequence(seed).spawn(trials)[i]",
+  "run": {
+    "python": "3.12.3",
+    "packages": {
+      "numpy": "2.5.2",
+      "scipy": "1.18.1",
+      "pandas": "3.0.5",
+      "pyscf": "2.14.0",
+      "openfermion": "1.8.1"
+    },
+    "git_commit": "1f95546e8ef6b11ae04252271cc9ce362f7e5df2",
+    "part2_tree_dirty": true
+  }
+}

@@ -1,0 +1,38 @@
+\begin{table*}[!htb]
+\centering\small
+\caption{Confidence level of the selection against the cost of the optimization, along complete measured ADAPT runs (II-A: shared contexts, elimination, learned splitting with cross-fitting; sign-aware rule, a priori first radius, $\rho=0.1$; STO-3G, UCCSD pool; exact BFGS re-optimization). Shots: median selection context-shots of a run. Steps: mean ADAPT iterations (largest in brackets). Opt.\ evals: mean BFGS energy-and-gradient evaluations of a run, and its ratio to exact ADAPT ($\pm$ standard deviation over the runs; the count varies with the order in which tied generators are added, even when every choice is correct); $C_\mathrm{opt}$: ratio of the modeled optimization measurement cost ($\eta=2$, energies to 1~mHa) to exact ADAPT. $\Delta E$: median final energy error. Same $E$: share of runs whose final energy equals that of exact ADAPT (within 0.1~mHa; stretched H$_4$ stalls at 3.2~mHa for every method, a limit of the pool). Exact best / $\rho$-good: share of selections. Exact ADAPT row: the reference. H$_2$O: the recorded measured runs at 95\% (36 per geometry) with their optimization recomputed exactly; the other levels need the cluster.}
+\label{tab:ci_opt}
+\footnotesize\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lrrrrrrrrrrr}
+\toprule
+System & conf. & runs & shots & steps & opt.\ evals & ratio & $C_\mathrm{opt}$ ratio & $\Delta E$ (mHa) & same $E$ & exact best & $\rho$-good \\
+\midrule
+H$_4$ 1.0~\AA & exact & -- & -- & 10 & 142 & 1.00 & 1.00 & 1.09 & -- & -- & -- \\
+ & 99\% & 12 & $1.5\times10^{6}$ & 10.0 (10) & 273 & 1.92 $\pm$0.69 & 1.97 $\pm$0.80 & 1.09 & 100\% & 92\% & 100\% \\
+ & 97\% & 12 & $1.4\times10^{6}$ & 10.0 (10) & 261 & 1.84 $\pm$0.43 & 1.95 $\pm$0.43 & 1.09 & 100\% & 89\% & 100\% \\
+ & 95\% & 12 & $1.0\times10^{6}$ & 10.0 (10) & 250 & 1.76 $\pm$0.49 & 1.90 $\pm$0.51 & 1.09 & 100\% & 88\% & 100\% \\
+ & 90\% & 12 & $8.9\times10^{5}$ & 10.0 (10) & 275 & 1.94 $\pm$0.46 & 2.13 $\pm$0.56 & 1.09 & 100\% & 90\% & 100\% \\
+ & 80\% & 12 & $6.9\times10^{5}$ & 10.0 (10) & 265 & 1.87 $\pm$0.62 & 2.01 $\pm$0.73 & 1.09 & 100\% & 88\% & 100\% \\
+ & 68\% & 12 & $6.1\times10^{5}$ & 10.0 (10) & 258 & 1.82 $\pm$0.45 & 1.93 $\pm$0.46 & 1.09 & 100\% & 88\% & 100\% \\
+\midrule
+H$_4$ 2.0~\AA & exact & -- & -- & 10 & 229 & 1.00 & 1.00 & 3.22 & -- & -- & -- \\
+ & 99\% & 12 & $1.4\times10^{7}$ & 10.0 (10) & 213 & 0.93 $\pm$0.11 & 0.88 $\pm$0.11 & 3.22 & 100\% & 93\% & 100\% \\
+ & 97\% & 12 & $9.2\times10^{6}$ & 10.0 (10) & 247 & 1.08 $\pm$0.23 & 1.03 $\pm$0.24 & 3.22 & 100\% & 93\% & 100\% \\
+ & 95\% & 12 & $1.1\times10^{7}$ & 10.0 (10) & 225 & 0.98 $\pm$0.29 & 0.94 $\pm$0.31 & 3.22 & 100\% & 95\% & 100\% \\
+ & 90\% & 12 & $5.7\times10^{6}$ & 10.0 (10) & 272 & 1.19 $\pm$0.37 & 1.18 $\pm$0.41 & 3.22 & 100\% & 92\% & 100\% \\
+ & 80\% & 12 & $5.0\times10^{6}$ & 10.0 (10) & 275 & 1.20 $\pm$0.32 & 1.13 $\pm$0.35 & 3.22 & 100\% & 85\% & 100\% \\
+ & 68\% & 12 & $3.1\times10^{6}$ & 10.0 (10) & 269 & 1.18 $\pm$0.35 & 1.15 $\pm$0.37 & 3.22 & 100\% & 92\% & 100\% \\
+\midrule
+LiH 3.0~\AA & exact & -- & -- & 6 & 115 & 1.00 & 1.00 & 0.68 & -- & -- & -- \\
+ & 99\% & 3 & $6.3\times10^{7}$ & 6.0 (6) & 121 & 1.05 $\pm$0.61 & 1.15 $\pm$0.58 & 0.68 & 100\% & 89\% & 100\% \\
+ & 95\% & 3 & $5.2\times10^{7}$ & 6.0 (6) & 147 & 1.28 $\pm$0.47 & 1.62 $\pm$1.05 & 0.68 & 100\% & 94\% & 100\% \\
+ & 68\% & 3 & $4.9\times10^{7}$ & 6.0 (6) & 95 & 0.83 $\pm$0.30 & 0.89 $\pm$0.19 & 0.68 & 100\% & 100\% & 100\% \\
+\midrule
+H$_2$O eq & exact & -- & -- & 17 & 517 & 1.00 & 1.00 & 1.54 & -- & -- & -- \\
+ & 95\% & 36 & $1.1\times10^{9}$ & 17.0 (17) & 672 & 1.30 $\pm$0.21 & 1.34 $\pm$0.21 & 1.54 & 100\% & 90\% & 100\% \\
+\midrule
+H$_2$O str & exact & -- & -- & 18 & 584 & 1.00 & 1.00 & 1.43 & -- & -- & -- \\
+ & 95\% & 36 & $2.7\times10^{9}$ & 18.0 (18) & 635 & 1.09 $\pm$0.16 & 1.12 $\pm$0.18 & 1.43 & 100\% & 92\% & 100\% \\
+\bottomrule
+\end{tabular}
+\end{table*}

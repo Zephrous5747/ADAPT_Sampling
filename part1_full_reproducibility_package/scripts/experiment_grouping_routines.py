@@ -40,13 +40,21 @@ from shot_models import DEFAULT_DELTA
 DETERMINISTIC = ("weight", "reverse-weight", "lexicographic")
 
 
-def evaluate(problem, delta: float) -> dict:
-    """Baseline and all three methods under the problem's current grouping."""
+def evaluate(problem, delta: float, actual: bool = False) -> dict:
+    """Baseline and all three methods under the problem's current grouping.
+
+    With ``actual`` set, also M3 eliminating on each arm's actual precision
+    (:func:`m3_baifcug.run_actual_radii`) and the M2/M3 ratio it implies.
+    """
     baseline = baseline_noshare.run(problem, delta=delta).total_shots
     m1 = m1_fcug.run(problem, delta=delta)
     m2 = m2_baifcig.run(problem, delta=delta).total_shots
     m3 = m3_baifcug.run(problem, delta=delta).total_shots
-    return {
+    extra = {}
+    if actual:
+        m3a = m3_baifcug.run_actual_radii(problem, delta=delta)["total_shots"]
+        extra = {"M3_actual": m3a, "M2_over_M3_actual": m2 / m3a}
+    return {**extra, 
         "parent_contexts": len(problem.parent_fc_groups()),
         "NOSHARE": baseline,
         "M1_FCUG": m1.total_shots,
@@ -59,60 +67,83 @@ def evaluate(problem, delta: float) -> dict:
     }
 
 
+def _read_rows(path: Path) -> list[dict]:
+    import csv as _csv
+
+    if not path.exists():
+        return []
+    with path.open() as handle:
+        return list(_csv.DictReader(handle))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--case", required=True, choices=sorted(CASES))
     parser.add_argument("--random-seeds", type=int, default=4)
     parser.add_argument("--orderings", nargs="+", default=None,
-                        help="run only these deterministic orderings; for large cases, "
-                             "one per invocation, combined with --append")
-    parser.add_argument("--append", action="store_true",
-                        help="add to an existing sweep CSV instead of replacing it")
+                        help="deterministic orderings to run (default: all three)")
+    parser.add_argument("--resume", action="store_true",
+                        help="skip groupings already in the CSV and save after each one; "
+                             "an interrupted sweep loses at most the grouping in flight")
+    parser.add_argument("--append", action="store_true", help="alias for --resume")
+    parser.add_argument("--actual", action="store_true",
+                        help="also evaluate M3 on actual precision (Sec. spillover)")
     parser.add_argument("--delta", type=float, default=DEFAULT_DELTA)
     parser.add_argument("--cache", default=None)
     parser.add_argument("--out", default=None, help="directory for a CSV of the sweep")
     args = parser.parse_args()
+    resume = args.resume or args.append
+    if resume and not args.out:
+        parser.error("--resume needs --out")
 
-    problem = load_or_build(get_case(args.case), Path(args.cache) if args.cache else None)
+    path = Path(args.out) / args.case / f"{args.case}_grouping_routines.csv" if args.out else None
+    rows = _read_rows(path) if (resume and path) else []
+    done = {(r["ordering"], int(r["seed"])) for r in rows}
+
     routines = [(name, 0) for name in (args.orderings or DETERMINISTIC)]
     routines += [("random", seed) for seed in range(args.random_seeds)]
+    pending = [r for r in routines if r not in done]
 
-    print(f"{args.case}: {len(routines)} groupings")
+    print(f"{args.case}: {len(routines)} groupings, {len(routines) - len(pending)} already done")
     print(f"{'ordering':>16}{'seed':>5}{'contexts':>10}{'M1/M2':>9}{'M2/M3':>9}"
           f"{'M1/M3':>9}{'base/M3':>10}{'seconds':>9}")
-    rows = []
-    for ordering, seed in routines:
+    for r in rows:
+        print(f"{r['ordering']:>16}{int(r['seed']):>5}{int(float(r['parent_contexts'])):>10,}"
+              f"{float(r['M1_over_M2']):9.2f}{float(r['M2_over_M3']):9.2f}"
+              f"{float(r['M1_over_M3']):9.2f}{float(r['NOSHARE_over_M3']):10.2f}   (saved)")
+
+    if pending:
+        problem = load_or_build(get_case(args.case), Path(args.cache) if args.cache else None)
+    for ordering, seed in pending:
         started = time.perf_counter()
         problem.set_fc_routine(ordering, seed)
-        row = {"case_id": args.case, "ordering": ordering, "seed": seed, **evaluate(problem, args.delta)}
+        row = {"case_id": args.case, "ordering": ordering, "seed": seed,
+               **evaluate(problem, args.delta, args.actual)}
         row["runtime_seconds"] = time.perf_counter() - started
         rows.append(row)
         print(f"{ordering:>16}{seed:>5}{row['parent_contexts']:>10,}{row['M1_over_M2']:9.2f}"
               f"{row['M2_over_M3']:9.2f}{row['M1_over_M3']:9.2f}{row['NOSHARE_over_M3']:10.2f}"
-              f"{row['runtime_seconds']:9.1f}")
+              f"{row['runtime_seconds']:9.1f}"
+              + (f"   M2/M3 actual {row['M2_over_M3_actual']:.2f}" if args.actual else ""),
+              flush=True)
+        if path is not None:
+            write_csv(path, list(row), rows)
 
+    if not rows:
+        return
     print("\nspread across groupings")
     for key in ("parent_contexts", "M1_over_M2", "M2_over_M3", "M1_over_M3", "NOSHARE_over_M3"):
-        values = [r[key] for r in rows]
+        values = [float(r[key]) for r in rows]
         low, high = min(values), max(values)
         spread = high / low if low > 0 else float("nan")
         print(f"   {key:>16}  min {low:12,.2f}   max {high:12,.2f}   max/min {spread:6.2f}"
               f"   median {statistics.median(values):12,.2f}")
 
-    orderings_consistent = all(
-        (r["M2_over_M3"] > 1) == (rows[0]["M2_over_M3"] > 1) and r["M1_over_M3"] > 1
-        for r in rows
-    )
-    print(f"\n   method ordering identical across every grouping: {orderings_consistent}")
-
-    if args.out:
-        path = Path(args.out) / args.case / f"{args.case}_grouping_routines.csv"
-        if args.append and path.exists():
-            import csv as _csv
-
-            with path.open() as handle:
-                rows = list(_csv.DictReader(handle)) + rows
-        write_csv(path, list(rows[-1]), rows)
+    first = float(rows[0]["M2_over_M3"]) > 1
+    consistent = all((float(r["M2_over_M3"]) > 1) == first and float(r["M1_over_M3"]) > 1
+                     for r in rows)
+    print(f"\n   method ordering identical across every grouping: {consistent}")
+    if path is not None:
         print(f"   wrote {path} ({len(rows)} groupings)")
 
 

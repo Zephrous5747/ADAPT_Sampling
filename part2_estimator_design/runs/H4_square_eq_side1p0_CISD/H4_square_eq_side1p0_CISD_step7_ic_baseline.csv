@@ -1,0 +1,9 @@
+case_id,config,n_trials,correct_rate,correct_low,correct_high,failures,shots_mean,shots_sem,shots_median,shots_q25,shots_q75,shots_p90,rounds_mean,good_1pct_rate,good_5pct_rate,good_10pct_rate,miscovered_rate,best_eliminated,stopped_rho_rate
+H4_square_eq_side1p0_CISD,"IC estimated + free energy data, rule=safe, anytime",200,1.0,0.9811539940816791,1.0,0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.03,0,0.0
+H4_square_eq_side1p0_CISD,"IC estimated + free energy data, rule=safe, anytime, rho=0.1",200,1.0,0.9811539940816791,1.0,0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.03,0,0.0
+H4_square_eq_side1p0_CISD,"IC estimated, rule=safe, anytime",200,0.995,0.9722256001302286,0.999116854010634,1,3998264.21,1043793.3491310165,3124304.0,2530686.0,3124304.0,3857166.0,49.655,0.995,0.995,0.995,0.035,1,0.0
+H4_square_eq_side1p0_CISD,"IC estimated, rule=safe, anytime, rho=0.1",200,0.995,0.9722256001302286,0.999116854010634,1,3257759.07,845674.7897611116,2530686.0,2049855.0,2530686.0,3124304.0,48.67,0.995,0.995,0.995,0.035,1,0.73
+H4_square_eq_side1p0_CISD,"IC oracle + free energy data, rule=safe, anytime",200,1.0,0.9811539940816791,1.0,0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.03,0,0.0
+H4_square_eq_side1p0_CISD,"IC oracle + free energy data, rule=safe, anytime, rho=0.1",200,1.0,0.9811539940816791,1.0,0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.03,0,0.0
+H4_square_eq_side1p0_CISD,"IC oracle, rule=safe, anytime",200,0.995,0.9722256001302286,0.999116854010634,1,4000668.365,1043773.5661929385,3124304.0,2530686.0,3124304.0,3857166.0,49.66,0.995,0.995,0.995,0.025,1,0.0
+H4_square_eq_side1p0_CISD,"IC oracle, rule=safe, anytime, rho=0.1",200,0.995,0.9722256001302286,0.999116854010634,1,3257759.07,845674.7897611116,2530686.0,2049855.0,2530686.0,3124304.0,48.67,0.995,0.995,0.995,0.025,1,0.735

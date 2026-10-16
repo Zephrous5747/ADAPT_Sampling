@@ -1,0 +1,2 @@
+case_id,method,label,trajectories,exact_adapt_iterations,exact_adapt_final_error,reached_rate,iterations_mean,iterations_max,final_error_median,final_error_p90,shots_median,shots_mean,shots_p90,selections,exact_best_rate,rho_good_rate,mean_shortfall,seconds
+H4_square_stretch_side2p0_HF,"Ikh reuse, FC",II-0/estimated radii/rule=safe/rho=0.1/start=bound/radius_min_shots=50/no-elimination/fc/reuse,48,10,0.0032203975973907895,0.0,10.0,10,0.0032203975973914556,0.0032203975973921217,32671165.0,34691171.520833336,62578914.2,480,0.9395833333333333,1.0,0.001073711742161225,248.0

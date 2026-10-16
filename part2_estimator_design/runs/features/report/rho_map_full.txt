@@ -1,0 +1,39 @@
+lowering = full re-optimisation
+ system  states  rho_cover_median  rho_cover_max  top_g_share_mean  top_g_share_min
+ H4 1.0      10             0.095          0.667             0.525            0.078
+ H4 2.0      10             0.000          0.280             0.960            0.597
+LiH 3.0       6             0.000          0.000             1.000            1.000
+ H2O eq      17             0.110          0.998             0.826            0.449
+H2O str      18             0.035          0.988             0.823            0.299
+
+rho = 0.05
+ system  worst_0.05_mean  worst_0.05_min  random_0.05_mean  covered_0.05_pct
+ H4 1.0            0.420           0.034             0.496            50.000
+ H4 2.0            0.882           0.432             0.924            90.000
+LiH 3.0            0.983           0.896             0.991           100.000
+ H2O eq            0.805           0.418             0.833            47.059
+H2O str            0.789           0.283             0.831            55.556
+
+rho = 0.1
+ system  worst_0.1_mean  worst_0.1_min  random_0.1_mean  covered_0.1_pct
+ H4 1.0           0.418          0.034            0.495           50.000
+ H4 2.0           0.870          0.432            0.918           90.000
+LiH 3.0           0.983          0.896            0.991          100.000
+ H2O eq           0.736          0.272            0.795           47.059
+H2O str           0.709          0.191            0.795           61.111
+
+rho = 0.2
+ system  worst_0.2_mean  worst_0.2_min  random_0.2_mean  covered_0.2_pct
+ H4 1.0           0.404          0.034            0.519           60.000
+ H4 2.0           0.844          0.432            0.901           90.000
+LiH 3.0           0.656          0.018            0.855          100.000
+ H2O eq           0.595          0.022            0.726           52.941
+H2O str           0.556          0.191            0.743           72.222
+
+rho = 0.3
+ system  worst_0.3_mean  worst_0.3_min  random_0.3_mean  covered_0.3_pct
+ H4 1.0           0.404          0.034            0.519           60.000
+ H4 2.0           0.835          0.395            0.903          100.000
+LiH 3.0           0.656          0.018            0.855          100.000
+ H2O eq           0.493          0.022            0.680           58.824
+H2O str           0.528          0.187            0.727           77.778

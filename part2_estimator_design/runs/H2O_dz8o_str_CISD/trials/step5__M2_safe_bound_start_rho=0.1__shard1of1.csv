@@ -1,0 +1,17 @@
+label,trial,n_trials,seed,selected,correct,shots,rounds,shortfall,miscovered_rounds,best_eliminated,stopped_rho,contexts_used,cz_per_shot_mean,allocation_seconds,statistics_seconds
+"M2 safe, bound start, rho=0.1",0,16,5,291,1,238413007.0,76,0.0,0,False,True,65318,16.081814034584113,2.783,0.222
+"M2 safe, bound start, rho=0.1",1,16,5,291,1,84377265.0,72,0.0,0,False,True,65318,15.928534351048235,2.457,0.162
+"M2 safe, bound start, rho=0.1",2,16,5,291,1,200215047.0,70,0.0,1,False,True,65318,16.205201829810523,2.75,0.194
+"M2 safe, bound start, rho=0.1",3,16,5,291,1,108319306.0,72,0.0,0,False,True,65318,15.986655970635558,2.566,0.201
+"M2 safe, bound start, rho=0.1",4,16,5,291,1,160935778.0,74,0.0,2,False,True,65318,16.00314157613853,2.721,0.232
+"M2 safe, bound start, rho=0.1",5,16,5,291,1,129735683.0,74,0.0,0,False,True,65318,16.03771152150947,2.664,0.228
+"M2 safe, bound start, rho=0.1",6,16,5,291,1,153461117.0,74,0.0,3,False,True,65318,15.900458166220698,2.692,0.202
+"M2 safe, bound start, rho=0.1",7,16,5,291,1,143662359.0,74,0.0,0,False,True,65318,16.02850363886897,2.69,0.22
+"M2 safe, bound start, rho=0.1",8,16,5,291,1,204406041.0,74,0.0,3,False,True,65318,15.990542877350675,2.77,0.221
+"M2 safe, bound start, rho=0.1",9,16,5,291,1,141893922.0,72,0.0,1,False,True,65318,16.12524675299341,2.648,0.213
+"M2 safe, bound start, rho=0.1",10,16,5,291,1,201295158.0,70,0.0,3,False,True,65318,16.194241398494047,2.742,0.196
+"M2 safe, bound start, rho=0.1",11,16,5,291,1,113131798.0,71,0.0,0,False,True,65318,15.929533189245344,2.617,0.209
+"M2 safe, bound start, rho=0.1",12,16,5,291,1,137588996.0,72,0.0,0,False,True,65318,16.048087275816737,2.596,0.184
+"M2 safe, bound start, rho=0.1",13,16,5,291,1,110705835.0,74,0.0,0,False,True,65318,15.754032115832015,2.614,0.205
+"M2 safe, bound start, rho=0.1",14,16,5,291,1,121098536.0,73,0.0,0,False,True,65318,16.120049263023294,2.609,0.202
+"M2 safe, bound start, rho=0.1",15,16,5,291,1,153628976.0,75,0.0,0,False,True,65318,16.0489235637423,2.703,0.205

@@ -1,0 +1,9 @@
+.git
+**/__pycache__
+**/.pytest_cache
+All in one
+Claude outputs
+reports
+part1_full_reproducibility_package/data
+part1_full_reproducibility_package/.cache
+part2_estimator_design/runs/**/*.npz

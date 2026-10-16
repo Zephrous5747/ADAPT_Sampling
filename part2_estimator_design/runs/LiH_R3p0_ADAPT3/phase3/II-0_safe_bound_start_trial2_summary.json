@@ -1,0 +1,14 @@
+{
+ "selected": 76,
+ "selected_label": "D 2,3 -> 4,5",
+ "context_shots": 1215455,
+ "rounds": 49,
+ "refits": 0,
+ "config": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50",
+ "stopped_rho": false,
+ "contexts_used": 980,
+ "cz_per_shot_mean": 21.209122509677446,
+ "design_seconds": 0.0,
+ "statistics_seconds": 52.416,
+ "allocation_seconds": 40.263
+}

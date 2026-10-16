@@ -1,0 +1,45 @@
+severity,case,label,check,message
+INFO,LiH_R3p0_HF,*,C2,single true arm 91 across 103 configs
+KNOWN,LiH_R3p0_HF,"II-0, selection z",C5,"correct 0.385 (n=200, upper 0.454) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+WARN,LiH_R3p0_HF,"II-A data + reuse, FC",C5,correct 0.925 below 0.95 but not significantly (n=200)
+KNOWN,LiH_R3p0_HF,"II-A data, selection z",C5,"correct 0.455 (n=200, upper 0.524) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+KNOWN,LiH_R3p0_HF,"M1 seq, selection z",C5,"correct 0.335 (n=200, upper 0.403) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+INFO,LiH_R3p0_HF,M1 static,C10,realised / planning = 1.0001
+INFO,LiH_R3p0_HF,II-0 oracle,C11,realised / planning = 0.924
+INFO,LiH_R3p0_HF,II-A oracle,C11,realised / planning = 1.808
+INFO,LiH_R3p0_HF,adapt_trajectory,C12,"7 steps, final error 6.84e-04, final max|g| 2.10e-02"
+INFO,LiH_R3p0_HF,II_0_safe___reuse__FC,C13,"30 trajectories, exact-best 0.956, rho-good 1.000, median shots 3.94e+07"
+INFO,LiH_R3p0_HF,II_A_data__safe___reuse__FC,C13,"30 trajectories, exact-best 0.956, rho-good 1.000, median shots 3.13e+07"
+INFO,LiH_R3p0_HF,Ikh_reuse__FC,C13,"30 trajectories, exact-best 0.889, rho-good 1.000, median shots 2.79e+08"
+INFO,LiH_R3p0_HF,M1_seq__safe,C13,"30 trajectories, exact-best 0.917, rho-good 1.000, median shots 3.47e+08"
+INFO,LiH_R3p0_HF,M1_static,C13,"30 trajectories, exact-best 0.989, rho-good 1.000, median shots 5.63e+09"
+INFO,LiH_R3p0_HF,M2_marginal,C13,"30 trajectories, exact-best 0.933, rho-good 1.000, median shots 2.17e+08"
+INFO,LiH_R3p0_HF,M2_safe,C13,"30 trajectories, exact-best 0.944, rho-good 1.000, median shots 1.21e+08"
+INFO,LiH_R3p0_HF,LiH_R3p0_HF_phase4,C13,"30 trajectories, exact-best 0.944, rho-good 1.000, median shots 8.57e+07"
+INFO,LiH_R3p0_ADAPT3,*,C2,single true arm 76 across 41 configs
+KNOWN,LiH_R3p0_ADAPT3,"II-0, selection z",C5,"correct 0.510 (n=100, upper 0.606) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+KNOWN,LiH_R3p0_ADAPT3,"II-A data, selection z",C5,"correct 0.490 (n=100, upper 0.587) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+KNOWN,LiH_R3p0_ADAPT3,"M1 seq, selection z",C5,"correct 0.460 (n=100, upper 0.557) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+INFO,LiH_R3p0_ADAPT5,*,C2,single true arm 11 across 41 configs
+KNOWN,LiH_R3p0_ADAPT5,II-A HF prior,C5,"correct 0.290 (n=100, upper 0.385) < 0.95; prior learned at HF is mis-specified at later states (ablation)"
+KNOWN,LiH_R3p0_ADAPT5,"II-0, selection z",C5,"correct 0.350 (n=100, upper 0.447) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+KNOWN,LiH_R3p0_ADAPT5,"II-A data, safe, selection z",C5,"correct 0.740 (n=100, upper 0.816) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+KNOWN,LiH_R3p0_ADAPT5,"II-A data, selection z",C5,"correct 0.740 (n=100, upper 0.816) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+KNOWN,LiH_R3p0_ADAPT5,"M1 seq, safe, selection z",C5,"correct 0.480 (n=100, upper 0.577) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+KNOWN,LiH_R3p0_ADAPT5,"M1 seq, selection z",C5,"correct 0.350 (n=100, upper 0.447) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+KNOWN,LiH_R3p0_ADAPT5,"M2 pairwise, selection z",C5,"correct 0.710 (n=100, upper 0.790) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+KNOWN,LiH_R3p0_ADAPT5,"M2 safe, selection z",C5,"correct 0.710 (n=100, upper 0.790) < 0.95; loose selection radius: valid only with the sign-aware rule and not on every state"
+INFO,LiH_R3p0_HF@qubit,*,C2,single true arm 12 across 8 configs
+INFO,LiH_R3p0_HF@qeb,*,C2,single true arm 91 across 8 configs
+INFO,LiH_R3p0_HF@uccsd,*,C2,single true arm 91 across 5 configs
+INFO,LiH_R3p0_HF@ceo,*,C2,single true arm 286 across 5 configs
+INFO,LiH_R3p0_HF@gsd_qeb,*,C2,single true arm 286 across 5 configs
+INFO,LiH_R3p0_HF,*,C14,"11 configs present in a sibling case only: ['II-0 estimated, rho=0.1', 'II-A HF nu=100', 'II-A HF prior', 'II-A data, contrast, bound start, anytime', 'II-A data, rho=0.1', 'M1 seq, rho=0.1', 'M1 static, rho=0.1', 'M2 pairwise, rho=0.1'] ..."
+INFO,LiH_R3p0_ADAPT3,*,C14,"74 configs present in a sibling case only: ['IC oracle + free energy data, rule=safe, anytime, rho=0.1', 'IC oracle, rule=safe, anytime, rho=0.1', 'II-0 estimated, rho=0.1', 'II-0, blocks=1', 'II-0, blocks=2', 'II-0, blocks=4', 'II-0, safe, blocks=1', 'II-0, safe, blocks=2'] ..."
+INFO,LiH_R3p0_ADAPT5,*,C14,"74 configs present in a sibling case only: ['IC oracle + free energy data, rule=safe, anytime, rho=0.1', 'IC oracle, rule=safe, anytime, rho=0.1', 'II-0 estimated, rho=0.1', 'II-0, blocks=1', 'II-0, blocks=2', 'II-0, blocks=4', 'II-0, safe, blocks=1', 'II-0, safe, blocks=2'] ..."
+INFO,LiH_R3p0_HF@qubit,*,C14,"107 configs present in a sibling case only: ['IC oracle + free energy data, rule=safe, anytime, rho=0.1', 'IC oracle, rule=safe, anytime, rho=0.1', 'II-0 + reuse, FC', 'II-0 estimated', 'II-0 oracle', 'II-0 safe', 'II-0 safe + reuse, FC', 'II-0 safe, bound start'] ..."
+INFO,LiH_R3p0_HF@qeb,*,C14,"107 configs present in a sibling case only: ['IC oracle + free energy data, rule=safe, anytime, rho=0.1', 'IC oracle, rule=safe, anytime, rho=0.1', 'II-0 + reuse, FC', 'II-0 estimated', 'II-0 oracle', 'II-0 safe', 'II-0 safe + reuse, FC', 'II-0 safe, bound start'] ..."
+INFO,LiH_R3p0_HF@uccsd,*,C14,"110 configs present in a sibling case only: ['IC oracle + free energy data, rule=safe, anytime, rho=0.1', 'IC oracle, rule=safe, anytime, rho=0.1', 'II-0 + reuse, FC', 'II-0 estimated', 'II-0 oracle', 'II-0 safe', 'II-0 safe + reuse, FC', 'II-0 safe, bound start'] ..."
+INFO,LiH_R3p0_HF@ceo,*,C14,"110 configs present in a sibling case only: ['IC oracle + free energy data, rule=safe, anytime, rho=0.1', 'IC oracle, rule=safe, anytime, rho=0.1', 'II-0 + reuse, FC', 'II-0 estimated', 'II-0 oracle', 'II-0 safe', 'II-0 safe + reuse, FC', 'II-0 safe, bound start'] ..."
+INFO,LiH_R3p0_HF@gsd_qeb,*,C14,"110 configs present in a sibling case only: ['IC oracle + free energy data, rule=safe, anytime, rho=0.1', 'IC oracle, rule=safe, anytime, rho=0.1', 'II-0 + reuse, FC', 'II-0 estimated', 'II-0 oracle', 'II-0 safe', 'II-0 safe + reuse, FC', 'II-0 safe, bound start'] ..."
+WARN,LiH_R3p0_HF,Pivot merged II-A,C14,50 trials (case mode 100)

@@ -1,0 +1,140 @@
+S1: 43/46 numbers agree
+Table 1: 44/54 numbers agree
+Table 2: 77/150 numbers agree
+Table 3: 69/117 numbers agree
+
+differences:
+  S1       H4 2.0                             spearman median          theirs         0.97 ours         0.95 diff -0.02
+  S1       H4 2.0                             spearman full            theirs         0.86 ours      0.82857 diff -0.03143
+  S1       H2O str                            spearman min             theirs         0.86 ours      0.84261 diff -0.01739
+  Table 1  H4 1.0 II-A                        spearman(r, dE)          theirs        -0.03 ours     -0.00117 diff +0.02883
+  Table 1  H4 2.0 II-0                        pairs                    theirs           73 ours           75 diff +2
+  Table 1  H4 2.0 II-0                        top-pair r               theirs        -0.02 ours    -0.056446 diff -0.03645
+  Table 1  H4 2.0 II-0                        top-pair chi             theirs         1.02 ours       1.0564 diff +0.03645
+  Table 1  H4 2.0 II-A                        pairs                    theirs           73 ours           75 diff +2
+  Table 1  H4 2.0 II-A                        spearman(r, dE)          theirs        -0.04 ours   -0.0030015 diff +0.037
+  Table 1  LiH 3.0 II-A                       chi min                  theirs         0.82 ours      0.83869 diff +0.01869
+  Table 1  LiH 3.0 II-A                       chi max                  theirs         1.27 ours       1.2441 diff -0.02592
+  Table 1  LiH 3.0 II-A                       top-pair r               theirs        -0.04 ours    -0.024307 diff +0.01569
+  Table 1  LiH 3.0 II-A                       top-pair chi             theirs         1.04 ours       1.0243 diff -0.01569
+  Table 2  H4 1.0 99%                         opt evals mean           theirs          353 ours       272.67 diff -80.33
+  Table 2  H4 1.0 99%                         evals ratio              theirs         1.24 ours       1.9202 diff +0.6802
+  Table 2  H4 1.0 99%                         C_opt ratio              theirs         1.28 ours       1.9738 diff +0.6938
+  Table 2  H4 1.0 99%                         exact best %             theirs           91 ours         92.5 diff +1.5
+  Table 2  H4 1.0 97%                         median shots             theirs      1.2e+06 ours   1.3553e+06 diff +1.553e+05
+  Table 2  H4 1.0 97%                         opt evals mean           theirs          287 ours       260.75 diff -26.25
+  Table 2  H4 1.0 97%                         evals ratio              theirs         1.01 ours       1.8363 diff +0.8263
+  Table 2  H4 1.0 97%                         C_opt ratio              theirs         1.04 ours       1.9538 diff +0.9138
+  Table 2  H4 1.0 97%                         exact best %             theirs           90 ours       89.167 diff -0.8333
+  Table 2  H4 1.0 95%                         median shots             theirs      1.2e+06 ours   1.0074e+06 diff -1.926e+05
+  Table 2  H4 1.0 95%                         opt evals mean           theirs          285 ours       249.92 diff -35.08
+  Table 2  H4 1.0 95%                         evals ratio              theirs            1 ours         1.76 diff +0.76
+  Table 2  H4 1.0 95%                         C_opt ratio              theirs         1.02 ours       1.8951 diff +0.8751
+  Table 2  H4 1.0 95%                         exact best %             theirs           86 ours         87.5 diff +1.5
+  Table 2  H4 1.0 90%                         median shots             theirs      8.2e+05 ours   8.9132e+05 diff +7.132e+04
+  Table 2  H4 1.0 90%                         evals ratio              theirs         0.96 ours       1.9372 diff +0.9772
+  Table 2  H4 1.0 90%                         C_opt ratio              theirs         0.99 ours       2.1274 diff +1.137
+  Table 2  H4 1.0 90%                         exact best %             theirs           88 ours           90 diff +2
+  Table 2  H4 1.0 80%                         median shots             theirs      7.6e+05 ours   6.9446e+05 diff -6.554e+04
+  Table 2  H4 1.0 80%                         opt evals mean           theirs          294 ours       264.92 diff -29.08
+  Table 2  H4 1.0 80%                         evals ratio              theirs         1.03 ours       1.8656 diff +0.8356
+  Table 2  H4 1.0 80%                         C_opt ratio              theirs         1.08 ours       2.0119 diff +0.9319
+  Table 2  H4 1.0 80%                         rho-good %               theirs           99 ours          100 diff +1
+  Table 2  H4 1.0 68%                         median shots             theirs      5.7e+05 ours    6.141e+05 diff +4.41e+04
+  Table 2  H4 1.0 68%                         opt evals mean           theirs          271 ours       258.33 diff -12.67
+  Table 2  H4 1.0 68%                         evals ratio              theirs         0.95 ours       1.8192 diff +0.8692
+  Table 2  H4 1.0 68%                         C_opt ratio              theirs         0.96 ours       1.9259 diff +0.9659
+  Table 2  H4 1.0 68%                         exact best %             theirs           91 ours         87.5 diff -3.5
+  Table 2  H4 2.0 99%                         median shots             theirs      1.4e+07 ours    1.445e+07 diff +4.498e+05
+  Table 2  H4 2.0 99%                         opt evals mean           theirs          200 ours       212.58 diff +12.58
+  Table 2  H4 2.0 99%                         evals ratio              theirs         0.83 ours      0.92831 diff +0.09831
+  Table 2  H4 2.0 99%                         C_opt ratio              theirs         0.77 ours       0.8783 diff +0.1083
+  Table 2  H4 2.0 99%                         exact best %             theirs           94 ours       93.333 diff -0.6667
+  Table 2  H4 2.0 97%                         median shots             theirs      1.2e+07 ours   9.1555e+06 diff -2.844e+06
+  Table 2  H4 2.0 97%                         opt evals mean           theirs          202 ours       247.17 diff +45.17
+  Table 2  H4 2.0 97%                         evals ratio              theirs         0.83 ours       1.0793 diff +0.2493
+  Table 2  H4 2.0 97%                         C_opt ratio              theirs         0.79 ours       1.0334 diff +0.2434
+  Table 2  H4 2.0 97%                         exact best %             theirs           98 ours       93.333 diff -4.667
+  Table 2  H4 2.0 95%                         median shots             theirs      9.5e+06 ours   1.0576e+07 diff +1.076e+06
+  Table 2  H4 2.0 95%                         opt evals mean           theirs          217 ours          225 diff +8
+  Table 2  H4 2.0 95%                         evals ratio              theirs          0.9 ours      0.98253 diff +0.08253
+  Table 2  H4 2.0 95%                         C_opt ratio              theirs         0.82 ours      0.93555 diff +0.1155
+  Table 2  H4 2.0 90%                         median shots             theirs      6.4e+06 ours   5.6653e+06 diff -7.347e+05
+  Table 2  H4 2.0 90%                         opt evals mean           theirs          205 ours       272.25 diff +67.25
+  Table 2  H4 2.0 90%                         evals ratio              theirs         0.85 ours       1.1889 diff +0.3389
+  Table 2  H4 2.0 90%                         C_opt ratio              theirs         0.79 ours       1.1835 diff +0.3935
+  Table 2  H4 2.0 90%                         exact best %             theirs           93 ours       91.667 diff -1.333
+  Table 2  H4 2.0 80%                         median shots             theirs      5.7e+06 ours   4.9679e+06 diff -7.321e+05
+  Table 2  H4 2.0 80%                         opt evals mean           theirs          241 ours       275.42 diff +34.42
+  Table 2  H4 2.0 80%                         evals ratio              theirs            1 ours       1.2027 diff +0.2027
+  Table 2  H4 2.0 80%                         C_opt ratio              theirs         0.87 ours       1.1256 diff +0.2556
+  Table 2  H4 2.0 80%                         exact best %             theirs           88 ours           85 diff -3
+  Table 2  H4 2.0 68%                         median shots             theirs      4.8e+06 ours   3.1345e+06 diff -1.666e+06
+  Table 2  H4 2.0 68%                         opt evals mean           theirs          230 ours       269.33 diff +39.33
+  Table 2  H4 2.0 68%                         evals ratio              theirs         0.95 ours       1.1761 diff +0.2261
+  Table 2  H4 2.0 68%                         C_opt ratio              theirs         0.87 ours       1.1465 diff +0.2765
+  Table 2  LiH 3.0 99%                        runs                     theirs            2 ours            3 diff +1
+  Table 2  LiH 3.0 99%                        median shots             theirs      8.6e+07 ours   6.2915e+07 diff -2.308e+07
+  Table 2  LiH 3.0 99%                        opt evals mean           theirs           96 ours       120.67 diff +24.67
+  Table 2  LiH 3.0 99%                        evals ratio              theirs         1.01 ours       1.0493 diff +0.03928
+  Table 2  LiH 3.0 99%                        C_opt ratio              theirs         1.01 ours       1.1534 diff +0.1434
+  Table 2  LiH 3.0 99%                        exact best %             theirs           92 ours       88.889 diff -3.111
+  Table 2  LiH 3.0 95%                        runs                     theirs            2 ours            3 diff +1
+  Table 2  LiH 3.0 95%                        median shots             theirs      4.2e+07 ours   5.1731e+07 diff +9.731e+06
+  Table 2  LiH 3.0 95%                        opt evals mean           theirs           96 ours       146.67 diff +50.67
+  Table 2  LiH 3.0 95%                        evals ratio              theirs         1.01 ours       1.2754 diff +0.2654
+  Table 2  LiH 3.0 95%                        C_opt ratio              theirs         1.01 ours        1.615 diff +0.605
+  Table 2  LiH 3.0 95%                        exact best %             theirs           92 ours       94.444 diff +2.444
+  Table 2  LiH 3.0 68%                        median shots             theirs      3.7e+07 ours   4.8944e+07 diff +1.194e+07
+  Table 2  LiH 3.0 68%                        opt evals mean           theirs           97 ours           95 diff -2
+  Table 2  LiH 3.0 68%                        evals ratio              theirs         1.01 ours      0.82609 diff -0.1839
+  Table 2  LiH 3.0 68%                        C_opt ratio              theirs         1.01 ours      0.89252 diff -0.1175
+  Table 2  LiH 3.0 68%                        exact best %             theirs           89 ours          100 diff +11
+  Table 3  H4 1.0 II-A, 0 non-best            evals ratio              theirs         0.92 ours       1.8262 diff +0.9062
+  Table 3  H4 1.0 II-A, 0 non-best            C_opt ratio              theirs         0.87 ours       1.9587 diff +1.089
+  Table 3  H4 1.0 II-A, 1 non-best            runs                     theirs           30 ours           27 diff -3
+  Table 3  H4 1.0 II-A, 1 non-best            evals ratio              theirs         1.12 ours       1.6369 diff +0.5169
+  Table 3  H4 1.0 II-A, 1 non-best            C_opt ratio              theirs          1.2 ours       1.7791 diff +0.5791
+  Table 3  H4 1.0 II-A, 2 non-best            runs                     theirs           12 ours           19 diff +7
+  Table 3  H4 1.0 II-A, 2 non-best            evals ratio              theirs         0.92 ours       2.0771 diff +1.157
+  Table 3  H4 1.0 II-A, 2 non-best            C_opt ratio              theirs         0.94 ours       2.2066 diff +1.267
+  Table 3  H4 1.0 II-A, 3 or more non-best    runs                     theirs            8 ours            4 diff -4
+  Table 3  H4 1.0 II-A, 3 or more non-best    non-best/run             theirs          3.1 ours         3.25 diff +0.15
+  Table 3  H4 1.0 II-A, 3 or more non-best    not rho-good/run         theirs          0.1 ours            0 diff -0.1
+  Table 3  H4 1.0 II-A, 3 or more non-best    evals ratio              theirs         1.19 ours        2.456 diff +1.266
+  Table 3  H4 1.0 II-A, 3 or more non-best    C_opt ratio              theirs         1.24 ours       2.4006 diff +1.161
+  Table 3  H4 1.0 fixed 1e3 shots/sel. (pilot) non-best/run             theirs         18.9 ours       18.417 diff -0.4833
+  Table 3  H4 1.0 fixed 1e3 shots/sel. (pilot) not rho-good/run         theirs         17.6 ours       17.417 diff -0.1833
+  Table 3  H4 1.0 fixed 1e3 shots/sel. (pilot) evals ratio              theirs         0.67 ours       1.1244 diff +0.4544
+  Table 3  H4 1.0 fixed 1e3 shots/sel. (pilot) C_opt ratio              theirs         1.18 ours        1.943 diff +0.763
+  Table 3  H4 1.0 fixed 1e3 shots/sel. (pilot) dE median mHa            theirs        96.67 ours       100.11 diff +3.441
+  Table 3  H4 1.0 fixed 3.2e3 shots/sel. (pilot) non-best/run             theirs          9.9 ours           12 diff +2.1
+  Table 3  H4 1.0 fixed 3.2e3 shots/sel. (pilot) not rho-good/run         theirs            8 ours       9.6667 diff +1.667
+  Table 3  H4 1.0 fixed 3.2e3 shots/sel. (pilot) steps mean               theirs         14.7 ours         16.5 diff +1.8
+  Table 3  H4 1.0 fixed 3.2e3 shots/sel. (pilot) evals ratio              theirs         1.48 ours       3.8151 diff +2.335
+  Table 3  H4 1.0 fixed 3.2e3 shots/sel. (pilot) C_opt ratio              theirs         2.17 ours       6.1659 diff +3.996
+  Table 3  H4 1.0 fixed 3.2e3 shots/sel. (pilot) same E %                 theirs           83 ours       91.667 diff +8.667
+  Table 3  H4 1.0 fixed 3.2e3 shots/sel. (pilot) CA %                     theirs           83 ours       91.667 diff +8.667
+  Table 3  H4 1.0 fixed 1e4 shots/sel. (pilot) not rho-good/run         theirs          2.9 ours       3.4167 diff +0.5167
+  Table 3  H4 1.0 fixed 1e4 shots/sel. (pilot) steps mean               theirs         10.9 ours       12.083 diff +1.183
+  Table 3  H4 1.0 fixed 1e4 shots/sel. (pilot) evals ratio              theirs         1.33 ours       2.2694 diff +0.9394
+  Table 3  H4 1.0 fixed 1e4 shots/sel. (pilot) C_opt ratio              theirs         1.51 ours       2.8925 diff +1.382
+  Table 3  H4 2.0 II-A, 0 non-best            runs                     theirs           35 ours           29 diff -6
+  Table 3  H4 2.0 II-A, 0 non-best            evals ratio              theirs         0.81 ours       1.0289 diff +0.2189
+  Table 3  H4 2.0 II-A, 0 non-best            C_opt ratio              theirs         0.76 ours       1.0239 diff +0.2639
+  Table 3  H4 2.0 II-A, 1 non-best            runs                     theirs           30 ours           35 diff +5
+  Table 3  H4 2.0 II-A, 1 non-best            evals ratio              theirs         0.91 ours       1.1042 diff +0.1942
+  Table 3  H4 2.0 II-A, 1 non-best            C_opt ratio              theirs         0.85 ours       1.0606 diff +0.2106
+  Table 3  H4 2.0 II-A, 2 non-best            runs                     theirs            5 ours            3 diff -2
+  Table 3  H4 2.0 II-A, 2 non-best            evals ratio              theirs         1.09 ours       1.2314 diff +0.1414
+  Table 3  H4 2.0 II-A, 2 non-best            C_opt ratio              theirs         0.97 ours       1.1597 diff +0.1897
+  Table 3  H4 2.0 II-A, 3 or more non-best    runs                     theirs            2 ours            5 diff +3
+  Table 3  H4 2.0 II-A, 3 or more non-best    non-best/run             theirs          3.5 ours          3.6 diff +0.1
+  Table 3  H4 2.0 II-A, 3 or more non-best    evals ratio              theirs         1.42 ours       1.3031 diff -0.1169
+  Table 3  H4 2.0 II-A, 3 or more non-best    C_opt ratio              theirs         1.08 ours       1.0683 diff -0.01172
+  Table 3  LiH 3.0 II-A, 0 non-best           runs                     theirs            3 ours            7 diff +4
+  Table 3  LiH 3.0 II-A, 0 non-best           evals ratio              theirs            1 ours      0.85093 diff -0.1491
+  Table 3  LiH 3.0 II-A, 0 non-best           C_opt ratio              theirs            1 ours      0.90788 diff -0.09212
+  Table 3  LiH 3.0 II-A, 1 non-best           runs                     theirs            4 ours            1 diff -3
+  Table 3  LiH 3.0 II-A, 1 non-best           evals ratio              theirs         1.01 ours       1.8174 diff +0.8074
+  Table 3  LiH 3.0 II-A, 1 non-best           C_opt ratio              theirs         1.01 ours     

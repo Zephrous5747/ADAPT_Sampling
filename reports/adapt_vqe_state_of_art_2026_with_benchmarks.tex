@@ -1,0 +1,474 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs,longtable,array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\hypersetup{colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black}
+\newcommand{\ket}[1]{\left|#1\right\rangle}
+\newcommand{\bra}[1]{\left\langle #1\right|}
+\newcommand{\expect}[1]{\left\langle #1\right\rangle}
+\newcommand{\comm}[2]{\left[#1,#2\right]}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\newcommand{\supp}{\operatorname{supp}}
+\title{State of the Art in Adaptive Variational Quantum Eigensolvers:\\Generator Selection, Measurement Reduction, and Resource-Aware Ansatz Construction}
+\author{Literature note for the ADAPT-VQE measurement project}
+\date{September 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This note summarizes selected state-of-the-art developments in adaptive variational quantum eigensolvers (ADAPT-VQE), with emphasis on the generator-selection problem. The literature has evolved along several partly independent axes: operator-pool design, generator scoring, simultaneous measurement of gradient observables, statistical allocation of shots, multi-operator selection, circuit/hardware-aware ansatz construction, and reuse of information between adaptive iterations. A useful modern viewpoint is that ``generator selection'' is no longer a single problem. One must separately ask: which generators are allowed in the pool; what score defines a useful candidate; how that score is measured; how measurement effort is allocated among candidates; and how the selected operators are inserted and subsequently optimized. The 2025 CEO-ADAPT-VQE work is an important integrated resource-reduction milestone, but it is not the most recent development in generator selection. Subsequent work includes optimized informationally complete measurements, Pauli-shot reuse and variance allocation, gradient-trough mitigation, best-arm identification, hardware co-design, and efficient energy-based selection. The note closes with a suggested state-of-the-art comparator set for new work on measurement-efficient generator selection.
+\end{abstract}
+
+\section{Scope and central selection problem}
+
+In standard gradient-based ADAPT-VQE, the current state is
+\begin{equation}
+    \ket{\psi^{(k)}}
+    =e^{\theta_k G_{i_k}}\cdots e^{\theta_1G_{i_1}}\ket{\psi_0},
+\end{equation}
+and each candidate generator $G_i$ is assigned the gradient
+\begin{equation}
+    g_i
+    =\bra{\psi^{(k)}}\comm{H}{G_i}\ket{\psi^{(k)}}.
+\end{equation}
+The original selection rule chooses
+\begin{equation}
+    i^\star=\argmax_i |g_i|.
+\end{equation}
+The measurement difficulty arises because a large generator pool implies many commutator observables, each of which generally expands into many Pauli products.
+
+The modern literature separates this problem into at least five questions:
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{Pool design:} which generators should be candidates at all?
+    \item \textbf{Scoring:} should candidates be ranked by an infinitesimal gradient, a finite energy lowering, a heuristic importance metric, or a hardware-aware utility?
+    \item \textbf{Measurement design:} how should the required observables be grouped or otherwise measured?
+    \item \textbf{Statistical decision:} must all scores be estimated accurately, or only well enough to identify a useful winner?
+    \item \textbf{Ansatz update:} should one add one operator, several operators, change insertion position, or co-design the choice with hardware constraints?
+\end{enumerate}
+This taxonomy is useful because two papers may both claim to reduce ``ADAPT measurement cost'' while modifying completely different layers of the algorithm.
+
+\section{Chronology of representative developments}
+
+\begin{longtable}{p{0.08\linewidth}p{0.27\linewidth}p{0.59\linewidth}}
+\toprule
+Year & Work & Main relevance to generator selection \\
+\midrule
+\endfirsthead
+\toprule
+Year & Work & Main relevance to generator selection \\
+\midrule
+\endhead
+2019 & Original ADAPT-VQE \cite{Grimsley2019} & Establishes adaptive ansatz growth and the standard largest-gradient criterion. \\
+2021 & qubit-ADAPT-VQE \cite{Tang2021} & Replaces fermionic pool structure by hardware-efficient Pauli generators; emphasizes pool completeness and circuit cost. \\
+2021 & QEB-ADAPT-VQE \cite{Yordanov2021} & Uses qubit excitations that preserve particle number and $S_z$ while reducing gate cost relative to fermionic excitations. \\
+2023 & Symmetry-adapted minimal pools \cite{Shkolnikov2023} & Shows that complete Pauli pools of size $2n-2$ exist and that symmetry compatibility is essential; reduces pool-induced measurement overhead. \\
+2023 & FAST-VQE \cite{Majland2023} & Replaces exact pool-gradient scoring by determinant-population-based importance metrics measurable in the computational basis. \\
+2023 & ``How to really measure operator gradients'' \cite{Anastasiou2023} & Uses simultaneous measurement of commuting gradient observables; reframes the apparent $O(N^8)$ term count in terms of far fewer fully commuting measurement sets. \\
+2024 & TETRIS-ADAPT-VQE \cite{Anastasiou2024TETRIS} & Adds multiple disjoint-support operators in one adaptive iteration, reducing depth and the number of expensive gradient rounds. \\
+2024 & Operator-pool tiling \cite{VanDyke2024} & Transfers operator relevance learned on smaller problems to scalable tiled pools for larger related systems. \\
+2024/25 & Hessian recycling \cite{Ramoa2025Hessian} & Reuses curvature information between ADAPT iterations, addressing the separate but competing measurement cost of repeated ansatz reoptimization. \\
+2025 & CEO-ADAPT-VQE \cite{Ramoa2025CEO} & Introduces coupled exchange operators and integrates CEO pools with TETRIS, optimized gradient measurements, and Hessian recycling as a state-of-the-art resource stack. \\
+2025 & AIM-ADAPT-VQE \cite{Nykanen2025} & Uses optimized informationally complete generalized measurements so energy-measurement data can be classically reused to estimate the full gradient pool. \\
+2025 & Shot reuse and variance allocation \cite{Ikhtiarudin2025} & Reuses Pauli outcomes from optimization in the following selection step and allocates shots according to variance. \\
+2025 & Greedy gradient-free ADAPT \cite{Feniou2025} & Selects operators by finite one-dimensional energy lowering rather than local derivative magnitude and avoids repeated global reoptimization in the greedy form. \\
+2025 & ExcitationSolve for ADAPT \cite{Jager2025} & Uses exact one-dimensional excitation energy landscapes for globally informed selection and parameter initialization. \\
+2025 & Gradient-trough mitigation \cite{Stadelmann2025} & Shows that very small gradients can occur before convergence and uses alternate insertion locations to escape such troughs. \\
+2026 & Best-arm identification (BAI) \cite{Huang2026} & Reformulates selection statistically: identify the largest-gradient generator with as few measurements as possible, eliminating unlikely candidates early. \\
+2026 & Co-ADAPT-VQE \cite{Ramoa2026CoDesign} & Co-designs ansatz construction with hardware connectivity and gate costs; selection is no longer purely chemistry-driven. \\
+2026 & Efficient fermionic energy-based selection \cite{Rossi2026} & Uses an exact transformed-Hamiltonian fragmentation to reduce fermionic Rotoselect cost by about a factor of two, bringing energy-based selection close to gradient-selection cost. \\
+\bottomrule
+\end{longtable}
+
+\section{Axis I: operator-pool design}
+
+The original ADAPT-VQE used generalized fermionic excitation pools \cite{Grimsley2019}. Pool design quickly became a major research direction because the pool simultaneously controls completeness, circuit depth, symmetry preservation, and the number of scores that must be measured.
+
+qubit-ADAPT-VQE replaced fermionic excitations by Pauli-string generators to obtain more hardware-efficient circuits \cite{Tang2021}. QEB-ADAPT-VQE introduced qubit excitations that retain particle-number and $S_z$ symmetry while avoiding the long Jordan--Wigner strings associated with fermionic excitations \cite{Yordanov2021}.
+
+Shkolnikov, Mayhall, Economou, and Barnes proved that complete Pauli pools of size $2n-2$ can exist and derived symmetry requirements needed to avoid convergence roadblocks \cite{Shkolnikov2023}. This work reduces selection overhead by reducing the number of candidate generators themselves, rather than by changing how a fixed set of gradients is measured.
+
+Operator-pool tiling addresses scaling to related larger systems by learning relevant local structures on a smaller instance and tiling those structures into a larger pool \cite{VanDyke2024}. More recently, CEO-ADAPT-VQE introduced coupled exchange operators designed to improve circuit efficiency while preserving useful symmetries \cite{Ramoa2025CEO}.
+
+The important lesson is that measurement comparisons are meaningful only after the pool is specified. A method that uses fewer shots with a much smaller or structurally different pool is not measuring the same statistical problem.
+
+\section{Axis II: what score should select the next generator?}
+
+\subsection{Local gradient selection}
+The original ADAPT criterion ranks candidates by $|g_i|$, i.e., by the slope at zero amplitude. This is inexpensive conceptually and has a clear connection to steepest descent, but it is only a local criterion.
+
+\subsection{Population-based and heuristic scoring}
+FAST-VQE avoids explicit commutator-gradient measurements by deriving operator-importance metrics from measured Slater-determinant populations \cite{Majland2023}. This represents a different philosophy: approximate the selection score from a cheaper observable rather than measuring the exact gradient more efficiently.
+
+\subsection{Finite energy-lowering criteria}
+Several recent methods replace the local slope by a finite one-dimensional energy improvement. Greedy gradient-free adaptive VQE ranks operators by the optimized energy after a one-parameter move \cite{Feniou2025}. ExcitationSolve exploits the exact analytic one-dimensional energy landscape of excitation generators and uses the attainable minimum as a globally informed score \cite{Jager2025}. Rossi \emph{et al.} derive an exact Hamiltonian transformation that makes fermionic energy-based Rotoselect substantially cheaper and benchmark gradient-based versus energy-based selection across weakly and strongly correlated molecular geometries \cite{Rossi2026}.
+
+These developments clarify that there are two distinct questions:
+\begin{equation}
+    \text{How should a candidate be scored?}
+    \qquad\text{and}\qquad
+    \text{How should that score be measured?}
+\end{equation}
+A fair benchmark should not conflate them.
+
+\section{Axis III: measuring the gradient pool more efficiently}
+
+\subsection{Fully commuting global measurements}
+Anastasiou, Mayhall, Barnes, and Economou showed that the many Pauli terms appearing in a hardware-efficient ADAPT gradient pool can be organized into mutually commuting measurement sets \cite{Anastasiou2023}. Rather than measuring each commutator independently, the method exploits simultaneous measurement across the entire pool. The resulting analysis substantially reduces the apparent overhead and argues that pool-gradient measurement can be only $O(N)$ times the cost of a naive VQE energy iteration under the assumptions considered there.
+
+This work is a central comparator for any new global-grouping or shared-observable strategy.
+
+\subsection{Informationally complete measurements}
+AIM-ADAPT-VQE takes a different route. Optimized informationally complete generalized measurements used for energy estimation contain enough information to estimate the operator-pool commutators by classical postprocessing \cite{Nykanen2025}. For the reported systems, energy-measurement data could therefore be reused for ADAPT selection with essentially no additional dedicated gradient-measurement layer.
+
+\subsection{Reuse and variance-based allocation}
+Ikhtiarudin \emph{et al.} reuse Pauli outcomes obtained during VQE parameter optimization in the following ADAPT selection step and combine this with variance-based shot allocation \cite{Ikhtiarudin2025}. This work is particularly relevant to end-to-end resource accounting because it crosses the boundary between the optimization and selection loops.
+
+\section{Axis IV: statistical decision rather than uniform estimation}
+
+The BAI formulation of Huang and Izmaylov changes the statistical objective itself \cite{Huang2026}. Standard gradient measurement implicitly asks for a collection of estimates
+\begin{equation}
+    \widehat g_i\approx g_i
+\end{equation}
+with broadly comparable precision. BAI instead asks only for the decision
+\begin{equation}
+    i^\star=\argmax_i |g_i|
+\end{equation}
+and adaptively removes candidates that are statistically unable to win. Successive Elimination therefore focuses shots on ambiguous leading candidates rather than uniformly resolving the full gradient vector.
+
+This distinction is conceptually orthogonal to commuting-group measurement. Global fully commuting grouping asks how to extract many gradients efficiently from shared data; BAI asks which of those gradients still need information at all. Their combination motivates shared-observable, covariance-aware BAI approaches.
+
+\section{Axis V: multi-operator selection, insertion, and hardware-aware utility}
+
+TETRIS-ADAPT-VQE relaxes the one-operator-per-iteration rule and appends several large-gradient operators with disjoint supports in one round \cite{Anastasiou2024TETRIS}. It reduces circuit depth and reduces how often the full gradient pool must be measured.
+
+Gradient-trough work shows that the usual largest-gradient logic can become unreliable when gradients become anomalously small before convergence \cite{Stadelmann2025}. The proposed mitigation changes where new operators are inserted in the existing noncommuting circuit. This is important because selection is not only about generator identity; circuit position can affect future gradients and trainability.
+
+Co-ADAPT-VQE goes further by incorporating device constraints into ansatz construction, demonstrating large CNOT reductions for linear nearest-neighbor hardware \cite{Ramoa2026CoDesign}. This moves adaptive selection toward a resource-aware utility rather than a purely energy-gradient utility.
+
+\section{The Barnes--Economou--Mayhall line of development}
+
+A particularly coherent sequence of works comes from the Virginia Tech collaboration involving Edwin Barnes, Sophia Economou, Nicholas Mayhall, and collaborators:
+\begin{enumerate}[leftmargin=2em]
+    \item original ADAPT-VQE: problem-tailored ansatz growth \cite{Grimsley2019};
+    \item qubit-ADAPT-VQE: hardware-efficient Pauli pools \cite{Tang2021};
+    \item symmetry-adapted minimal complete pools \cite{Shkolnikov2023};
+    \item TETRIS-ADAPT-VQE: multiple disjoint-support additions per iteration \cite{Anastasiou2024TETRIS};
+    \item global commuting measurement of operator gradients \cite{Anastasiou2023};
+    \item operator-pool tiling for scalable related problems \cite{VanDyke2024};
+    \item Hessian recycling for the repeated optimization subproblem \cite{Ramoa2025Hessian};
+    \item CEO-ADAPT-VQE as an integrated circuit- and measurement-efficient adaptive protocol \cite{Ramoa2025CEO};
+    \item gradient-trough mitigation by varying insertion positions \cite{Stadelmann2025};
+    \item Co-ADAPT-VQE, incorporating hardware constraints directly into adaptive state preparation \cite{Ramoa2026CoDesign}.
+\end{enumerate}
+This sequence is useful for understanding how ADAPT research has expanded from ``which operator has the largest gradient?'' into a multi-objective problem involving pool structure, measurement cost, optimization reuse, circuit depth, and hardware compilation.
+
+\section{CEO-ADAPT-VQE as an integrated milestone}
+
+The 2025 CEO-ADAPT-VQE paper is an important integrated state-of-the-art milestone \cite{Ramoa2025CEO}. It combines the CEO pool with TETRIS, optimized gradient-measurement strategies, and Hessian recycling, and reports reductions of up to 88\% in CNOT count, 96\% in CNOT depth, and 99.6\% in its measurement-cost metric relative to the original GSD-ADAPT-VQE benchmark for 12--14 qubit molecular problems.
+
+Two qualifications are essential when using CEO-ADAPT as a resource benchmark.
+\begin{enumerate}[leftmargin=2em]
+    \item Its measurement-cost metric is based on noiseless expectation-value evaluations and is described as a lower-bound-style cost model rather than a finite-shot statistical simulation.
+    \item The numerical simulations compute expectation values by matrix algebra without shot noise or hardware noise.
+\end{enumerate}
+Thus CEO-ADAPT is best viewed as an integrated algorithmic resource benchmark, not as the final word on finite-shot generator-selection cost.
+
+\section{Important developments after the CEO-ADAPT milestone}
+
+CEO-ADAPT was published in May 2025, but several later works materially changed the selection landscape:
+\begin{itemize}[leftmargin=2em]
+    \item \textbf{AIM-ADAPT-VQE} (final publication October 2025): reuse of optimized informationally complete measurement data for the full gradient pool \cite{Nykanen2025}.
+    \item \textbf{Shot reuse + variance allocation} (2025 preprint): reuses optimization measurements for subsequent selection and allocates shots according to measured variance \cite{Ikhtiarudin2025}.
+    \item \textbf{Gradient-trough mitigation} (late 2025): addresses selection failure when local gradients become misleadingly small \cite{Stadelmann2025}.
+    \item \textbf{Co-ADAPT-VQE} (January 2026): explicitly co-designs adaptive state preparation with device connectivity and gate cost \cite{Ramoa2026CoDesign}.
+    \item \textbf{Best-arm identification} (published April/May 2026): changes selection from uniform score estimation to an adaptive statistical decision problem \cite{Huang2026}.
+    \item \textbf{Efficient fermionic energy-based selection} (June 2026): reduces the cost of exact one-dimensional energy-based scoring and directly compares local-gradient and finite-energy criteria \cite{Rossi2026}.
+\end{itemize}
+Therefore CEO-ADAPT should be described as a major recent integrated benchmark, not as the latest generator-selection method as of September 2026.
+
+\section{A modern taxonomy of generator utility}
+
+Current adaptive methods implicitly optimize different notions of ``best generator'':
+\begin{center}
+\begin{tabular}{p{0.34\linewidth}p{0.54\linewidth}}
+\toprule
+Selection concept & Typical quantity \\
+\midrule
+Local steepest direction & $|g_i|=|\expect{[H,G_i]}|$ \\
+Finite one-dimensional energy lowering & $-\Delta E_i$ after optimizing the new parameter \\
+Population-based heuristic importance & FAST-type determinant-population scores \\
+Statistical plausibility of being best & BAI confidence / elimination criteria \\
+Multi-operator utility & batched or TETRIS-compatible large gradients with disjoint supports \\
+Hardware-aware utility & energy benefit balanced against compilation / connectivity / gate cost \\
+\bottomrule
+\end{tabular}
+\end{center}
+This taxonomy is useful when designing benchmarks: methods that optimize different utilities should not be interpreted as simple measurement implementations of the same algorithm.
+
+\section{Suggested state-of-the-art comparator set for new measurement work}
+
+For a new paper focused on measuring a fixed gradient-based selection problem, a manageable state-of-the-art comparator set is:
+\begin{enumerate}[leftmargin=2em]
+    \item \textbf{Naive per-gradient measurement:} each gradient estimated separately to a common precision.
+    \item \textbf{Global fully commuting gradient measurement:} the Anastasiou--Mayhall--Barnes--Economou strategy or a carefully specified global FC implementation \cite{Anastasiou2023}.
+    \item \textbf{Independent BAI:} Successive Elimination applied to individually measured gradients \cite{Huang2026}.
+    \item \textbf{AIM-ADAPT-VQE:} informationally complete energy data reused for gradient estimates \cite{Nykanen2025}.
+    \item \textbf{Measurement reuse + variance allocation:} reuse across the optimization/selection boundary \cite{Ikhtiarudin2025}.
+    \item \textbf{Proposed shared/covariance-aware BAI method:} fixed or adaptive shared measurement contexts with uncertainty propagated directly to gradient comparisons.
+\end{enumerate}
+A second, orthogonal benchmark axis may compare the \emph{score itself}: local gradient versus finite energy-lowering criteria such as ExcitationSolve or efficient fermionic Rotoselect \cite{Jager2025,Rossi2026}. Keeping these two axes separate avoids conflating ``better score'' with ``cheaper measurement of a fixed score.''
+
+\section{What remains unresolved in the field}
+
+Despite substantial progress, several questions remain open.
+
+\subsection{Finite-shot realism}
+Many influential ADAPT resource comparisons still use noiseless expectation values or oracle variances. A complete selection-resource study must specify how variances are learned, how confidence intervals are constructed, how measurements are reused, and what probability of wrong selection is tolerated.
+
+\subsection{Selection versus parameter optimization}
+Reducing selection measurements alone does not make ADAPT scalable if repeated nonlinear ansatz reoptimization dominates the total cost. Hessian recycling addresses part of this issue \cite{Ramoa2025Hessian}, and recent energy-based work shows that in strongly correlated regimes full reoptimization can become more important than the precise selection score \cite{Rossi2026}. Future benchmarks should therefore report
+\begin{equation}
+    C_{\mathrm{total}}
+    =C_{\mathrm{selection}}+C_{\mathrm{optimization}}
+\end{equation}
+whenever an end-to-end scalability claim is made.
+
+\subsection{Strong correlation and crowded gradients}
+In strongly correlated regimes, many candidate gradients can become small or nearly degenerate. This makes finite-shot ranking difficult and also raises the question of whether a local derivative is the right selection quantity. Gradient-trough mitigation, BAI, and finite-energy criteria attack different aspects of this problem.
+
+\subsection{Adaptive experimental design}
+The combination of shared Pauli measurements, covariance-aware gradient comparisons, best-arm elimination, coefficient splitting, and online redesign of measurement contexts is not yet exhausted by the existing literature. This intersection is a natural direction for further work on generator-selection measurements.
+
+\subsection{Fault-tolerant relevance}
+If deep circuits eventually require fault tolerance, the relative importance of generator selection versus repeated variational optimization should be reassessed against non-variational spectral methods such as quantum phase estimation. Measurement-efficient selection remains useful, but it does not by itself answer the larger time-to-solution question.
+
+\section{Summary}
+
+The present state of the art is best understood as a collection of complementary advances rather than one dominant ADAPT-VQE variant. Pool-design work reduces the number and cost of candidates; measurement work extracts many gradients from shared data; BAI reduces the number of candidates that require continued precision; energy-based methods change the score itself; TETRIS and insertion strategies change the ansatz update; Hessian recycling reduces repeated optimization cost; and CEO-/Co-ADAPT approaches integrate circuit and hardware considerations.
+
+For generator-selection measurement research, the strongest current positioning is therefore not ``another way to measure gradients,'' but a statistically explicit comparison against global FC measurement, independent BAI, informationally complete reuse, and variance-aware measurement reuse. CEO-ADAPT-VQE remains a key integrated milestone, while the most recent developments through 2026 show that the field is moving toward joint optimization of statistical decision, circuit structure, and hardware/resource cost.
+
+
+
+\section{Recommended benchmark set for a new generator-selection method}
+\label{sec:recommended-benchmarks}
+
+The literature reviewed above suggests that a new generator-selection method should not be compared only with the original ADAPT-VQE prescription.  A convincing case for adoption requires comparisons against methods that represent the strongest currently available alternatives along the main axes of measurement sharing, statistical elimination, measurement reuse, and variance reduction.
+
+\subsection{External baselines that should be beaten}
+
+The following four external baselines form a compact but demanding comparison set.
+
+\begin{enumerate}[leftmargin=2.2em]
+    \item \textbf{Global fully commuting all-gradient measurement.}
+    Use the Anastasiou--Mayhall--Barnes--Economou strategy as the representative baseline for measuring the entire ADAPT gradient pool using shared fully commuting structure~\cite{Anastasiou2023}.  This tests whether the new method improves on the strongest established ``measure all gradients intelligently'' approach.
+
+    \item \textbf{Independent best-arm identification.}
+    Use the Huang--Izmaylov BAI / Successive-Elimination strategy~\cite{Huang2026}.  This tests whether exploiting shared measurement information gives an advantage beyond the statistical gain obtained by eliminating gradients that are unlikely to win.
+
+    \item \textbf{Measurement reuse with variance-aware shot allocation.}
+    Compare against the reuse-and-allocation strategy of Ikhtiarudin \emph{et al.}~\cite{Ikhtiarudin2025}.  This is important because a useful new method should improve not only on uniform-precision measurement, but also on schemes that already reuse Pauli information and allocate shots nonuniformly according to statistical importance.
+
+    \item \textbf{A modern integrated ADAPT implementation.}
+    CEO-ADAPT-VQE~\cite{Ramoa2025CEO} should be used as an integrated resource-reduction reference.  It is not a perfectly isolated measurement comparator because it simultaneously changes the operator pool, ansatz construction, gradient-measurement protocol, and optimization subroutines.  Nevertheless, it represents an important modern ADAPT benchmark and should be used to check that measurement-level improvements remain relevant in a more optimized overall ADAPT workflow.
+\end{enumerate}
+
+AIM-ADAPT-VQE~\cite{Nykanen2025} is also an important secondary comparator because it attacks the same information-reuse problem using informationally complete measurements rather than fully commuting Pauli contexts.  It should be included whenever implementation effort permits.
+
+\subsection{Internal ablation hierarchy}
+
+The new method should also be decomposed into an internal sequence of increasingly sophisticated variants.  A recommended hierarchy is
+\begin{equation}
+\mathrm{FC\text{-}UG}
+\longrightarrow
+\mathrm{BAI\text{-}FC\text{-}UG}
+\longrightarrow
+\text{covariance-aware BAI}
+\longrightarrow
+\text{coefficient splitting}
+\longrightarrow
+\text{zero-sum / control-variate augmentation}
+\longrightarrow
+\text{adaptive universal-estimator design}.
+\end{equation}
+This ablation is scientifically necessary: if the final algorithm is substantially cheaper, the reader should be able to identify whether the improvement comes from shared measurement contexts, BAI elimination, covariance information, variance optimization of fragments, or redesign of the measurable estimator itself.
+
+For the variance-optimization part of the hierarchy, the appropriate prior-art controls are iterative coefficient-splitting methods~\cite{Yen2023ICS} and ghost-Pauli / zero-sum fragment modification~\cite{Choi2022Ghost}.  The novelty should therefore not be presented as coefficient splitting or zero-sum Pauli augmentation alone.  The stronger claim is that the measurable estimators are redesigned for the current \emph{decision problem}: accumulated covariance information and the shrinking BAI active set determine which shared observables should be measured next and how their outcomes should be combined.
+
+\subsection{Headline metrics}
+
+The primary metric should be the number of quantum shots required to make the generator-selection decision at a fixed statistical reliability.  Group count by itself is not sufficient.  At a fixed ADAPT state one should report, for example,
+\begin{equation}
+P(\text{exact best selected})\ge 1-\delta,
+\end{equation}
+or the relaxed criterion
+\begin{equation}
+P\!\left(
+|g_{\mathrm{chosen}}|
+\ge
+\max_i |g_i|-\Delta
+\right)\ge 1-\delta,
+\end{equation}
+with the same $\delta$ and $\Delta$ for all methods.
+
+The more important end-to-end metric is the cumulative generator-selection cost along a full adaptive trajectory,
+\begin{equation}
+N_{\mathrm{shots}}^{\mathrm{sel,tot}}
+=
+\sum_{k=1}^{K}
+N_{\mathrm{shots}}^{\mathrm{sel}}(k),
+\end{equation}
+reported at a common final energy accuracy.  This prevents a method from appearing favorable merely because it makes one selection step inexpensive while changing the ADAPT trajectory in a way that requires many more iterations.
+
+Measurement-circuit complexity should be reported separately from shot count.  In particular, for fully commuting contexts the CNOT count or depth of the diagonalizing Clifford should be recorded, because fewer shots are not automatically advantageous if the measurement circuits become much deeper.
+
+\subsection{Strongest practical claim}
+
+A persuasive practical result would demonstrate that, under the same Hamiltonian, current state, generator pool, confidence requirement, and final ADAPT energy target, the proposed adaptive shared-estimator strategy uses fewer shots than
+\begin{enumerate}[leftmargin=2.2em]
+    \item global FC all-gradient estimation,
+    \item independent BAI,
+    \item measurement-reuse / variance-allocation methods,
+\end{enumerate}
+while preserving or reducing measurement-circuit complexity.
+
+The benchmarks should include both weakly correlated and strongly correlated geometries.  The latter are especially important because near-degenerate leading gradients can make independent BAI expensive; this is precisely where shared measurements and covariance-aware contrasts should have the strongest advantage.
+
+For the Part-II component, the key additional comparison is against \emph{fixed} variance-optimized fragments.  The scientifically stronger claim is not merely that coefficient optimization reduces variance, but that
+\begin{quote}
+redesigning shared estimators for the current BAI decision---using accumulated covariance information and the surviving generator set---outperforms static variance-optimized fragments.
+\end{quote}
+
+If these comparisons are won consistently, the practical recommendation becomes clear: one should neither estimate the full gradient vector uniformly nor treat gradient candidates as statistically independent arms.  Instead, one should measure shared information adaptively for the specific generator-selection decision that remains to be made.
+
+\begin{thebibliography}{99}
+
+\bibitem{Grimsley2019}
+H. R. Grimsley, S. E. Economou, E. Barnes, and N. J. Mayhall,
+``An adaptive variational algorithm for exact molecular simulations on a quantum computer,''
+\emph{Nature Communications} \textbf{10}, 3007 (2019).
+\url{https://doi.org/10.1038/s41467-019-10988-2}
+
+\bibitem{Tang2021}
+H. L. Tang, V. O. Shkolnikov, G. S. Barron, H. R. Grimsley, N. J. Mayhall, E. Barnes, and S. E. Economou,
+``Qubit-ADAPT-VQE: An Adaptive Algorithm for Constructing Hardware-Efficient Ans\"atze on a Quantum Processor,''
+\emph{PRX Quantum} \textbf{2}, 020310 (2021).
+\url{https://doi.org/10.1103/PRXQuantum.2.020310}
+
+\bibitem{Yordanov2021}
+Y. S. Yordanov, V. Armaos, C. H. W. Barnes, and D. R. M. Arvidsson-Shukur,
+``Qubit-excitation-based adaptive variational quantum eigensolver,''
+\emph{Communications Physics} \textbf{4}, 228 (2021).
+\url{https://doi.org/10.1038/s42005-021-00730-0}
+
+\bibitem{Shkolnikov2023}
+V. O. Shkolnikov, N. J. Mayhall, S. E. Economou, and E. Barnes,
+``Avoiding symmetry roadblocks and minimizing the measurement overhead of adaptive variational quantum eigensolvers,''
+\emph{Quantum} \textbf{7}, 1040 (2023).
+\url{https://doi.org/10.22331/q-2023-06-12-1040}
+
+\bibitem{Majland2023}
+M. Majland, P. Ettenhuber, and N. T. Zinner,
+``Fermionic adaptive sampling theory for variational quantum eigensolvers,''
+\emph{Physical Review A} \textbf{108}, 052422 (2023).
+\url{https://doi.org/10.1103/PhysRevA.108.052422}
+
+\bibitem{Anastasiou2023}
+P. G. Anastasiou, N. J. Mayhall, E. Barnes, and S. E. Economou,
+``How to really measure operator gradients in ADAPT-VQE,''
+arXiv:2306.03227 (2023).
+\url{https://arxiv.org/abs/2306.03227}
+
+\bibitem{Anastasiou2024TETRIS}
+P. G. Anastasiou, Y. Chen, N. J. Mayhall, E. Barnes, and S. E. Economou,
+``TETRIS-ADAPT-VQE: An adaptive algorithm that yields shallower, denser circuit Ans\"atze,''
+\emph{Physical Review Research} \textbf{6}, 013254 (2024).
+\url{https://doi.org/10.1103/PhysRevResearch.6.013254}
+
+\bibitem{VanDyke2024}
+J. S. Van Dyke, K. Shirali, G. S. Barron, N. J. Mayhall, E. Barnes, and S. E. Economou,
+``Scaling adaptive quantum simulation algorithms via operator pool tiling,''
+\emph{Physical Review Research} \textbf{6}, L012030 (2024).
+\url{https://doi.org/10.1103/PhysRevResearch.6.L012030}
+
+\bibitem{Ramoa2025Hessian}
+M. Ram\^oa, L. P. Santos, N. J. Mayhall, E. Barnes, and S. E. Economou,
+``Reducing measurement costs by recycling the Hessian in adaptive variational quantum algorithms,''
+\emph{Quantum Science and Technology} \textbf{10}, 015031 (2025).
+\url{https://doi.org/10.1088/2058-9565/ad904e}
+
+\bibitem{Ramoa2025CEO}
+M. Ram\^oa, P. G. Anastasiou, L. P. Santos, N. J. Mayhall, E. Barnes, and S. E. Economou,
+``Reducing the resources required by ADAPT-VQE using coupled exchange operators and improved subroutines,''
+\emph{npj Quantum Information} \textbf{11}, 86 (2025).
+\url{https://doi.org/10.1038/s41534-025-01039-4}
+
+\bibitem{Nykanen2025}
+A. Nyk\"anen, M. A. C. Rossi, E.-M. Borrelli, S. Maniscalco, G. Garc\'ia-P\'erez, and A. Glos,
+``Mitigating the measurement overhead of ADAPT-VQE with optimized informationally complete generalized measurements,''
+\emph{Physical Review Research} \textbf{7}, 043114 (2025).
+\url{https://doi.org/10.1103/t1hr-y7c8}
+
+\bibitem{Ikhtiarudin2025}
+A. Ikhtiarudin, G. K. Sunnardianto, F. Fathurrahman, M. K. Agusta, and H. K. Dipojono,
+``Shot-Efficient ADAPT-VQE via Reused Pauli Measurements and Variance-Based Shot Allocation,''
+arXiv:2507.16879 (2025).
+\url{https://arxiv.org/abs/2507.16879}
+
+\bibitem{Feniou2025}
+C. Feniou, M. Hassan, B. Claudon, A. Courtat, O. Adjoua, Y. Maday, et al.,
+``Greedy gradient-free adaptive variational quantum algorithms on a noisy intermediate scale quantum computer,''
+\emph{Scientific Reports} \textbf{15}, 18689 (2025).
+\url{https://doi.org/10.1038/s41598-025-99962-1}
+
+\bibitem{Jager2025}
+J. J\"ager, T. N. Kaldenbach, M. Haas, and E. Schultheis,
+``Fast gradient-free optimization of excitations in variational quantum eigensolvers,''
+\emph{Communications Physics} \textbf{8}, 418 (2025).
+\url{https://doi.org/10.1038/s42005-025-02375-9}
+
+\bibitem{Stadelmann2025}
+J. Stadelmann, J. \"Ubelher, M. Ram\^oa, B. Sambasivam, E. Barnes, and S. E. Economou,
+``Strategies for Overcoming Gradient Troughs in the ADAPT-VQE Algorithm,''
+arXiv:2512.25004 (2025).
+\url{https://arxiv.org/abs/2512.25004}
+
+\bibitem{Huang2026}
+R. Huang and A. F. Izmaylov,
+``Quantum Gambling: Best-Arm Strategies for Generator Selection in Adaptive Variational Algorithms,''
+\emph{Journal of Chemical Theory and Computation} \textbf{22}, 4475--4480 (2026).
+\url{https://doi.org/10.1021/acs.jctc.6c00568}
+
+\bibitem{Ramoa2026CoDesign}
+M. Ram\^oa, L. P. Santos, N. J. Mayhall, E. Barnes, and S. E. Economou,
+``Co-Designed Adaptive Quantum State Preparation Protocols,''
+arXiv:2601.20681 (2026).
+\url{https://arxiv.org/abs/2601.20681}
+
+\bibitem{Rossi2026}
+E. Rossi, E. R. Kjellgren, A. F. Izmaylov, S. P. A. Sauer, K. M. Ziems, and S. Coriani,
+``Resource-efficient energy-based operator selection in fermionic ADAPT-VQE via exact Hamiltonian transformation,''
+arXiv:2606.04786 (2026).
+\url{https://arxiv.org/abs/2606.04786}
+
+
+
+\bibitem{Yen2023ICS}
+T.-C. Yen, A. Ganeshram, and A. F. Izmaylov,
+``Deterministic improvements of quantum measurements with grouping of compatible operators, non-local transformations, and covariance estimates,''
+\emph{npj Quantum Information} \textbf{9}, 14 (2023).
+\url{https://doi.org/10.1038/s41534-023-00683-y}
+
+\bibitem{Choi2022Ghost}
+S. Choi, T.-C. Yen, and A. F. Izmaylov,
+``Improving Quantum Measurements by Introducing `Ghost' Pauli Products,''
+\emph{Journal of Chemical Theory and Computation} \textbf{18}, 7394--7402 (2022).
+\url{https://doi.org/10.1021/acs.jctc.2c00837}
+
+\end{thebibliography}
+
+\end{document}

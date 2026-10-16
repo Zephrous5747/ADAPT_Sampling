@@ -1,0 +1,158 @@
+[
+ {
+  "epoch": 1,
+  "round": 1,
+  "cumulative_shots": 1960,
+  "learnable_contexts": 0,
+  "designs_kept_by_guard": 0,
+  "arms_with_split_coefficients": [
+   0,
+   0
+  ],
+  "mean_prior_weight": null
+ },
+ {
+  "epoch": 2,
+  "round": 8,
+  "cumulative_shots": 3026,
+  "learnable_contexts": 0,
+  "designs_kept_by_guard": 0,
+  "arms_with_split_coefficients": [
+   0,
+   0
+  ],
+  "mean_prior_weight": null
+ },
+ {
+  "epoch": 3,
+  "round": 12,
+  "cumulative_shots": 5054,
+  "learnable_contexts": 1,
+  "designs_kept_by_guard": 0,
+  "arms_with_split_coefficients": [
+   0,
+   0
+  ],
+  "mean_prior_weight": 0.0
+ },
+ {
+  "epoch": 4,
+  "round": 15,
+  "cumulative_shots": 7854,
+  "learnable_contexts": 4,
+  "designs_kept_by_guard": 34,
+  "arms_with_split_coefficients": [
+   19,
+   15
+  ],
+  "mean_prior_weight": 0.0
+ },
+ {
+  "epoch": 5,
+  "round": 18,
+  "cumulative_shots": 12142,
+  "learnable_contexts": 14,
+  "designs_kept_by_guard": 104,
+  "arms_with_split_coefficients": [
+   52,
+   52
+  ],
+  "mean_prior_weight": 0.0
+ },
+ {
+  "epoch": 6,
+  "round": 21,
+  "cumulative_shots": 18367,
+  "learnable_contexts": 35,
+  "designs_kept_by_guard": 155,
+  "arms_with_split_coefficients": [
+   78,
+   77
+  ],
+  "mean_prior_weight": 0.0
+ },
+ {
+  "epoch": 7,
+  "round": 25,
+  "cumulative_shots": 28655,
+  "learnable_contexts": 95,
+  "designs_kept_by_guard": 162,
+  "arms_with_split_coefficients": [
+   81,
+   81
+  ],
+  "mean_prior_weight": 0.0
+ },
+ {
+  "epoch": 8,
+  "round": 29,
+  "cumulative_shots": 45225,
+  "learnable_contexts": 175,
+  "designs_kept_by_guard": 180,
+  "arms_with_split_coefficients": [
+   89,
+   91
+  ],
+  "mean_prior_weight": 0.0
+ },
+ {
+  "epoch": 9,
+  "round": 33,
+  "cumulative_shots": 75695,
+  "learnable_contexts": 252,
+  "designs_kept_by_guard": 183,
+  "arms_with_split_coefficients": [
+   92,
+   91
+  ],
+  "mean_prior_weight": 0.0
+ },
+ {
+  "epoch": 10,
+  "round": 36,
+  "cumulative_shots": 115221,
+  "learnable_contexts": 291,
+  "designs_kept_by_guard": 184,
+  "arms_with_split_coefficients": [
+   92,
+   92
+  ],
+  "mean_prior_weight": 0.0
+ },
+ {
+  "epoch": 11,
+  "round": 39,
+  "cumulative_shots": 187086,
+  "learnable_contexts": 363,
+  "designs_kept_by_guard": 184,
+  "arms_with_split_coefficients": [
+   92,
+   92
+  ],
+  "mean_prior_weight": 0.0
+ },
+ {
+  "epoch": 12,
+  "round": 42,
+  "cumulative_shots": 296988,
+  "learnable_contexts": 504,
+  "designs_kept_by_guard": 184,
+  "arms_with_split_coefficients": [
+   92,
+   92
+  ],
+  "mean_prior_weight": 0.0
+ },
+ {
+  "epoch": 13,
+  "round": 45,
+  "cumulative_shots": 470354,
+  "learnable_contexts": 681,
+  "designs_kept_by_guard": 183,
+  "arms_with_split_coefficients": [
+   91,
+   92
+  ],
+  "mean_prior_weight": 0.0
+ }
+]

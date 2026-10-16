@@ -1,0 +1,50 @@
+\begin{table*}[!htb]
+\centering\small
+\caption{Selection errors against the cost of the optimization (measured ADAPT runs, STO-3G, UCCSD pool, exact BFGS re-optimization). Top of each block: the certified II-A runs of Table~\ref{tab:ci_opt}, every confidence level pooled, grouped by the number of selections in a run that were not the exact best generator (exact ties count as best). Bottom: an uncertified selection with a fixed number of shots per selection (allocation from variances estimated on a pilot of a fifth of the budget), which makes larger errors. Non-best, not $\rho$-good: mean per run. Steps: mean ADAPT iterations (largest; exact ADAPT in the system row). Opt.\ evals: mean BFGS evaluations of a run divided by exact ADAPT ($\pm$ standard deviation over runs). $C_\mathrm{opt}$: modeled optimization measurement cost divided by exact ADAPT. Same $E$: share of runs whose final energy equals exact ADAPT within 0.1~mHa; CA: share of runs that reach chemical accuracy within ten steps more than exact ADAPT (stretched H$_4$: none can, the pool stalls at 3.2~mHa). H$_2$O rows: the recorded measured runs at 95\% confidence, with their optimization recomputed exactly.}
+\label{tab:err_opt}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llrrrrrrrrr}
+\toprule
+System & selection & runs & non-best & not $\rho$-good & steps & opt.\ evals & $C_\mathrm{opt}$ & $\Delta E$ (mHa) & same $E$ & CA \\
+\midrule
+H$_4$ 1.0~\AA & exact ADAPT & -- & 0 & 0 & 10 & 1.00 & 1.00 & 1.09 & -- & yes \\
+ & II-A, 0 non-best & 22 & 0.0 & 0.0 & 10.0 (10) & 1.83 $\pm$0.46 & 1.96 & 1.09 & 100\% & 100\% \\
+ & II-A, 1 non-best & 27 & 1.0 & 0.0 & 10.0 (10) & 1.64 $\pm$0.35 & 1.78 & 1.09 & 100\% & 100\% \\
+ & II-A, 2 non-best & 19 & 2.0 & 0.0 & 10.0 (10) & 2.08 $\pm$0.63 & 2.21 & 1.09 & 100\% & 100\% \\
+ & II-A, 3 or more non-best & 4 & 3.2 & 0.0 & 10.0 (10) & 2.46 $\pm$0.35 & 2.40 & 1.09 & 100\% & 100\% \\
+ & fixed 1e3 shots/sel. (pilot) & 12 & 18.4 & 17.4 & 20.0 (20) & 1.12 $\pm$1.08 & 1.94 & 100.11 & 0\% & 0\% \\
+ & fixed 3.2e3 shots/sel. (pilot) & 12 & 12.0 & 9.7 & 16.5 (20) & 3.82 $\pm$1.43 & 6.17 & 1.09 & 92\% & 92\% \\
+ & fixed 1e4 shots/sel. (pilot) & 12 & 5.8 & 3.4 & 12.1 (15) & 2.27 $\pm$0.56 & 2.89 & 1.09 & 100\% & 100\% \\
+\midrule
+H$_4$ 2.0~\AA & exact ADAPT & -- & 0 & 0 & 10 & 1.00 & 1.00 & 3.22 & -- & no \\
+ & II-A, 0 non-best & 29 & 0.0 & 0.0 & 10.0 (10) & 1.03 $\pm$0.27 & 1.02 & 3.22 & 100\% & 0\% \\
+ & II-A, 1 non-best & 35 & 1.0 & 0.0 & 10.0 (10) & 1.10 $\pm$0.32 & 1.06 & 3.22 & 100\% & 0\% \\
+ & II-A, 2 non-best & 3 & 2.0 & 0.0 & 10.0 (10) & 1.23 $\pm$0.30 & 1.16 & 3.22 & 100\% & 0\% \\
+ & II-A, 3 or more non-best & 5 & 3.6 & 0.0 & 10.0 (10) & 1.30 $\pm$0.31 & 1.07 & 3.22 & 100\% & 0\% \\
+\midrule
+LiH 3.0~\AA & exact ADAPT & -- & 0 & 0 & 6 & 1.00 & 1.00 & 0.68 & -- & yes \\
+ & II-A, 0 non-best & 7 & 0.0 & 0.0 & 6.0 (6) & 0.85 $\pm$0.26 & 0.91 & 0.68 & 100\% & 100\% \\
+ & II-A, 1 non-best & 1 & 1.0 & 0.0 & 6.0 (6) & 1.82 & 2.83 & 0.68 & 100\% & 100\% \\
+ & II-A, 2 non-best & 1 & 2.0 & 0.0 & 6.0 (6) & 1.68 & 1.80 & 0.68 & 100\% & 100\% \\
+\midrule
+H$_2$O eq & exact ADAPT & -- & 0 & 0 & 17 & 1.00 & 1.00 & 1.54 & -- & yes \\
+ & II-A, 0 non-best & 2 & 0.0 & 0.0 & 17.0 (17) & 1.06 $\pm$0.30 & 1.10 & 1.54 & 100\% & 100\% \\
+ & II-A, 1 non-best & 15 & 1.0 & 0.0 & 17.0 (17) & 1.29 $\pm$0.23 & 1.33 & 1.54 & 100\% & 100\% \\
+ & II-A, 2 non-best & 11 & 2.0 & 0.0 & 17.0 (17) & 1.26 $\pm$0.13 & 1.30 & 1.54 & 100\% & 100\% \\
+ & II-A, 3 or more non-best & 8 & 3.4 & 0.0 & 17.0 (17) & 1.44 $\pm$0.20 & 1.46 & 1.54 & 100\% & 100\% \\
+ & fixed 1e7 shots/sel. (pilot) & 12 & 21.0 & 18.4 & 27.0 (27) & 2.22 $\pm$0.32 & 3.28 & 6.91 & 0\% & 0\% \\
+ & fixed 2.4e7 shots/sel. (pilot) & 12 & 15.5 & 12.2 & 25.8 (27) & 2.27 $\pm$0.42 & 3.19 & 2.38 & 25\% & 25\% \\
+ & fixed 4.2e7 shots/sel. (pilot) & 12 & 8.6 & 5.1 & 20.8 (25) & 1.82 $\pm$0.41 & 2.22 & 1.51 & 83\% & 100\% \\
+\midrule
+H$_2$O str & exact ADAPT & -- & 0 & 0 & 18 & 1.00 & 1.00 & 1.43 & -- & yes \\
+ & II-A, 0 non-best & 8 & 0.0 & 0.0 & 18.0 (18) & 1.05 $\pm$0.08 & 1.09 & 1.43 & 100\% & 100\% \\
+ & II-A, 1 non-best & 11 & 1.0 & 0.0 & 18.0 (18) & 1.11 $\pm$0.15 & 1.16 & 1.43 & 100\% & 100\% \\
+ & II-A, 2 non-best & 13 & 2.0 & 0.0 & 18.0 (18) & 1.04 $\pm$0.16 & 1.06 & 1.47 & 100\% & 100\% \\
+ & II-A, 3 or more non-best & 4 & 3.0 & 0.0 & 18.0 (18) & 1.27 $\pm$0.18 & 1.30 & 1.42 & 100\% & 100\% \\
+ & fixed 3.2e7 shots/sel. (pilot) & 12 & 19.2 & 17.6 & 28.0 (28) & 1.81 $\pm$0.28 & 2.70 & 5.59 & 0\% & 0\% \\
+ & fixed 1e8 shots/sel. (pilot) & 12 & 15.7 & 12.2 & 27.4 (28) & 1.94 $\pm$0.33 & 2.81 & 1.83 & 8\% & 8\% \\
+ & fixed 1.8e8 shots/sel. (pilot) & 12 & 9.9 & 7.1 & 23.9 (28) & 1.57 $\pm$0.22 & 1.98 & 1.42 & 75\% & 92\% \\
+ & fixed 3.2e8 shots/sel. (pilot) & 12 & 4.8 & 2.3 & 19.5 (21) & 1.22 $\pm$0.17 & 1.32 & 1.47 & 83\% & 100\% \\
+\bottomrule
+\end{tabular}
+\end{table*}

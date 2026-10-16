@@ -226,3 +226,75 @@ def _confidence_factor(delta: float, n_arms: int, calibration: str) -> float:
     if calibration == "selection":
         return z_for_selection_error(delta)
     raise ValueError("calibration must be 'bonferroni' or 'selection'")
+
+
+def run_actual_radii(problem: "GradientProblem", *, delta: float = 0.05,
+                     bisection_steps: int = 80) -> dict:
+    """M3 in the schedule-free limit, eliminating on each arm's *actual* precision.
+
+    The planning bound of :func:`run` resolves every active arm to the common
+    radius ``r`` and removes arm ``i`` once ``2r < Delta_i``.  But a shared
+    allocation is sized by its binding arm, so every other arm is resolved more
+    tightly than required, and the parent contexts keep every shot already taken,
+    so shots spent separating arms that have since left keep sharpening the
+    survivors.  A run that eliminates on each arm's actual reconstruction variance
+    ``V_i = sum_a sigma_ia**2 / n_a`` -- as any real run computing its own
+    variances would -- drops arm ``i`` as soon as some ``j`` satisfies
+
+        |g_j| - z sqrt(V_j) > |g_i| + z sqrt(V_i).
+
+    With ``n(r) = max(n_so_far, allocation(A, r))`` every ``V_i`` is non-increasing
+    as ``r`` falls, so the dominance margin is monotone in ``r`` and the radius of
+    the next elimination is found by bisection.  The trajectory is followed event by
+    event with no schedule, and cost is the per-context maximum of Eq. (14), which
+    is the running ``n`` itself.  This is the gamma -> 1 limit of the noiseless
+    finite-shot trial.
+    """
+    from shot_models import allocate_context_shots, epsilon_from_radius, z_from_delta
+
+    z = z_from_delta(delta, problem.n_generators)
+    sigmas = problem.parent_fragment_sigmas()
+    sq = sigmas ** 2
+    absg = problem.abs_gradients
+    active = list(range(problem.n_generators))
+    shots = np.zeros(sigmas.shape[1])
+    events = []
+
+    def state(A, shape, r):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            n = np.maximum(shots, shape / epsilon_from_radius(r, z) ** 2)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            v = np.where(sq[A] > 0, sq[A] / n, 0.0).sum(axis=1)
+        half = z * np.sqrt(v)
+        g = absg[A]
+        best = np.max(g - half)
+        margin = best - (g + half)          # > 0 : dominated
+        return n, margin
+
+    upper = 1e3 * float(absg.max())
+    while len(active) > 1:
+        shape = allocate_context_shots(sigmas[active, :], 1.0)
+        _, m_hi = state(active, shape, upper)
+        if m_hi.max() > 0:                  # already dominated at the current radius
+            r_star = upper
+        else:
+            lo, hi = 0.0, upper
+            _, m_lo = state(active, shape, max(lo, 1e-300))
+            if m_lo.max() <= 0:             # exact ties never separate
+                break
+            for _ in range(bisection_steps):
+                mid = 0.5 * (lo + hi)
+                _, m = state(active, shape, mid)
+                if m.max() > 0:
+                    lo = mid
+                else:
+                    hi = mid
+            r_star = lo
+        n, margin = state(active, shape, r_star)
+        shots = n
+        gone = [active[k] for k in np.flatnonzero(margin > 0)]
+        events.append({"radius": r_star, "n_active": len(active), "eliminated": gone,
+                       "cumulative": float(shots.sum())})
+        upper = r_star
+        active = [i for i in active if i not in gone]
+    return {"total_shots": float(shots.sum()), "events": events, "survivors": active}

@@ -1,0 +1,629 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,amsfonts,bm,mathtools}
+\usepackage{booktabs,longtable,array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{siunitx}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!55!black,
+  citecolor=blue!55!black,
+  urlcolor=blue!55!black
+}
+\sisetup{group-separator={,},group-minimum-digits=4}
+
+\newcommand{\ket}[1]{\left|#1\right\rangle}
+\newcommand{\bra}[1]{\left\langle#1\right|}
+\newcommand{\expect}[1]{\left\langle#1\right\rangle}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Aset}{\mathcal A}
+\newcommand{\Mset}{\mathcal M}
+\newcommand{\Pset}{\mathcal P}
+
+\title{Part II Project Description:\\Adaptive Design of Universal Measurable Estimators for ADAPT-VQE Gradients}
+\author{Project description / student work order}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This project asks how to design the measured observables themselves so that ADAPT-VQE generator gradients can be identified with fewer quantum measurements.  The starting point is that the gradients are linear expectation values of Hermitian gradient operators, but the quantum computer need not measure the Pauli terms of those gradient operators in the particular decomposition in which they were generated.  Instead, one may construct a shared collection of \emph{universal measurable operators} whose expectation values are combined to reconstruct the gradients.  The universal operators may redistribute coefficients of Pauli products across overlapping fully commuting measurement contexts, may contain additional Pauli products whose net operator coefficient cancels to zero, and, in the most general formulation, may form an optimized measurable dictionary spanning the active gradient space.  The design is variance-aware: covariance information may be initialized from a classically efficient approximate wavefunction, but it should be updated from accumulated measurement data.  It is also BAI-aware: as best-arm identification (BAI) eliminates losing generators, the estimator design should be retargeted to the surviving gradients or directly to the pairwise contrasts that determine the next elimination.  The project is organized as a hierarchy of increasingly general optimization schemes so that each added degree of freedom can be tested separately.
+\end{abstract}
+
+\section{Scientific question and scope}
+
+At one ADAPT-VQE iteration, let the current state be $\ket{\psi}$ and let
+\begin{equation}
+  \Aset_0=\{G_1,\ldots,G_K\}
+\end{equation}
+be the active pool of $K$ anti-Hermitian generators.  We use the convention that $G_i^\dagger=-G_i$, so the gradient operator
+\begin{equation}
+  D_i=[H,G_i]
+  \label{eq:Di}
+\end{equation}
+is Hermitian when $H$ is Hermitian.  The ADAPT gradient is
+\begin{equation}
+  g_i=\bra{\psi}D_i\ket{\psi},
+  \qquad
+  i^\star=\argmax_{i\in\Aset_0}|g_i|.
+  \label{eq:target}
+\end{equation}
+(If a Hermitian-generator convention is used instead, replace $D_i$ by $i[H,G_i]$ throughout.)
+
+The project does \emph{not} try to estimate every Pauli expectation with a prescribed uniform precision.  Its goal is to minimize the quantum measurement cost required to identify $i^\star$, or a $\Delta$-good candidate satisfying
+\begin{equation}
+  |g_i|\ge \max_j |g_j|-\Delta,
+  \label{eq:delta-good}
+\end{equation}
+with a prescribed confidence level.
+
+The central question is:
+\begin{quote}
+How much measurement cost can be removed by optimizing the unbiased measurable estimators of the active gradients, rather than treating the Pauli decomposition of each $[H,G_i]$ as fixed?
+\end{quote}
+
+\paragraph{Primary resource.}
+One \emph{context-shot} means one preparation of $\ket{\psi}$ followed by one measurement in a specified measurement context.  The primary metric is total context-shots required to make the BAI decision.  Measurement-circuit depth/CNOT cost and classical optimization time are secondary metrics and must be reported separately.
+
+\section{Pauli coordinates and the extended operator library}
+
+Let
+\begin{equation}
+  \Pset_{\rm req}=\bigcup_{i=1}^{K}\supp(D_i)
+\end{equation}
+be the Pauli products appearing in at least one gradient operator.  We allow an additional set $\Pset_{\rm aux}$ of candidate auxiliary Pauli products and define the extended library
+\begin{equation}
+  \Pset=\Pset_{\rm req}\cup\Pset_{\rm aux}
+  =\{P_1,\ldots,P_L\}.
+  \label{eq:library}
+\end{equation}
+The Pauli products are Hermitian and normalized so that $P_\ell^2=I$.
+
+Each gradient operator has an exact coefficient vector $\bm a_i\in\R^L$,
+\begin{equation}
+  D_i=\sum_{\ell=1}^{L}a_{i\ell}P_\ell.
+  \label{eq:pauli-gradient}
+\end{equation}
+For auxiliary Paulis that are absent from the physical commutator, $a_{i\ell}=0$.  Stack the coefficient rows into
+\begin{equation}
+  A=\begin{pmatrix}\bm a_1^T\\ \vdots\\ \bm a_K^T\end{pmatrix}\in\R^{K\times L}.
+  \label{eq:A}
+\end{equation}
+Thus the auxiliary columns of $A$ are zero.  This convention is important: it permits auxiliary operators to appear in individual measurable fragments while forcing their \emph{net} contribution to every reconstructed gradient operator to cancel exactly.
+
+\section{Measurement contexts and measured data}
+
+A measurement context $\Mset_\alpha$ is a subset of indices
+\begin{equation}
+  I_\alpha\subseteq\{1,\ldots,L\}
+\end{equation}
+for which the Pauli products $\{P_\ell:\ell\in I_\alpha\}$ are jointly measurable.  In the first implementation, ``jointly measurable'' means fully commuting (FC), with a reproducibly generated Clifford circuit $U_\alpha$ that diagonalizes the group into $Z$-type Paulis.
+
+A single shot in context $\alpha$ produces simultaneous eigenvalue samples
+\begin{equation}
+  \bm X_\alpha^{(s)}
+  =\left(X_{\alpha\ell}^{(s)}\right)_{\ell\in I_\alpha},
+  \qquad X_{\alpha\ell}^{(s)}\in\{\pm1\}.
+\end{equation}
+The population mean vector and covariance matrix are
+\begin{align}
+  \bm\mu_\alpha &= \mathbb E[\bm X_\alpha],\\
+  \Sigma_\alpha &= \Cov(\bm X_\alpha).
+  \label{eq:context-cov}
+\end{align}
+For $m_\alpha$ independent shots in that context,
+\begin{equation}
+  \widehat{\bm\mu}_\alpha
+  =\frac{1}{m_\alpha}\sum_{s=1}^{m_\alpha}\bm X_\alpha^{(s)},
+  \qquad
+  \Cov(\widehat{\bm\mu}_\alpha)=\frac{\Sigma_\alpha}{m_\alpha}.
+\end{equation}
+Different contexts are assumed to use independent shot batches unless explicitly stated otherwise.  Covariances within a context are retained because the same bitstrings estimate several Pauli products simultaneously.
+
+\section{Universal measurable operators}
+
+A \emph{universal measurable operator} is an operator
+\begin{equation}
+  M_q=\sum_{\ell=1}^{L}C_{q\ell}P_\ell,
+  \qquad q=1,\ldots,Q,
+  \label{eq:universal-vector}
+\end{equation}
+whose nonzero Pauli support lies inside at least one measurement context.  Its expectation value is
+\begin{equation}
+  u_q=\expect{M_q}_\psi.
+\end{equation}
+The same measured bitstrings may be used to estimate several $M_q$ belonging to the same context, so $Q$ is not itself the number of quantum measurement settings.
+
+The gradient operators must be reconstructed exactly as
+\begin{equation}
+  D_i=\sum_{q=1}^{Q}B_{iq}M_q.
+  \label{eq:reconstruction}
+\end{equation}
+If $C\in\R^{Q\times L}$ contains the coefficients of the universal operators and $B\in\R^{K\times Q}$ contains the reconstruction coefficients, the exact unbiasedness condition is
+\begin{equation}
+  \boxed{A=BC.}
+  \label{eq:ABC}
+\end{equation}
+Therefore
+\begin{equation}
+  \bm g=B\bm u,
+  \qquad
+  \bm u=(u_1,\ldots,u_Q)^T.
+\end{equation}
+Equation~\eqref{eq:ABC} is the general algebraic constraint behind every estimator in this project.
+
+\subsection{Auxiliary Pauli products and zero-sum control variates}
+
+An auxiliary Pauli $Q=P_{\ell_0}\in\Pset_{\rm aux}$ has zero coefficient in every physical target row of $A$.  It may nevertheless appear in several universal operators.  For example,
+\begin{align}
+  M_1 &= M_1^{(0)}+cQ,\\
+  M_2 &= M_2^{(0)}-cQ,
+\end{align}
+with a reconstruction containing $M_1+M_2$.  The net operator coefficient of $Q$ is zero, so the reconstructed target is unchanged even when $\expect{Q}\neq0$.
+
+More generally, if a gradient is represented by context-specific fragments $F_{i\alpha}$,
+\begin{equation}
+  D_i=\sum_\alpha F_{i\alpha},
+\end{equation}
+then one may replace
+\begin{equation}
+  F_{i\alpha}\longrightarrow F_{i\alpha}+Z_{i\alpha}
+\end{equation}
+provided
+\begin{equation}
+  \sum_\alpha Z_{i\alpha}=0
+  \label{eq:zero-sum}
+\end{equation}
+as an operator identity.  The $Z_{i\alpha}$ act as zero-sum control variates: they can change the variances of the measured fragments without changing the target expectation.
+
+\section{Estimator covariance}
+
+Suppose universal operators are partitioned by measurement context.  Let $C_\alpha$ be the matrix whose rows are the Pauli-coefficient vectors of all universal operators estimated from context $\alpha$, restricted to the coordinates $I_\alpha$.  Then the covariance of those universal-operator estimates is
+\begin{equation}
+  \Cov(\widehat{\bm u}_\alpha)
+  =\frac{1}{m_\alpha}C_\alpha\Sigma_\alpha C_\alpha^T.
+  \label{eq:u-cov}
+\end{equation}
+If distinct contexts use independent shot batches, the full $\Cov(\widehat{\bm u})$ is block diagonal in the context index.  The gradient covariance is
+\begin{equation}
+  \boxed{
+  \Cov(\widehat{\bm g})
+  =B\,\Cov(\widehat{\bm u})\,B^T.
+  }
+  \label{eq:g-cov}
+\end{equation}
+For any two signed gradients $s_i g_i$ and $s_j g_j$, $s_i,s_j\in\{\pm1\}$,
+\begin{equation}
+  \Var(s_i\widehat g_i-s_j\widehat g_j)
+  =\bm d_{ij}^T\Cov(\widehat{\bm u})\bm d_{ij},
+  \qquad
+  \bm d_{ij}=s_i\bm B_i-s_j\bm B_j.
+  \label{eq:contrast-var}
+\end{equation}
+These contrast variances are the quantities most closely connected to BAI elimination once the signs of the leading gradients are known with high confidence.
+
+\section{Hierarchy of estimator-design problems}
+
+The project deliberately studies nested levels of generality.  Each level adds freedom and therefore can only improve, or leave unchanged, the optimum statistical cost if solved globally with the same context library and covariance model.  The price is increased classical optimization cost and stronger information requirements.
+
+\subsection{Level II-0: Fixed universal grouping baseline}
+
+Fix a non-overlapping or overlapping set of FC contexts and fix the fragment coefficients.  Only the shot allocation $\{m_\alpha\}$ is optimized.  This is the reference point inherited from Part I.
+
+\paragraph{Question.}
+How much can be gained before changing the measured operators themselves?
+
+\subsection{Level II-A: Coefficient splitting of required Pauli products}
+
+The context library is fixed.  No auxiliary Pauli products are allowed:
+\begin{equation}
+  \Pset_{\rm aux}=\varnothing.
+\end{equation}
+If a required Pauli belongs to several compatible contexts, its coefficient may be split between those contexts while preserving the target operator coefficient.  In a fragment representation,
+\begin{equation}
+  a_{i\ell}=\sum_{\alpha:\ell\in I_\alpha}x_{i\alpha\ell}.
+  \label{eq:coeff-split}
+\end{equation}
+The variables are the split coefficients $x_{i\alpha\ell}$ and the shot allocations $m_\alpha$.
+
+\paragraph{Information required.}
+Covariances between Pauli outcomes within the fixed contexts.  They may come initially from a classical proxy state and later from measured bitstrings.
+
+\paragraph{Scientific role.}
+This is the least general variance-aware method and should be implemented first.  It corresponds closely to iterative coefficient splitting (ICS) for a single observable, generalized here to many ADAPT gradients and a BAI objective.
+
+\subsection{Level II-B: Zero-sum augmentation / auxiliary ``ghost'' Paulis}
+
+Keep the context library fixed or moderately enlarged, but permit
+\begin{equation}
+  \Pset_{\rm aux}\neq\varnothing.
+\end{equation}
+Auxiliary Pauli products can enter universal operators even though their coefficients are zero in every target gradient, provided the exact reconstruction condition $A=BC$ is obeyed.  Equivalently, their fragment coefficients must cancel according to Eq.~\eqref{eq:zero-sum}.
+
+\paragraph{Question.}
+Can extra simultaneously measurable Pauli products act as control variates and reduce the variance of the reconstructed gradients or of the pairwise BAI contrasts?
+
+\paragraph{Information required.}
+Covariances between required and auxiliary Paulis in every context where they can be measured together.
+
+\paragraph{Auxiliary-library construction.}
+The full Pauli space has size $4^n$, so it cannot be searched exhaustively.  The first implementation should generate candidate auxiliaries only from a bounded library, for example:
+\begin{enumerate}[label=(\roman*)]
+  \item Pauli products already appearing elsewhere in $H$ or in another gradient commutator;
+  \item products that are compatible with at least two parent FC contexts;
+  \item products generated by multiplying pairs of required Paulis, subject to a maximum Pauli weight;
+  \item symmetry-preserving candidates supplied by Part III when that layer is active.
+\end{enumerate}
+Every auxiliary candidate and the rule that generated it must be logged.
+
+\subsection{Level II-C: General measurable universal-basis / dictionary design}
+
+Instead of starting from a predetermined fragmentation, optimize a shared dictionary of measurable universal operators $\{M_q\}_{q=1}^{Q}$ and reconstruction matrix $B$ subject to
+\begin{equation}
+  A=BC.
+\end{equation}
+Each row of $C$ must be supported within an allowed measurement context.  The optimization may trade among:
+\begin{enumerate}[label=(\roman*)]
+  \item statistical variance;
+  \item number of distinct measurement contexts;
+  \item number $Q$ of universal operators;
+  \item measurement-circuit cost;
+  \item classical optimization cost.
+\end{enumerate}
+
+Without measurability constraints, exact reconstruction requires
+\begin{equation}
+  Q\ge \rank(A),
+\end{equation}
+and $Q=\rank(A)$ is algebraically sufficient.  Measurability constraints may require a larger dictionary.  Optimizing both $B$ and $C$ is bilinear and generally non-convex; optimizing context assignments is additionally combinatorial.  Therefore Level II-C should initially be studied only on small systems.
+
+\paragraph{Important distinction.}
+The physical measurement cost is determined by the distinct contexts and their shot allocations, not directly by $Q$: several universal operators can be computed from the same context bitstrings by classical post-processing.
+
+\subsection{Level II-D: BAI-adaptive estimator redesign}
+
+At BAI round $r$, let
+\begin{equation}
+  \Aset_0\supseteq\Aset_1\supseteq\cdots\supseteq\Aset_r
+\end{equation}
+be the surviving generator candidates.  Redesign the estimator for the active rows
+\begin{equation}
+  A_r=A[\Aset_r,:]
+\end{equation}
+rather than optimizing for gradients that can no longer win.  Simultaneously update covariance estimates from accumulated measurements.
+
+The conservative implementation keeps a fixed parent library of measurement contexts throughout one ADAPT iteration.  Only their active content, shot allocations, coefficient splits, auxiliary coefficients, and/or dictionary vectors change.  This preserves compatibility with previously collected bitstrings.
+
+\paragraph{Two feedback loops.}
+\begin{align}
+  \text{measurement data}
+  &\longrightarrow \text{better covariance estimates}
+  \longrightarrow \text{better estimator design},\\
+  \text{BAI elimination}
+  &\longrightarrow \text{smaller active gradient space}
+  \longrightarrow \text{better targeted estimator design}.
+\end{align}
+
+\subsection{Level II-E: Direct contrast design}
+
+BAI does not ultimately need all $g_i$ separately; it needs enough information to determine which $|g_i|$ is largest.  Once the signs of leading gradients are resolved, define contrast operators
+\begin{equation}
+  D_{ij}^{(s_i,s_j)}=s_iD_i-s_jD_j.
+  \label{eq:contrast-operator}
+\end{equation}
+Instead of first constructing accurate individual-gradient estimators, directly design measurable estimators for the contrasts that separate surviving candidates.
+
+Before signs are resolved, use conservative absolute-gradient confidence intervals.  If
+\begin{equation}
+  \widehat g_i\pm r_i
+\end{equation}
+is a confidence interval for $g_i$, then a conservative interval for $|g_i|$ is
+\begin{equation}
+  L_i=\max\{0,|\widehat g_i|-r_i\},
+  \qquad
+  U_i=|\widehat g_i|+r_i.
+  \label{eq:absolute-ci}
+\end{equation}
+Candidate $i$ can be eliminated when
+\begin{equation}
+  U_i<\max_{j\in\Aset_r}L_j.
+  \label{eq:eliminate}
+\end{equation}
+Direct contrast design is an advanced extension because the set of relevant contrasts itself changes during BAI.
+
+\section{Optimization objectives}
+
+For fixed contexts and covariance estimates, the design variables can be universal-vector coefficients, fragment coefficients, reconstruction coefficients, and shot allocations.  Several objectives should be compared.
+
+\subsection{Average gradient variance}
+
+\begin{equation}
+  \mathcal U_{\rm avg}
+  =\sum_{i\in\Aset_r}w_i\Var(\widehat g_i),
+  \qquad w_i\ge0.
+  \label{eq:avg-var}
+\end{equation}
+This is simple but not directly matched to BAI.
+
+\subsection{BAI pairwise-contrast variance}
+
+Let $\mathcal C_r$ contain the currently difficult candidate pairs, e.g. pairs whose absolute-gradient confidence intervals overlap.  Once their signs are resolved, define
+\begin{equation}
+  \mathcal U_{\rm BAI}
+  =\max_{(i,j)\in\mathcal C_r}
+  \Var\left(s_i\widehat g_i-s_j\widehat g_j\right),
+  \label{eq:minimax-bai}
+\end{equation}
+or a weighted alternative
+\begin{equation}
+  \mathcal U_{\rm BAI,w}
+  =\sum_{(i,j)\in\mathcal C_r}w_{ij}^{(r)}
+  \Var\left(s_i\widehat g_i-s_j\widehat g_j\right).
+  \label{eq:weighted-bai}
+\end{equation}
+Weights should concentrate on pairs that are hardest to separate.
+
+\subsection{Shot-minimization formulation}
+
+Rather than fixing a total budget, solve
+\begin{equation}
+  \min_{\{m_\alpha\},\,\text{estimator design}}
+  \sum_\alpha m_\alpha
+  \label{eq:minshots}
+\end{equation}
+subject to uncertainty constraints sufficient for the desired BAI elimination or stopping decision.  A continuous relaxation $m_\alpha>0$ may be solved first and rounded to integer shot counts.
+
+For fixed covariance matrices, fixed context supports, and a fragment formulation with linear reconstruction constraints, terms of the form
+\begin{equation}
+  \frac{\bm x^T\Sigma\bm x}{m}
+\end{equation}
+are quadratic-over-linear and convex for $m>0$ and $\Sigma\succeq0$.  This suggests that fairly general coefficient/fragment plus shot-allocation subproblems can be convex once the context library is fixed.  The hard non-convex/combinatorial part enters when context membership, dictionary size, or the dictionary factorization itself is also optimized.
+
+\section{How covariance information is obtained without an oracle}
+
+The production algorithm must not assume exact knowledge of $\Sigma_\alpha$.  Three sources are allowed.
+
+\subsection{Classical prior}
+A classically efficient approximate wavefunction, such as Hartree--Fock, CISD, selected CI, or a low-bond-dimension MPS, may provide
+\begin{equation}
+  \Sigma_\alpha^{\rm prior}.
+\end{equation}
+This is only an initializer and must not be treated as exact for the quantum state being measured.
+
+\subsection{Empirical covariance}
+After $m_\alpha$ shots in context $\alpha$,
+\begin{equation}
+  \widehat\Sigma_\alpha^{\rm emp}
+  =\frac{1}{m_\alpha-1}
+  \sum_{s=1}^{m_\alpha}
+  (\bm X_\alpha^{(s)}-\widehat{\bm\mu}_\alpha)
+  (\bm X_\alpha^{(s)}-\widehat{\bm\mu}_\alpha)^T.
+  \label{eq:empirical-cov}
+\end{equation}
+If numerical noise makes a regularized estimate indefinite, project it to the positive-semidefinite cone and record the regularization.
+
+\subsection{Prior--data shrinkage}
+A default shrinkage rule is
+\begin{equation}
+  \widetilde\Sigma_\alpha
+  =\lambda_\alpha\Sigma_\alpha^{\rm prior}
+  +(1-\lambda_\alpha)\widehat\Sigma_\alpha^{\rm emp},
+  \qquad
+  \lambda_\alpha=\frac{\nu}{\nu+m_\alpha},
+  \label{eq:shrinkage}
+\end{equation}
+where $\nu\ge0$ is a declared prior effective sample size.  Sensitivity to $\nu$ must be tested.
+
+\section{Adaptive-update rule and statistical validity}
+
+The estimator design may change as measurements accumulate.  To avoid hidden bias from choosing coefficients using the same fluctuations that are then treated as fixed, the first implementation should use \emph{batchwise predictable updates}:
+\begin{enumerate}[label=\arabic*.]
+  \item At the start of batch $t$, use only data from batches $1,\ldots,t-1$ to choose contexts, coefficients, universal vectors, and shot counts for batch $t$.
+  \item Freeze those choices for batch $t$ before collecting its shots.
+  \item Record the complete design used in batch $t$.
+  \item Update empirical means/covariances after the batch and redesign only for batch $t+1$.
+\end{enumerate}
+Because each batch design is chosen from past information, its within-batch estimators can be treated as conditionally unbiased when Eq.~\eqref{eq:ABC} is satisfied.  More aggressive reuse of the same data to both choose and evaluate the final estimator is an advanced option and must be accompanied by a derivation, cross-fitting, or Monte-Carlo coverage test.
+
+\section{Choosing the next measurement context}
+
+At online round $r$, let the current design objective be $\mathcal U_r$.  For a candidate extra batch of $b$ shots in context $\alpha$, compute a predicted uncertainty reduction
+\begin{equation}
+  \Delta_\alpha^{(r)}
+  =\mathcal U_r(\{m_\beta\})
+  -\mathcal U_r(\{m_\beta+b\,\delta_{\alpha\beta}\}).
+\end{equation}
+Measure the context with the largest predicted reduction per unit cost,
+\begin{equation}
+  \alpha^\star
+  =\argmax_\alpha
+  \frac{\Delta_\alpha^{(r)}}{c_\alpha},
+  \label{eq:context-choice}
+\end{equation}
+where $c_\alpha$ may be set to $1$ for pure shot minimization or may include a declared circuit-time / Clifford-cost model.
+
+\section{Student implementation plan}
+
+\subsection{Phase 0: algebraic and statistical unit tests}
+Use synthetic Pauli examples small enough to check by hand.
+\begin{enumerate}[label=(\alph*)]
+  \item Verify $A=BC$ exactly for every constructed estimator.
+  \item Verify auxiliary Pauli coefficients cancel in the reconstructed targets.
+  \item Verify analytic variances against Monte Carlo sampling.
+  \item Verify that Level II-A is recovered when $\Pset_{\rm aux}=\varnothing$.
+  \item Verify that Level II-B reproduces a known ghost-Pauli variance reduction example.
+\end{enumerate}
+
+\subsection{Phase 1: fixed-state molecular benchmark}
+Start with LiH/STO-3G at a stretched but not dissociated geometry, e.g. $R_{\rm LiH}=3.0\,$\AA, using the standard $N_e,S_z$-conserving spin-orbital UCCSD pool.  Freeze a current state and compare:
+\begin{enumerate}[label=\textbf{B\arabic*.}]
+  \item fixed FC estimator / shot allocation (Level II-0);
+  \item coefficient splitting (Level II-A);
+  \item zero-sum augmentation (Level II-B);
+  \item general dictionary design on the same small instance (Level II-C);
+  \item BAI-adaptive redesign using measured covariances (Level II-D);
+  \item direct contrast design (Level II-E, optional after the previous levels are validated).
+\end{enumerate}
+
+Exact statevector gradients and covariances may be computed only as hidden validation references.  They must not be passed to the non-oracle optimization unless the run is explicitly labeled ``oracle diagnostic.''
+
+For finite-shot tests use at least $50$ independent random seeds per fixed-state method when computationally feasible.  Report median, interquartile range, 90th percentile, and failure count rather than only the mean.
+
+\subsection{Phase 2: correlated-state snapshots}
+Repeat Phase 1 on a CISD state and on one or more saved states later along an ADAPT trajectory.  This tests whether a design derived from a simple classical prior remains useful after the state becomes correlated.
+
+\subsection{Phase 3: full BAI selection step}
+Run a complete non-oracle generator-selection decision from measured samples.  Record the active set $\Aset_r$, every estimator redesign, every covariance update, every selected context, and the cumulative shot count.
+
+\subsection{Phase 4: ADAPT trajectory}
+After fixed-state validation, embed the best practical Level II method into a full ADAPT trajectory and report the cumulative gradient-selection cost to a fixed final energy accuracy.  Part III symmetry filtering/tapering, if used, must be applied before the present estimator-design layer.
+
+\section{Required outputs}
+
+For every benchmark and method, save:
+\begin{enumerate}[label=(\roman*)]
+  \item the Hamiltonian, generator labels, and exact gradient-operator Pauli coefficient matrix $A$;
+  \item required and auxiliary Pauli libraries, including the generation rule for each auxiliary;
+  \item the parent context library and each context's Clifford diagonalization data;
+  \item the universal-vector matrix $C$ and reconstruction matrix $B$ for every redesign round;
+  \item a numerical residual $\|A-BC\|$ and a hard failure if it exceeds the declared floating-point tolerance;
+  \item raw bitstrings or sufficient statistics for every measured context;
+  \item empirical/prior/shrinkage covariance matrices;
+  \item context shot allocations and all batchwise redesign decisions;
+  \item gradient estimates, confidence intervals, BAI active sets, eliminations, and selected generator;
+  \item context-shots, measurement-circuit cost, and classical optimization time;
+  \item oracle reference values only in separate validation files.
+\end{enumerate}
+
+\section{Primary metrics and decision rules}
+
+For a fixed state, report
+\begin{align}
+  &P(\text{exact best selected}),\\
+  &P(\Delta\text{-good selected}),\\
+  &N_{\rm shots}^{50\%},\quad N_{\rm shots}^{90\%},\\
+  &\text{classical design time},\\
+  &\text{measurement-context count and Clifford cost}.
+\end{align}
+A method is scientifically useful if it reduces total context-shots at matched selection reliability without relying on oracle covariance information.  Improvements that come only from additional classical information unavailable in practice must be reported separately as oracle upper bounds.
+
+\section{Failure modes and safeguards}
+
+\begin{enumerate}[label=(\arabic*)]
+  \item \textbf{Bad covariance prior.}  A poor classical wavefunction can lead to a harmful initial design.  Diagnose by comparing empirical and prior covariances and by shrinking the prior weight with accumulated shots.
+  \item \textbf{Covariance estimation noise.}  Small batches can make the optimized coefficients unstable.  Use PSD projection/ridge regularization and cap coefficient norms when necessary.
+  \item \textbf{Huge auxiliary library.}  Level II-B can become combinatorial.  Use bounded candidate-generation rules and report library size.
+  \item \textbf{Ill-conditioned dictionary.}  Level II-C can generate large reconstruction coefficients.  Report singular values / condition numbers and constrain coefficient norms.
+  \item \textbf{Approximate factorization bias.}  The default project uses exact reconstruction $A=BC$.  If approximate low-rank compression is explored, its residual must enter the confidence bounds as deterministic bias.
+  \item \textbf{Adaptive overfitting.}  Use batchwise predictable updates or cross-fitting and validate confidence coverage by Monte Carlo.
+  \item \textbf{BAI objective mismatch.}  Minimizing individual gradient variances can be wasteful; compare with pairwise-contrast objectives on the surviving candidates.
+\end{enumerate}
+
+\section{Relation to previous work and neighboring fields}
+
+The individual ingredients of this project have important precedents.  The contribution sought here is not to rename those ingredients, but to combine them into a multi-gradient, BAI-adaptive estimator-design framework and determine which extra degrees of freedom are actually worth their classical complexity.
+
+\subsection{Quantum observable measurement}
+
+Crawford \emph{et al.} studied finite-sampling-aware grouping of Pauli observables and emphasized that minimizing the number of groups is not equivalent to minimizing measurement cost when fragment variances and optimal shot allocation are taken into account \cite{Crawford2021}.
+
+Yen, Ganeshram, and Izmaylov developed overlapping-group measurement allocation and iterative coefficient splitting (ICS), explicitly optimizing coefficients of Pauli products shared among compatible measurement groups and using covariance estimates; they also considered approximate classical covariances and empirical covariances accumulated from measurements \cite{Yen2023}.  This is the closest direct precedent for Level II-A.
+
+Choi, Yen, and Izmaylov introduced ``ghost'' Pauli products: extra Pauli terms are added to several measurable fragments with coefficients that sum to zero, lowering fragment variances without changing the target expectation value \cite{Choi2022}.  This is essentially the single-observable precedent for Level II-B.
+
+Adaptive measurement design also appears in quantum tomography and generalized measurement design.  For example, adaptive Bayesian tomography re-optimizes the next measurement based on data collected so far \cite{Huszar2012}.  The present problem is different because the allowable measurements are constrained by Pauli measurability and the target is a BAI decision over several gradient functionals rather than reconstruction of an unknown density matrix, but the sequential-design principle is closely related.
+
+\subsection{Classical statistics and Monte Carlo}
+
+Level II-B is closely related to the classical method of control variates: one adds zero-mean or known-mean correlated quantities and optimizes their coefficients to reduce estimator variance \cite{GlynnSzechtman2002}.  The quantum ``ghost'' construction can be viewed as an operator-level, jointly measurable version of the same variance-reduction principle.
+
+The shot-allocation part is a form of optimal experimental design.  Classical $c$-optimal design chooses how often to perform different experiments so as to estimate a specified linear functional with minimum variance; Elfving's classical formulation is an early example \cite{Elfving1952}.  A-, D-, E-, G-, and related optimality criteria correspond to emphasizing different summaries of the information/covariance matrix.  Our BAI objective is closest to designing experiments for a changing set of linear contrasts rather than estimating every parameter equally well.
+
+The BAI layer has an especially close analogue in linear bandits.  Soare, Lazaric, and Munos connected best-arm identification in linear bandits to G-optimal experimental design, exploiting global linear structure to allocate samples efficiently \cite{Soare2014}.  Tao, Blanco, and Zhou likewise use an optimal G-allocation design in linear-bandit BAI \cite{Tao2018}.  Our quantum problem differs because one experimental action (an FC context) returns a correlated vector of Pauli outcomes and the estimator basis itself can be redesigned subject to quantum measurability constraints.
+
+\subsection{What appears less standard}
+
+The literature above covers the main ingredients separately: coefficient splitting, ghost/control-variate augmentation, optimal shot allocation, adaptive measurement selection, and linear best-arm experimental design.  The less standard combination proposed here is:
+\begin{quote}
+optimize a shared, exactly unbiased, quantum-measurable dictionary for a vector of ADAPT gradients; update that dictionary using empirical covariance information; and retarget it online as BAI removes candidate generators, with the option of designing estimators directly for the remaining pairwise contrasts.
+\end{quote}
+A careful literature review should precede any novelty claim, but this combined formulation provides a clear map of what is inherited from existing work and what needs to be tested as a new integration.
+
+\section{Recommended order of attack}
+
+For a student project, do not begin with the most general dictionary problem.  The recommended order is:
+\begin{enumerate}[label=\textbf{Step \arabic*.}]
+  \item Reproduce Level II-0 and Level II-A on a fixed LiH state.
+  \item Add measured, non-oracle covariance updates.
+  \item Add Level II-B zero-sum/ghost auxiliaries and verify exact cancellation.
+  \item Couple Level II-A/B to BAI elimination (Level II-D).
+  \item Only then attempt Level II-C general dictionary design.
+  \item Treat Level II-E direct contrast design as the final optional extension.
+\end{enumerate}
+This ordering ensures that any improvement can be attributed to a specific new degree of freedom rather than to several changes introduced simultaneously.
+
+\begin{thebibliography}{99}
+
+\bibitem{Crawford2021}
+O. Crawford, B. van Straaten, D. Wang, T. Parks, E. Campbell, and S. Brierley,
+``Efficient quantum measurement of Pauli operators in the presence of finite sampling error,''
+\emph{Quantum} \textbf{5}, 385 (2021).
+\url{https://arxiv.org/abs/1908.06942}
+
+\bibitem{Yen2023}
+T.-C. Yen, A. Ganeshram, and A. F. Izmaylov,
+``Deterministic improvements of quantum measurements with grouping of compatible operators, non-local transformations, and covariance estimates,''
+\emph{npj Quantum Information} \textbf{9}, 14 (2023).
+\url{https://doi.org/10.1038/s41534-023-00683-y}
+
+\bibitem{Choi2022}
+S. Choi, T.-C. Yen, and A. F. Izmaylov,
+``Improving quantum measurements by introducing `ghost' Pauli products,''
+\emph{J. Chem. Theory Comput.} \textbf{18}, 7394--7402 (2022).
+\url{https://doi.org/10.1021/acs.jctc.2c00837}
+
+\bibitem{Huszar2012}
+F. Husz\'ar and N. M. T. Houlsby,
+``Adaptive Bayesian quantum tomography,''
+\emph{Phys. Rev. A} \textbf{85}, 052120 (2012).
+\url{https://arxiv.org/abs/1107.0895}
+
+\bibitem{GlynnSzechtman2002}
+P. W. Glynn and R. Szechtman,
+``Some New Perspectives on the Method of Control Variates,''
+in \emph{Monte Carlo and Quasi-Monte Carlo Methods 2000}, Springer, 27--49 (2002).
+\url{https://web.stanford.edu/~glynn/papers/2002/GSzechtman02.html}
+
+\bibitem{Elfving1952}
+G. Elfving,
+``Optimum Allocation in Linear Regression Theory,''
+\emph{Ann. Math. Statist.} \textbf{23}, 255--262 (1952).
+\url{https://doi.org/10.1214/aoms/1177729442}
+
+\bibitem{Soare2014}
+M. Soare, A. Lazaric, and R. Munos,
+``Best-Arm Identification in Linear Bandits,''
+arXiv:1409.6110 (2014).
+\url{https://arxiv.org/abs/1409.6110}
+
+\bibitem{Tao2018}
+C. Tao, S. Blanco, and Y. Zhou,
+``Best Arm Identification in Linear Bandits with Linear Dimension Dependency,''
+in \emph{Proceedings of ICML}, PMLR \textbf{80}, 4877--4886 (2018).
+\url{https://proceedings.mlr.press/v80/tao18a.html}
+
+\end{thebibliography}
+
+\end{document}

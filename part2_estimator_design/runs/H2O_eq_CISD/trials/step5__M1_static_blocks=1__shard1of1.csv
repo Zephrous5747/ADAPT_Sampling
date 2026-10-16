@@ -1,0 +1,25 @@
+label,trial,n_trials,seed,selected,correct,shots,rounds,shortfall,miscovered_rounds,best_eliminated,stopped_rho,contexts_used,cz_per_shot_mean
+"M1 static, blocks=1",0,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",1,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",2,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",3,24,5,101,1,434929918074.0,1,0.0,1,False,False,13609,0.0
+"M1 static, blocks=1",4,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",5,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",6,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",7,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",8,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",9,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",10,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",11,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",12,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",13,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",14,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",15,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",16,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",17,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",18,24,5,101,1,434929918074.0,1,0.0,1,False,False,13609,0.0
+"M1 static, blocks=1",19,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",20,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",21,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",22,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0
+"M1 static, blocks=1",23,24,5,101,1,434929918074.0,1,0.0,0,False,False,13609,0.0

@@ -1,0 +1,19 @@
+\begin{table}[!htb]
+\centering\small
+\caption{Gradient against energy lowering (exact, STO-3G, UCCSD pool). For every state (HF, CISD and every state of the exact ADAPT trajectory) and every generator, the energy lowering of a one-parameter move. $\rho_s$: Spearman rank correlation of $|g_i|$ with the lowering (median and smallest over the states). Top $|g|$ is best: share of states where the generator of largest $|g_i|$ also lowers the energy most. Share of best lowering: lowering of the largest-$|g|$ choice, and of the worst choice within $\rho=0.1$ of the largest $|g|$, divided by the best possible lowering (mean, smallest in brackets). Full re-opt.: the same with all parameters re-optimized after the generator is appended (H$_4$, LiH).}
+\label{tab:S_grad_energy}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrrrrr}
+\toprule
+ & & \multicolumn{4}{c}{one-parameter move} & \multicolumn{2}{c}{full re-opt.} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-8}
+System & states & $\rho_s$ & top $|g|$ is best & share, top $|g|$ & share, worst $\rho$-good & $\rho_s$ & share, top $|g|$ \\
+\midrule
+H$_4$ 1.0~\AA & 11 & 0.88 (0.64) & 45\% & 0.62 (0.11) & 0.52 (0.05) & 0.64 & 0.52 \\
+H$_4$ 2.0~\AA & 11 & 0.95 (0.86) & 91\% & 0.96 (0.60) & 0.89 (0.48) & 0.83 & 0.96 \\
+LiH 3.0~\AA & 6 & 0.95 (0.90) & 100\% & 1.00 (1.00) & 0.98 (0.86) & 0.95 & 1.00 \\
+H$_2$O eq & 18 & 0.94 (0.92) & 61\% & 0.93 (0.59) & 0.83 (0.55) & 0.62 & 0.83 \\
+H$_2$O str & 19 & 0.94 (0.84) & 68\% & 0.87 (0.32) & 0.76 (0.20) & 0.61 & 0.82 \\
+\bottomrule
+\end{tabular}
+\end{table}
