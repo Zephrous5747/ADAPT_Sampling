@@ -1,0 +1,27 @@
+\begin{table}[!htb]
+\centering\small
+\caption{Curvature-scaled tolerance, cluster build, BFGS gradient tolerance $10^{-5}$, 200 trajectories per entry. Each cell is \emph{plain gradient set} / \emph{curvature-scaled set}: the draw is uniform among the generators with $|g_i|\ge(1-R)\max|g|$, respectively with $|g_i|/\sqrt{h_i}\ge(1-R)\max|g_j|/\sqrt{h_j}$, $h_i$ the diagonal curvature at the Hartree--Fock reference (no extra shots). The last column is the draw inside the set of one-parameter energy lowerings within $30\%$ of the best (needs the lowering at every step). The evaluation ratios are relative to the exact path of the same build, as in the preceding tables.}
+\label{tab:find_nrho}
+\footnotesize\setlength{\tabcolsep}{3.5pt}
+\fitcol{%
+\begin{tabular}{lrrrrrr}
+\toprule
+System & $R=0.1$ & $R=0.2$ & $R=0.3$ & $R=0.5$ & $R=0.7$ & $\tau=0.3$ \\
+\midrule
+\multicolumn{7}{l}{\emph{Steps relative to exact ADAPT}} \\
+H$_4$ 1.0~\AA & 1.00 / 1.00 & 1.00 / 1.00 & 0.99 / 0.99 & 0.91 / 0.91 & 0.91 / 0.91 & 0.80 \\
+H$_4$ 2.0~\AA & 0.98 / 1.00 & 0.99 / 0.99 & 0.99 / 0.99 & 0.97 / 0.97 & 0.99 / 0.98 & 1.00 \\
+LiH 3.0~\AA & 1.00 / 1.00 & 1.11 / 1.00 & 1.11 / 1.11 & 1.49 / 1.12 & 1.91 / 1.30 & 1.00 \\
+BeH$_2$ & 1.00 / 1.00 & 1.00 / 1.00 & 1.00 / 1.00 & 1.00 / 1.00 & 1.13 / 1.00 & 1.00 \\
+H$_2$O eq & 1.00 / 1.00 & 1.03 / 1.00 & 1.01 / 1.00 & 1.13 / 1.03 & 1.28 / 1.21 & 1.00 \\
+H$_2$O str & 1.00 / 0.98 & 1.01 / 1.00 & 1.01 / 1.02 & 1.06 / 1.10 & 1.18 / 1.18 & 1.00 \\
+\multicolumn{7}{l}{\emph{Optimizer evaluations relative to exact ADAPT}} \\
+H$_4$ 1.0~\AA & 1.01 / 1.00 & 1.02 / 1.01 & 1.01 / 1.01 & 0.88 / 0.87 & 0.85 / 0.85 & 0.55 \\
+H$_4$ 2.0~\AA & 1.01 / 1.04 & 1.01 / 1.02 & 1.02 / 1.02 & 1.02 / 1.03 & 1.17 / 1.17 & 1.04 \\
+LiH 3.0~\AA & 1.01 / 1.01 & 1.15 / 1.01 & 1.15 / 1.37 & 1.76 / 1.37 & 2.64 / 1.99 & 1.01 \\
+BeH$_2$ & 1.04 / 0.98 & 1.06 / 1.00 & 1.05 / 1.01 & 1.03 / 1.02 & 1.16 / 1.03 & 1.00 \\
+H$_2$O eq & 1.00 / 0.99 & 1.03 / 0.99 & 1.02 / 0.99 & 1.15 / 1.01 & 1.41 / 1.23 & 0.99 \\
+H$_2$O str & 1.00 / 0.90 & 1.00 / 0.92 & 1.00 / 0.92 & 1.06 / 1.01 & 1.28 / 1.13 & 0.93 \\
+\bottomrule
+\end{tabular}}
+\end{table}

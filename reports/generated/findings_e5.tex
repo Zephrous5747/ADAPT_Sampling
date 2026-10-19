@@ -1,0 +1,16 @@
+\begin{table}[!htb]
+\centering\small
+\caption{Repairing the small-sample intervals at trajectory level: complete II-A trajectories on LiH 3.0~\AA\ (exact ADAPT: 6 steps), a priori start, $\rho=0.1$, per-round intervals, with the default minimum of 50 shots per fold and with 200 and 400 (the same minimum is the floor of the learned designs). Default: the 90 runs of the main set (seeds 7 and 8). A trajectory is above exact if it needs more steps than exact ADAPT; the extra step is the only effect.}
+\label{tab:find_e5}
+\footnotesize\setlength{\tabcolsep}{3.5pt}
+\fitcol{%
+\begin{tabular}{lrrrrrl}
+\toprule
+Minimum shots per fold & runs & steps & runs above exact & $\rho$-good & exact best & selection shots, mean [95\% CI] \\
+\midrule
+50 (default) & 90 & 6.056 & 5.6\% & 99.1\% & 92.1\% & $5.16\times10^{7}$ [$4.76\times10^{7}$, $5.59\times10^{7}$] \\
+200 & 90 & 6.000 & 0.0\% & 100.0\% & 97.8\% & $5.08\times10^{7}$ [$4.74\times10^{7}$, $5.43\times10^{7}$] \\
+400 & 90 & 6.011 & 1.1\% & 99.8\% & 94.6\% & $5.23\times10^{7}$ [$4.93\times10^{7}$, $5.54\times10^{7}$] \\
+\bottomrule
+\end{tabular}}
+\end{table}

@@ -1,0 +1,19 @@
+\begin{table}[!htb]
+\centering\small
+\caption{Energy-greedy choices: steps relative to exact ADAPT when every selection is the generator with the largest one-parameter lowering (one-param.), the largest Newton estimate $g_i^2/2h_i$ with the curvature $h_i$ of the Hartree--Fock reference (no shots) or of the current state, or the lowest energy after re-optimizing all parameters among the top 3 / top 10 gradients / all generators with a gradient. Only H$_4$ 1.0~\AA\ gains steps (10 to 8; H$_2$O eq 17 to 16 with all candidates re-optimized). The steps are the same at $10^{-5}$ and $10^{-3}$, except that the H$_2$O eq gain disappears at $10^{-3}$.}
+\label{tab:find_greedy}
+\footnotesize\setlength{\tabcolsep}{3.5pt}
+\fitcol{%
+\begin{tabular}{lrrrrrr}
+\toprule
+System & one-param. & Newton, HF curv. & Newton, exact curv. & re-opt., top 3 & re-opt., top 10 & re-opt., all \\
+\midrule
+H$_4$ 1.0~\AA & 0.80 & 1.00 & 0.90 & 1.00 & 0.80 & 0.80 \\
+H$_4$ 2.0~\AA & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+LiH 3.0~\AA & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+BeH$_2$ & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+H$_2$O eq & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 0.94 \\
+H$_2$O str & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 \\
+\bottomrule
+\end{tabular}}
+\end{table}

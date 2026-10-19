@@ -32,24 +32,29 @@ LABEL = {"H4_square_eq_side1p0_HF": "H4 1.0", "H4_square_stretch_side2p0_HF": "H
 SLACK = 1e-4
 
 
-def load_runs(case_dir: Path) -> pd.DataFrame:
+def load_runs(case: str, roots: list[Path]) -> pd.DataFrame:
+    """Runs of a case from several roots; a run is identified by (method, delta, index, source) and the later root wins."""
+    found, ref = {}, None
+    for root in roots:
+        case_dir = root / case
+        if ref is None and (case_dir / "exact_reference.json").exists():
+            ref = json.loads((case_dir / "exact_reference.json").read_text())
+        for path in sorted(case_dir.glob("ci_*.jsonl")):
+            for line in path.read_text().splitlines():
+                if line.strip():
+                    r = json.loads(line)
+                    found[(r["method"], round(r["delta"], 6), int(r["index"]), r.get("source", "measured"))] = r
     rows = []
-    ref_path = case_dir / "exact_reference.json"
-    ref = json.loads(ref_path.read_text()) if ref_path.exists() else None
-    for path in sorted(case_dir.glob("ci_*.jsonl")):
-        for line in path.read_text().splitlines():
-            if not line.strip():
-                continue
-            r = json.loads(line)
-            sel = np.array([s["shots"] for s in r["selections"]], float)
-            copt = np.array(r["c_opt_steps"], float)
-            n = min(len(sel), len(copt))
-            cum = np.concatenate([[0.0], np.cumsum(sel[:n] + copt[:n])])
-            rows.append({"method": r["method"], "delta": r["delta"], "index": r["index"], "source": r.get("source", "measured"),
-                         "iterations": r["iterations"], "final_error": r["final_error"],
-                         "selection": float(sel.sum()), "optimisation": float(copt.sum()),
-                         "total": float(sel.sum() + copt.sum()), "cum": cum, "errors": np.array(r["energy_errors"], float),
-                         "evals": r["optimizer_evaluations"]})
+    for r in found.values():
+        sel = np.array([s["shots"] for s in r["selections"]], float)
+        copt = np.array(r["c_opt_steps"], float)
+        n = min(len(sel), len(copt))
+        cum = np.concatenate([[0.0], np.cumsum(sel[:n] + copt[:n])])
+        rows.append({"method": r["method"], "delta": r["delta"], "index": r["index"], "source": r.get("source", "measured"),
+                     "iterations": r["iterations"], "final_error": r["final_error"],
+                     "selection": float(sel.sum()), "optimisation": float(copt.sum()),
+                     "total": float(sel.sum() + copt.sum()), "cum": cum, "errors": np.array(r["energy_errors"], float),
+                     "evals": r["optimizer_evaluations"]})
     df = pd.DataFrame(rows)
     df.attrs["ref"] = ref
     return df
@@ -102,19 +107,24 @@ def totals_figure(frames: dict, out: Path) -> None:
     import matplotlib.pyplot as plt
 
     plt.rcParams.update({"font.size": 7, "axes.spines.top": False, "axes.spines.right": False, "pdf.fonttype": 42})
-    fig, axes = plt.subplots(1, len(frames), figsize=(2.9 * len(frames), 3.2), squeeze=False)
-    for ax, (case, df) in zip(axes[0], frames.items()):
+    ncols = 3
+    nrows = -(-len(frames) // ncols)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(7.2, 3.0 * nrows), squeeze=False)
+    for ax in axes.ravel()[len(frames):]:
+        ax.axis("off")
+    for ax, (case, df) in zip(axes.ravel(), frames.items()):
         t = summarise(case, df)
         ref = t[(t.method.str.startswith("II-A")) & ((t.confidence_pct - 95).abs() < 0.5)]
         ref = (ref if len(ref) else t[t.method.str.startswith("II-A")].sort_values("confidence_pct").iloc[[-1]]).iloc[0]
         t = t.assign(label=[f"{m.replace(', safe', '').replace(' data', '')} {c:.0f}%" if m.startswith("II-A") else
                             (m.replace(", pilot", "") if m.startswith("Fixed") else m)
                             for m, c in zip(t.method, t.confidence_pct)])
-        t = t.sort_values(["method", "confidence_pct"], ascending=[True, False]).reset_index(drop=True)
+        t = t.assign(key=[f"Fixed {int(m.split()[1].rstrip(',')):015d}" if m.startswith("Fixed") else m for m in t.method])
+        t = t.sort_values(["key", "confidence_pct"], ascending=[True, False]).reset_index(drop=True)
         y = np.arange(len(t))
         sel = t.selection_median / ref.total_median
         opt = t.optimisation_median / ref.total_median
-        ax.barh(y, opt, color="#BBBBBB", label="optimisation (C_opt model)")
+        ax.barh(y, opt, color="#BBBBBB", label="optimization (C_opt model)")
         ax.barh(y, sel, left=opt, color="#D55E00", label="selection shots")
         for yi, (s, o, r) in enumerate(zip(t.selection_share_pct, t.total_median / ref.total_median, t.reached_pct)):
             ax.text(o + 0.02, yi, f"{s:.2g}%" + ("" if r >= 95 else f" (reach {r:.0f}%)"), va="center", fontsize=5.5)
@@ -124,7 +134,9 @@ def totals_figure(frames: dict, out: Path) -> None:
         ax.set_xlim(0, max(1.6, float((t.total_median / ref.total_median).max()) * 1.35))
         ax.set_title(LABEL.get(case, case))
         ax.set_xlabel("total shots / II-A (95%)")
-    axes[0][-1].legend(fontsize=5.5, frameon=False, loc="upper right", bbox_to_anchor=(1.0, 0.35))
+    spare = axes.ravel()[len(frames):]
+    handles, labels = axes.ravel()[0].get_legend_handles_labels()
+    (spare[0] if len(spare) else axes.ravel()[len(frames) - 1]).legend(handles, labels, fontsize=7, frameon=False, loc="center")
     fig.tight_layout()
     fig.savefig(out / "cost_totals.pdf", bbox_inches="tight")
     fig.savefig(out / "cost_totals.png", bbox_inches="tight", dpi=200)
@@ -133,17 +145,17 @@ def totals_figure(frames: dict, out: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--runs", type=Path, default=Path("runs/features"))
+    parser.add_argument("--runs", type=Path, nargs="+", default=[Path("runs/features"), Path("runs/features_ext")])
     parser.add_argument("--cases", nargs="*", default=None)
     args = parser.parse_args()
-    cases = args.cases or [p.name for p in sorted(args.runs.iterdir()) if p.is_dir() and p.name.endswith("_HF")]
-    out = args.runs / "report"
+    cases = args.cases or sorted({p.name for root in args.runs if root.exists() for p in root.iterdir() if p.is_dir() and p.name.endswith("_HF")})
+    out = args.runs[0] / "report"
     out.mkdir(parents=True, exist_ok=True)
     tables, frames = [], {}
     pd.set_option("display.width", 250)
     pd.set_option("display.max_columns", 30)
     for case in cases:
-        df = load_runs(args.runs / case)
+        df = load_runs(case, args.runs)
         if df.empty:
             continue
         frames[case] = df

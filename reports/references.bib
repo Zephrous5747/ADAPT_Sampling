@@ -1,8 +1,9 @@
 % Verified bibliography for Paper A (reports/draft.tex).
 % Checked 2026-10-06/07 against Crossref, the arXiv API and the full texts of the papers listed in reports/reference_review.md.
-% Keys are those of draft.tex. Only fields that were confirmed are filled in; where an author list was truncated in the lookup
-% it ends in "and others" and must be completed from the publisher page before submission.
-% Titles use braces to protect capitalisation for BibTeX.
+% Re-checked 2026-10-19: every DOI against Crossref (authors, title, volume, issue, pages, year), the preprints against the
+% arXiv API and a Crossref search for published versions (none found), the entries without DOI against JMLR, PMLR and the
+% NeurIPS proceedings. All author lists are complete. Preprints carry no note; the version read is given in a comment.
+% Keys are those of draft.tex. Titles use braces to protect capitalisation for BibTeX.
 
 % ======================================================================================
 %  CITED IN draft.tex
@@ -26,10 +27,11 @@
   journal = {Nat. Commun.}, volume = {10}, pages = {3007}, year = {2019},
   doi     = {10.1038/s41467-019-10988-2}}
 
+% Version read: v3, 20 June 2026. No journal version (arXiv journal_ref and Crossref, 2026-10-19).
 @misc{anastasiou2023,
   author  = {Anastasiou, P. G. and Mayhall, N. J. and Barnes, E. and Economou, S. E.},
   title   = {How to really measure operator gradients in {ADAPT-VQE}},
-  year    = {2023}, note = {version 3, 20 June 2026; not published in a journal as of 2026-10-07},
+  year    = {2023},
   eprint  = {2306.03227}, archiveprefix = {arXiv}}
 
 @article{tang2021,
@@ -80,10 +82,11 @@
   journal = {Commun. Phys.}, volume = {8}, pages = {418}, year = {2025},
   doi     = {10.1038/s42005-025-02375-9}, eprint = {2409.05939}, archiveprefix = {arXiv}}
 
+% Version read: v2, 20 June 2026.
 @misc{rossi2026,
   author  = {Rossi, E. and Kjellgren, E. R. and Izmaylov, A. F. and Sauer, S. P. A. and Ziems, K. M. and Coriani, S.},
   title   = {Resource-efficient energy-based operator selection in fermionic {ADAPT-VQE} via exact {H}amiltonian transformation},
-  year    = {2026}, note = {version 2, 20 June 2026; preprint},
+  year    = {2026},
   eprint  = {2606.04786}, archiveprefix = {arXiv}}
 
 @article{anastasiou2024tetris,
@@ -95,7 +98,7 @@
 @misc{stadelmann2025,
   author  = {Stadelmann, J. and {\"U}belher, J. and Ram{\^o}a, M. and Sambasivam, B. and Barnes, E. and Economou, S. E.},
   title   = {Strategies for Overcoming Gradient Troughs in the {ADAPT-VQE} Algorithm},
-  year    = {2025}, note = {preprint},
+  year    = {2025},
   eprint  = {2512.25004}, archiveprefix = {arXiv}}
 
 @article{ramoa2025hessian,
@@ -107,7 +110,7 @@
 @misc{ramoa2026co,
   author  = {Ram{\^o}a, M. and Santos, L. P. and Mayhall, N. J. and Barnes, E. and Economou, S. E.},
   title   = {Co-Designed Adaptive Quantum State Preparation Protocols},
-  year    = {2026}, note = {preprint},
+  year    = {2026},
   eprint  = {2601.20681}, archiveprefix = {arXiv}}
 
 @article{long2024,
@@ -126,10 +129,11 @@
   author  = {Ikhtiarudin, A. and Sunnardianto, G. K. and Fathurrahman, F. and Agusta, M. K. and Dipojono, H. K.},
   title   = {Measurement cost reduction in {ADAPT-VQE} via variance-based shot allocation and {Pauli}-measurement reuse},
   journal = {Phys. Scr.}, volume = {101}, pages = {255103}, year = {2026},
-  doi     = {10.1088/1402-4896/ae784b}}
+  doi     = {10.1088/1402-4896/ae784b}, eprint = {2507.16879}, archiveprefix = {arXiv}}
 % The arXiv version (2507.16879v1, "Shot-Efficient ADAPT-VQE via Reused Pauli Measurements and Variance-Based Shot Allocation") has a
 % different title and its abstract does not mention pivot grouping; the published page states that pivot-based grouping gives the
-% dominant reduction. Cite the published version only.
+% dominant reduction. Cite the published version; the eprint (added 2026-10-19; the arXiv record gives this journal reference
+% and DOI) identifies the v1 that the Methods say was modeled.
 
 @article{huang2026,
   author  = {Huang, R. and Izmaylov, A. F.},
@@ -137,10 +141,11 @@
   journal = {J. Chem. Theory Comput.}, volume = {22}, number = {9}, pages = {4475--4480}, year = {2026},
   doi     = {10.1021/acs.jctc.6c00568}, eprint = {2509.14917}, archiveprefix = {arXiv}}
 
+% Version read: v2, 31 July 2026.
 @misc{utama2026,
   author  = {Utama, G. and Dipojono, H. K.},
   title   = {Operator-centric {Clifford} algebra for variational eigensolvers and finite-shot adaptive selection},
-  year    = {2026}, note = {version 2, 31 July 2026; preprint},
+  year    = {2026},
   eprint  = {2607.17443}, archiveprefix = {arXiv}}
 
 @article{evendar2006,
@@ -205,13 +210,13 @@
 @inproceedings{soare2014,
   author    = {Soare, M. and Lazaric, A. and Munos, R.},
   title     = {Best-Arm Identification in Linear Bandits},
-  booktitle = {Advances in Neural Information Processing Systems 27}, year = {2014},
+  booktitle = {Advances in Neural Information Processing Systems 27}, publisher = {Curran Associates}, year = {2014},
   eprint    = {1409.6110}, archiveprefix = {arXiv}}
 
 @inproceedings{fiez2019,
   author    = {Fiez, T. and Jain, L. and Jamieson, K. G. and Ratliff, L.},
   title     = {Sequential Experimental Design for Transductive Linear Bandits},
-  booktitle = {Advances in Neural Information Processing Systems 32}, year = {2019},
+  booktitle = {Advances in Neural Information Processing Systems 32}, publisher = {Curran Associates}, year = {2019},
   eprint    = {1906.08399}, archiveprefix = {arXiv}}
 
 @inproceedings{garivier2016,
@@ -248,13 +253,14 @@
 @misc{haravu2026,
   author  = {Haravu, S. and Ram{\^o}a, M. and Sambasivam, B.},
   title   = {A Case Study on Noise Resilient Operator Selection in Adaptive Variational Quantum Algorithms},
-  year    = {2026}, note = {preprint},
+  year    = {2026},
   eprint  = {2609.17501}, archiveprefix = {arXiv}}
 
+% Version read: v2, 10 April 2026.
 @misc{hagelueken2026,
   author  = {Hagelueken, M. and Kreplin, D. A. and Wieland, F. and Huber, M. F. and Roth, M.},
   title   = {Exponential Scaling Barriers for Variational Quantum Eigensolvers},
-  year    = {2026}, note = {version 2, 10 April 2026; preprint},
+  year    = {2026},
   eprint  = {2603.13073}, archiveprefix = {arXiv}}
 
 @article{lee2023,
@@ -266,7 +272,7 @@
 @misc{vahedi2026,
   author  = {Vahedi, J. and Arefi, H. H.},
   title   = {Graph Neural Networks for Fast Operator Selection in Adaptive {VQE}},
-  year    = {2026}, note = {preprint},
+  year    = {2026},
   eprint  = {2606.08794}, archiveprefix = {arXiv}}
 
 @article{mullinax2024,
@@ -312,15 +318,16 @@
   doi     = {10.1021/acs.jctc.4c00298}, eprint = {2311.00129}, archiveprefix = {arXiv}}
 
 % Dropped: studies selection bias of optimizer-chosen energies on hardware, not operator selection.
+% Version read: v2, 1 October 2026.
 @misc{larrucea2026,
   author  = {Larrucea, J.},
   title   = {The winner's curse in hardware {VQE}: drift-differenced remeasurement of finite-shot selection bias},
-  year    = {2026}, note = {version 2, 1 October 2026; preprint},
+  year    = {2026},
   eprint  = {2609.27704}, archiveprefix = {arXiv}}
 
 % Considered as a replacement for choi2024: no variational or ADAPT content (sum-of-determinants states), so less close to this work.
 @article{fomichev2024,
-  author  = {Fomichev, S. and Hejazi, K. and Zini, M. S. and Kiser, M. and Fraxanet, J. and Casares, P. A. M. and Delgado, A. and Huh, J. and others},
+  author  = {Fomichev, S. and Hejazi, K. and Zini, M. S. and Kiser, M. and Fraxanet, J. and Casares, P. A. M. and Delgado, A. and Huh, J. and Voigt, A.-C. and Mueller, J. E. and Arrazola, J. M.},
   title   = {Initial State Preparation for Quantum Chemistry on Quantum Computers},
   journal = {PRX Quantum}, volume = {5}, pages = {040339}, year = {2024},
   doi     = {10.1103/PRXQuantum.5.040339}, eprint = {2310.18410}, archiveprefix = {arXiv}}
@@ -332,10 +339,11 @@
 
 
 @article{virtanen2020,
-  author  = {Virtanen, P. and Gommers, R. and Oliphant, T. E. and others},
+  author  = {Virtanen, P. and Gommers, R. and Oliphant, T. E. and Haberland, M. and Reddy, T. and Cournapeau, D. and Burovski, E. and Peterson, P. and Weckesser, W. and Bright, J. and van der Walt, S. J. and Brett, M. and Wilson, J. and Millman, K. J. and Mayorov, N. and Nelson, A. R. J. and Jones, E. and Kern, R. and Larson, E. and Carey, C. J. and Polat, {\.I}. and Feng, Y. and Moore, E. W. and VanderPlas, J. and Laxalde, D. and Perktold, J. and Cimrman, R. and Henriksen, I. and Quintero, E. A. and Harris, C. R. and Archibald, A. M. and Ribeiro, A. H. and Pedregosa, F. and van Mulbregt, P. and {SciPy 1.0 Contributors}},
   title   = {{SciPy} 1.0: fundamental algorithms for scientific computing in {Python}},
   journal = {Nat. Methods}, volume = {17}, pages = {261--272}, year = {2020},
   doi     = {10.1038/s41592-019-0686-2}}
+% Author list as on the paper: 34 named authors and the SciPy 1.0 Contributors consortium (whose 77 members Crossref also lists).
 
 @article{peruzzo2014,
   author  = {Peruzzo, A. and McClean, J. and Shadbolt, P. and Yung, M.-H. and Zhou, X.-Q. and Love, P. J. and Aspuru-Guzik, A. and O'Brien, J. L.},
@@ -370,6 +378,32 @@
   year    = {2023},
   doi     = {10.22331/q-2023-01-13-896},
   eprint  = {2105.13091},
-  archivePrefix = {arXiv},
-  primaryClass  = {quant-ph}
+  archivePrefix = {arXiv}
 }
+
+% Added 2026-10-18 for the Methods (software and basis set); metadata checked against Crossref on that date.
+% Author lists completed from Crossref on 2026-10-19 (12, 49 and 37 authors).
+
+@article{sun2018pyscf,
+  author  = {Sun, Q. and Berkelbach, T. C. and Blunt, N. S. and Booth, G. H. and Guo, S. and Li, Z. and Liu, J. and McClain, J. D. and Sayfutyarova, E. R. and Sharma, S. and Wouters, S. and Chan, G. K.-L.},
+  title   = {{PySCF}: the {Python}-based simulations of chemistry framework},
+  journal = {WIREs Comput. Mol. Sci.}, volume = {8}, number = {1}, pages = {e1340}, year = {2018},
+  doi     = {10.1002/wcms.1340}}
+
+@article{sun2020pyscf,
+  author  = {Sun, Q. and Zhang, X. and Banerjee, S. and Bao, P. and Barbry, M. and Blunt, N. S. and Bogdanov, N. A. and Booth, G. H. and Chen, J. and Cui, Z.-H. and Eriksen, J. J. and Gao, Y. and Guo, S. and Hermann, J. and Hermes, M. R. and Koh, K. and Koval, P. and Lehtola, S. and Li, Z. and Liu, J. and Mardirossian, N. and McClain, J. D. and Motta, M. and Mussard, B. and Pham, H. Q. and Pulkin, A. and Purwanto, W. and Robinson, P. J. and Ronca, E. and Sayfutyarova, E. R. and Scheurer, M. and Schurkus, H. F. and Smith, J. E. T. and Sun, C. and Sun, S.-N. and Upadhyay, S. and Wagner, L. K. and Wang, X. and White, A. and Whitfield, J. D. and Williamson, M. J. and Wouters, S. and Yang, J. and Yu, J. M. and Zhu, T. and Berkelbach, T. C. and Sharma, S. and Sokolov, A. {\relax Yu}. and Chan, G. K.-L.},
+  title   = {Recent developments in the {PySCF} program package},
+  journal = {J. Chem. Phys.}, volume = {153}, number = {2}, pages = {024109}, year = {2020},
+  doi     = {10.1063/5.0006074}}
+
+@article{mcclean2020openfermion,
+  author  = {McClean, J. R. and Rubin, N. C. and Sung, K. J. and Kivlichan, I. D. and Bonet-Monroig, X. and Cao, Y. and Dai, C. and Fried, E. S. and Gidney, C. and Gimby, B. and Gokhale, P. and H{\"a}ner, T. and Hardikar, T. and Havl{\'\i}{\v{c}}ek, V. and Higgott, O. and Huang, C. and Izaac, J. and Jiang, Z. and Liu, X. and McArdle, S. and Neeley, M. and O'Brien, T. and O'Gorman, B. and Ozfidan, I. and Radin, M. D. and Romero, J. and Sawaya, N. P. D. and Senjean, B. and Setia, K. and Sim, S. and Steiger, D. S. and Steudtner, M. and Sun, Q. and Sun, W. and Wang, D. and Zhang, F. and Babbush, R.},
+  title   = {{OpenFermion}: the electronic structure package for quantum computers},
+  journal = {Quantum Sci. Technol.}, volume = {5}, number = {3}, pages = {034014}, year = {2020},
+  doi     = {10.1088/2058-9565/ab8ebc}}
+
+@article{dunning1989,
+  author  = {Dunning, Jr., T. H.},
+  title   = {Gaussian basis sets for use in correlated molecular calculations. {I}. {The} atoms boron through neon and hydrogen},
+  journal = {J. Chem. Phys.}, volume = {90}, number = {2}, pages = {1007--1023}, year = {1989},
+  doi     = {10.1063/1.456153}}

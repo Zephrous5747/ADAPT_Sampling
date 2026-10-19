@@ -1,0 +1,19 @@
+\begin{table}[!htb]
+\centering\small
+\caption{The 16-qubit cc-pVDZ windows of H$_2$O at the BFGS gradient tolerance $10^{-5}$ (cluster build, 48 trajectories per random policy, 40 steps). Error: mean energy error after 40 steps over that of exact ADAPT; ``within target'': share of the trajectories ending below the target error of the analysis script (exact ADAPT's own final error plus its tolerance); evaluations relative to exact ADAPT. ``curv.'' is the curvature-scaled gradient set.}
+\label{tab:find_nrho_window}
+\footnotesize\setlength{\tabcolsep}{3.5pt}
+\fitcol{%
+\begin{tabular}{llrrrrrrrr}
+\toprule
+System & quantity & $\rho=0.1$ & curv.\ $0.1$ & $\rho=0.3$ & curv.\ $0.3$ & $\rho=0.5$ & curv.\ $0.5$ & $\tau=0.3$ & one-param. \\
+\midrule
+H$_2$O cc-pVDZ window eq & error, step 40 & 1.03 & 1.00 & 1.09 & 1.04 & 1.16 & 1.21 & 1.01 & 1.00 \\
+ & within target (\%) & 25 & 100 & 4 & 23 & 4 & 0 & 92 & 100 \\
+ & evaluations & 0.98 & 0.98 & 0.97 & 0.97 & 0.96 & 0.94 & 0.97 & 1.00 \\
+H$_2$O cc-pVDZ window str & error, step 40 & 0.98 & 0.89 & 1.01 & 0.92 & 1.25 & 1.15 & 0.89 & 0.86 \\
+ & within target (\%) & 98 & 100 & 60 & 100 & 12 & 23 & 100 & 100 \\
+ & evaluations & 0.99 & 0.87 & 0.99 & 0.89 & 1.03 & 0.90 & 0.86 & 0.86 \\
+\bottomrule
+\end{tabular}}
+\end{table}

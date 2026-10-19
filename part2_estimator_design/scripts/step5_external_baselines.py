@@ -241,6 +241,16 @@ for _n in (50, 200, 1000):
         II_A_SAFE_B, radius_min_shots=_n, min_fold_shots=_n, anytime=True, diagnose=True)
     REFEREE[f"II-0, safe, bound start, anytime, min shots={_n}, diagnose"] = dataclasses.replace(
         II_0_SAFE_B, radius_min_shots=_n, min_fold_shots=_n, anytime=True, diagnose=True)
+# The headline in one safe setting (2026-10-19): II-0 with the same raised minimum as II-A, so the comparison at n_min = 400 is matched.
+REFEREE["II-0, safe, bound start, min shots=400, diagnose"] = dataclasses.replace(
+    II_0_SAFE_B, radius_min_shots=400, min_fold_shots=400, diagnose=True)
+# ... and the published baselines under the same rule (their default threshold is also 50 shots: LearningConfig.radius_min_shots,
+# IndependentConfig.min_shots below which the Popoviciu bound replaces the sample sd).
+_M1_SEQ_400 = dataclasses.replace(M1_SEQ_SAFE_B, radius_min_shots=400, min_fold_shots=400)
+REFEREE["M1 seq, safe, bound start, min shots=400"] = _M1_SEQ_400
+REFEREE["M2 safe, bound start, min shots=400"] = IndependentConfig(rule="safe", start="bound", min_shots=400)
+REFEREE["M2 marginal, bound start, min shots=400"] = IndependentConfig(rule="marginal", start="bound", min_shots=400)
+REFEREE["Ikh reuse, FC, safe, bound start, min shots=400"] = Reuse(_M1_SEQ_400, "fc")
 CONFIGS.update(REFEREE)
 EXTENSIONS = (Reuse, PivotSpec, BlockSpec, StaticSpec)
 DEFAULT = [n for n, c in CONFIGS.items() if not isinstance(c, EXTENSIONS) and not n.startswith("M2 QWC")

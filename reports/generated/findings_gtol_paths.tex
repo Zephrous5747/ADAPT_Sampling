@@ -1,0 +1,28 @@
+\begin{table}[!htb]
+\centering\small
+\caption{The path dependence of the optimizer cost at the tight tolerance, LiH 3.0~\AA: the same six generators (up to symmetry partners; D: double, S: single, orbital labels as in the pool) added in different orders end at the same energy but need between $54$ and $252$ BFGS evaluations at $10^{-9}$ (cluster build; $83$ or $156$ in the WSL build). At $10^{-5}$ every order, tied or near-tied, needs $39$ or $40$ and at $10^{-3}$ $30$ or $31$ (both builds, 100 and 200 random orders).}
+\label{tab:find_gtol_paths}
+\footnotesize\setlength{\tabcolsep}{3.5pt}
+\fitcol{%
+\begin{tabular}{p{6.5cm}lrl}
+\toprule
+Order of the generators (LiH 3.0~\AA, 6 steps) & choices allowed & runs & evaluations (cluster, $10^{-9}$) \\
+\midrule
+D10,11 D5,10 D4,11 D4,5 S2$\to$4 S3$\to$11 & tied $|g|$ & 52 & 54 \\
+D10,11 D5,10 D4,11 D4,5 S3$\to$5 S2$\to$10 & tied $|g|$ & 56 & 55 \\
+D10,11 D4,11 D5,10 D4,5 S3$\to$5 S2$\to$10 & tied $|g|$ & 46 & 115 \\
+D10,11 D4,11 D5,10 D4,5 S2$\to$4 S3$\to$11 & tied $|g|$ & 46 & 116 \\
+D10,11 D5,10 D4,11 D4,5 S2$\to$4 S3$\to$11 & within 5\% of $\max|g|$ & 30 & 54 \\
+D10,11 D5,10 D4,11 D4,5 S3$\to$5 S2$\to$10 & within 5\% of $\max|g|$ & 26 & 55 \\
+D10,11 D4,11 D5,10 D4,5 S3$\to$5 S2$\to$10 & within 5\% of $\max|g|$ & 28 & 115 \\
+D10,11 D4,11 D5,10 D4,5 S2$\to$4 S3$\to$11 & within 5\% of $\max|g|$ & 18 & 116 \\
+D10,11 D5,10 D4,5 D4,11 S3$\to$5 S2$\to$10 & within 5\% of $\max|g|$ & 29 & 177 \\
+D10,11 D4,11 D4,5 D5,10 S2$\to$4 S3$\to$11 & within 5\% of $\max|g|$ & 23 & 193 \\
+D10,11 D5,10 D4,5 D4,11 S2$\to$4 S3$\to$11 & within 5\% of $\max|g|$ & 23 & 209 \\
+D10,11 D4,11 D4,5 D5,10 S3$\to$5 S2$\to$10 & within 5\% of $\max|g|$ & 23 & 252 \\
+\midrule
+all orders (WSL build) & within 5\% & 100 & 39, 40 at $10^{-5}$; 30, 31 at $10^{-3}$ \\
+all orders (cluster build) & within 5\% & 200 & 39, 40 at $10^{-5}$; 30, 31 at $10^{-3}$ \\
+\bottomrule
+\end{tabular}}
+\end{table}

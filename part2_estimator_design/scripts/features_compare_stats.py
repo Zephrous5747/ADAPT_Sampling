@@ -55,6 +55,7 @@ def main() -> None:
     rng = np.random.default_rng(1)
     print(f"{'system':32s} {'conf':>4s} {'n_her':>5s} {'quantity':>11s} {'hers':>10s} {'ours(all)':>10s} {'2.5%':>10s} {'97.5%':>10s} {'her pctile':>10s}")
     inside = total = 0
+    records = []
     for case, levels in HERS.items():
         data = load(args.runs, case)
         for conf, (n, shots, steps, evals, best, _) in levels.items():
@@ -74,8 +75,18 @@ def main() -> None:
                 lo, hi = np.percentile(d, [2.5, 97.5])
                 total += 1
                 inside += (lo <= hers <= hi)
+                records.append({"case": case, "confidence_pct": conf, "n_her": n, "quantity": key, "hers": hers, "ours_all": allv[key],
+                                "lo": float(lo), "hi": float(hi), "her_percentile": float(pct), "inside": bool(lo <= hers <= hi)})
                 print(f"{case[:32]:32s} {conf:4d} {n:5d} {key:>11s} {hers:10.4g} {allv[key]:10.4g} {lo:10.4g} {hi:10.4g} {pct:9.1f}%")
     print(f"\nher value inside the 95% range of n-run subsets of our runs: {inside}/{total}")
+    import pandas as pd
+
+    df = pd.DataFrame(records)
+    for q, g in df.groupby("quantity"):
+        print(f"  {q:>11s}: {int(g.inside.sum())}/{len(g)} inside; median of (hers / ours) = {float((g.hers / g.ours_all).median()):.3f}")
+    out = args.runs.parent / "features" / "report"
+    out.mkdir(parents=True, exist_ok=True)
+    df.to_csv(out / "compare_stats.csv", index=False)
 
 
 if __name__ == "__main__":

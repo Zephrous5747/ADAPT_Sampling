@@ -107,7 +107,7 @@ PySCF 2.14.0 and OpenFermion 1.8.1.
 ```bash
 cd part2_estimator_design
 python scripts/build_problems.py                      # all nine cases, checked against Part I
-python -m pytest tests -q                             # 67 tests
+python -m pytest tests -q                             # 159 tests (conftest pins BLAS to one thread, see DEVLOG 2026-10-18)
 python scripts/step0_validate.py --low-shot 0.001     # sampler gate
 python scripts/step1_online_baseline.py --trials 250  # II-0 baseline, H4 + LiH
 python scripts/step2_overlap_census.py                # overlap census, all nine cases

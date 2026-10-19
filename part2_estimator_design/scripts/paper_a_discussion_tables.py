@@ -44,6 +44,12 @@ def sci(x: float) -> str:
     return f"{x:,.0f}".replace(",", r"\,")
 
 
+def sci_small(x: float) -> str:
+    """Two significant digits in powers of ten, ``$1.5\\times10^{-10}$`` (gradients and thresholds)."""
+    m, e = f"{x:.1e}".split("e")
+    return rf"${m}\times10^{{{int(e)}}}$"
+
+
 def ratio_text(x: float) -> str:
     """A ratio to the cost of II-A: two decimals below 10 (0.58 must not print as 1), thin-spaced integers above."""
     return f"{x:.2f}" if x < 10 else f"{x:,.0f}".replace(",", r"\,")
@@ -215,7 +221,7 @@ def termination_table(runs: Path) -> str | None:
         ratio = r.get("over_trajectory_II-A")
         if ratio in ("", "nan", None) and traj != "":
             ratio = float(r["certify_shots"]) / float(traj)
-        rows.append([pretty(r["case"]), f"{float(r['max_abs_gradient']):.1e}", f"{float(r['tau']):.1e}",
+        rows.append([pretty(r["case"]), sci_small(float(r["max_abs_gradient"])), sci_small(float(r["tau"])),
                      sci(float(r["certify_shots"])), sci(float(traj)) if traj not in ("", "nan") else "--",
                      f"{float(ratio):.2f}" if ratio not in ("", "nan", None) else "--"])
     return tabular(["state", r"$\max\lvert g\rvert$", r"$\tau$", "certify $\\max\\lvert g_i\\rvert<\\tau$", "trajectory, II-A", "ratio"], rows,

@@ -1,0 +1,19 @@
+\begin{table}[!htb]
+\centering\small
+\caption{Certification premium of Q10 in selection shots and in total shots. The fixed budget is the cheapest adequate one of Q10 (designed allocation: at least 95\% of the trajectories reach chemical accuracy within one step of exact ADAPT's count); II-A is the certified selection at 95\%, both from the recorded Phase~4 runs with their optimization recomputed ($C_\mathrm{opt}$ model, $\eta=2$, BFGS gradient tolerance $10^{-9}$ as in the draft, and $10^{-5}$ and $10^{-3}$ by replaying the recorded choices). The premium is the ratio II-A over fixed. Selection-only premium as in the draft; in total shots the premium is the ratio of the medians of the sums (bootstrap 95\% interval in brackets), where the fixed budget pays for its longer trajectories. The last column is the ratio of the mean numbers of steps, the part of the premium that is due to the longer trajectories alone; at $10^{-9}$ the rest is mostly the path dependence of the optimizer's evaluation count (Sec.~\ref{sec:gtol}), which is larger for the runs with more near-tied choices. The designed fixed budgets are adequate at $10^{-9}$ by construction; at the looser tolerances some of their runs stall on a plateau, and the share that reaches chemical accuracy falls to 89\% (H$_4$ 1.0~\AA, $10^{-3}$), 95\% (H$_4$ 2.0~\AA, $10^{-3}$) (II-A: all runs).}
+\label{tab:find_premium}
+\footnotesize\setlength{\tabcolsep}{3.5pt}
+\fitcol{%
+\begin{tabular}{llrrrrrr}
+\toprule
+System & fixed: budget per step / selection shots & steps, fixed (II-A) & premium, selection only & premium, total, $10^{-9}$ & $10^{-5}$ & $10^{-3}$ & from steps alone \\
+\midrule
+H$_4$ 1.0~\AA & $1.3\times10^{4}$ / $1.5\times10^{5}$ & 10.93 (10.00) & 7.1 & 0.91 (0.81--1.03) & 0.95 (0.93--0.97) & 0.95 (0.93--0.97) & 0.92 \\
+H$_4$ 2.0~\AA & $1.3\times10^{5}$ / $1.5\times10^{6}$ & 11.00 (10.00) & 6.4 & 0.84 (0.70--1.28) & 0.96 (0.95--1.01) & 1.00 (0.97--1.02) & 0.91 \\
+LiH 1.6~\AA & $3.2\times10^{6}$ / $1.6\times10^{7}$ & 5.83 (5.00) & 2.1 & 0.69 (0.64--1.26) & 1.02 (0.95--1.10) & 1.00 (0.97--1.12) & 0.86 \\
+LiH 3.0~\AA & $7.5\times10^{6}$ / $5.2\times10^{7}$ & 6.73 (6.07) & 1.0 & 0.54 (0.39--0.75) & 0.81 (0.75--0.91) & 0.84 (0.77--0.96) & 0.90 \\
+H$_2$O eq & $1.3\times10^{8}$ / $2.3\times10^{9}$ & 17.72 (17.00) & 0.5 & 0.93 (0.84--1.01) & 0.96 (0.88--0.98) & 0.92 (0.80--0.94) & 0.96 \\
+H$_2$O str & $4.2\times10^{8}$ / $7.6\times10^{9}$ & 18.78 (18.00) & 0.4 & 0.83 (0.79--0.96) & 0.86 (0.81--0.87) & 0.78 (0.73--0.80) & 0.96 \\
+\bottomrule
+\end{tabular}}
+\end{table}

@@ -1,0 +1,20 @@
+\begin{table}[!htb]
+\centering\small
+\caption{What the gradient tolerance guarantees for the energy lowering (HF, CISD and every state of the exact ADAPT trajectory; one-parameter move and full re-optimization after the generator is appended). Top $|g|$ share: lowering of the largest-$|g|$ generator over the best lowering (mean, minimum in brackets). Energy-best in the set: share of states whose best generator has $|g|\ge0.9\max|g|$. Worst $\rho$-good: the worst generator with $|g|\ge0.9\max|g|$ over the best (mean, minimum). Rho needed: $1-|g_\text{best}|/\max|g|$, the tolerance that contains the energy-best generator (median, maximum).}
+\label{tab:find_rhomap}
+\footnotesize\setlength{\tabcolsep}{3.5pt}
+\fitcol{%
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+ & & \multicolumn{4}{c}{one-parameter move} & \multicolumn{4}{c}{after re-optimizing all parameters} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-10}
+System & states & top $|g|$ share & energy-best in $\rho=0.1$ set & worst $\rho$-good & rho needed & top $|g|$ share & energy-best in $\rho=0.1$ set & worst $\rho$-good & rho needed \\
+\midrule
+H$_4$ 1.0~\AA & 11/10 & 0.62 (0.11) & 55\% & 0.52 (0.05) & 0.04 (0.67) & 0.52 (0.08) & 50\% & 0.42 (0.03) & 0.09 (0.67) \\
+H$_4$ 2.0~\AA & 11/10 & 0.96 (0.60) & 91\% & 0.89 (0.48) & 0.00 (0.28) & 0.96 (0.60) & 90\% & 0.87 (0.43) & 0.00 (0.28) \\
+LiH 3.0~\AA & 6/6 & 1.00 (1.00) & 100\% & 0.98 (0.86) & 0.00 (0.00) & 1.00 (1.00) & 100\% & 0.98 (0.90) & 0.00 (0.00) \\
+H$_2$O eq & 18/17 & 0.93 (0.59) & 72\% & 0.83 (0.55) & 0.00 (0.26) & 0.83 (0.45) & 47\% & 0.74 (0.27) & 0.11 (1.00) \\
+H$_2$O str & 19/18 & 0.87 (0.32) & 84\% & 0.76 (0.20) & 0.00 (0.24) & 0.82 (0.30) & 61\% & 0.71 (0.19) & 0.04 (0.99) \\
+\bottomrule
+\end{tabular}}
+\end{table}

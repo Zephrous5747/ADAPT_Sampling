@@ -1,0 +1,23 @@
+\begin{table}[!htb]
+\centering\small
+\caption{Agreement of our re-run of the colleague's study with the numbers of her report. Digit by digit, cells agree when they match at the printed precision; the sampled tables cannot match digit by digit because the random streams do not carry over between builds of the Hamiltonian (Sec.~\ref{sec:evalenv}). The statistical rows test instead whether her statistic lies within the central 95\% of the same statistic over random subsets of her number of runs. Shots and the exact-best share reproduce; the evaluation counts do not.}
+\label{tab:find_repro}
+\footnotesize\setlength{\tabcolsep}{3.5pt}
+\fitcol{%
+\begin{tabular}{p{6.2cm}rrp{6.0cm}}
+\toprule
+Table of her report & cells & agree & what differs \\
+\midrule
+S1: gradient against one-parameter and full re-optimization lowering, five systems & 46 & 43 & Spearman coefficients, at most $0.03$ (H$_4$ 2.0~\AA: $0.95$ against $0.97$, full $0.83$ against $0.86$) \\
+Table 1: correlation of the gradient estimates, five systems, II-0 and II-A & 54 & 44 & pairs 75 against 73 (H$_4$ 2.0~\AA); $r$, $\chi$ and $\rho_s$ within $0.04$ \\
+\midrule
+Table 2, statistical comparison & \multicolumn{3}{l}{her number inside the 95\% range of $n$-run subsets of our 48 (H$_4$) and 24 (LiH) runs} \\
+\quad median selection shots & 15 & 15 & median of hers / ours $= 1.01$ \\
+\quad share of selections that were the exact best & 15 & 13 & median of hers / ours $= 1.01$ \\
+\quad mean optimizer evaluations (1e-9) & 15 & 9 & median of hers / ours $= 0.90$ \\
+\midrule
+Table 3, digit by digit (strict tolerance) & 117 & 69 & almost all in the evaluation and $C_\mathrm{opt}$ ratios \\
+Table 2, digit by digit (strict tolerance) & 150 & 77 & evaluation counts and their ratios to exact ADAPT; shots differ by the sampling error of 12 runs \\
+\bottomrule
+\end{tabular}}
+\end{table}
