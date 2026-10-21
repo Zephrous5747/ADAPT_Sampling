@@ -102,10 +102,10 @@ def fig_pipeline(out: Path) -> None:
 def fig_rounds(out: Path) -> None:
     cases = [("H4_square_eq_side1p0_CISD", "H$_4$ 1.0 Å, CISD"), ("H4_square_stretch_side2p0_CISD", "H$_4$ 2.0 Å, CISD"),
              ("LiH_R3p0_HF", "LiH, HF")]
-    fig, axes = plt.subplots(2, len(cases), figsize=(7.2, 3.6), sharex="col")
+    fig, axes = plt.subplots(2, len(cases), figsize=(7.2, 3.4), sharex="col")
     drawn = False
     for col, (case, title) in enumerate(cases):
-        for config, label, colour, ls in (("II-0_estimated", "II-0", GREY, "-"), ("II-A_data", "II-A", BLUE, "-")):
+        for config, label, colour, ls in (("II-0_estimated", "II-0 (fixed)", GREY, "-"), ("II-A_data", "II-A (learned)", BLUE, "-")):
             data = rows(RUNS / "paper_a" / f"{case}_{config}_evolution.csv")
             if not data:
                 continue
@@ -177,9 +177,9 @@ def fig_depth(out: Path) -> None:
         return
     cases = [("H4_square_eq_side1p0_CISD", "H$_4$ 1.0 Å, CISD"), ("LiH_R3p0_HF", "LiH, HF"), ("H2O_eq_CISD", "H$_2$O eq, CISD")]
     # (sign-aware row, pairwise row used where the sign-aware one was not run, colour, marker, label)
-    methods = [("II-A, safe", "II-A", BLUE, "o", "II-A"), ("II-0, safe", "II-0", GREY, "s", "II-0"),
-               ("M1 seq, safe", "M1 seq", GREEN, "v", "M1 seq"),
-               ("M2 FC, safe", "M2 FC", ORANGE, "^", "M2 (independent arms)"), ("M2 QWC, safe", "M2 QWC", ORANGE, "^", None)]
+    methods = [("II-A, safe", "II-A", BLUE, "o", "II-A (learned)"), ("II-0, safe", "II-0", GREY, "s", "II-0 (fixed)"),
+               ("M1 seq, safe", "M1 seq", GREEN, "v", "M1 seq (sequential)"),
+               ("M2 FC, safe", "M2 FC", ORANGE, "^", "M2 (independent elimination)"), ("M2 QWC, safe", "M2 QWC", ORANGE, "^", None)]
     family_name = {"FC": "fully commuting", "blocks=4": "4-qubit blocks", "blocks=2": "2-qubit blocks", "QWC": "qubit-wise",
                    "pivot (published)": "pivot (published)", "pivot (merged)": "pivot (merged)", "independent arms": "independent"}
     fig, axes = plt.subplots(1, len(cases), figsize=(7.2, 2.6), sharey=False)
@@ -209,10 +209,7 @@ def fig_depth(out: Path) -> None:
         ax.set_xlabel("two-qubit gates per shot")
         ax.set_title(title)
     axes[0].set_ylabel("context-shots (mean)")
-    axes[0].legend(frameon=False, fontsize=6)
-    fig.text(0.5, -0.04, "Lines: fully commuting, 4-qubit blocks, 2-qubit blocks, qubit-wise (right to left).  Open markers: pivot contexts "
-             "(published and merged).  Sign-aware rule (pairwise where it was not run); rows right in at least 95% of the trials.",
-             ha="center", fontsize=6)
+    axes[0].legend(frameon=False, fontsize=6.5)
     fig.tight_layout()
     save(fig, out, "fig_depth")
 

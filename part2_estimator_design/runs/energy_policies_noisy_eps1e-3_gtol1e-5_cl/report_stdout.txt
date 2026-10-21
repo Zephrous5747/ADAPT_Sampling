@@ -1,0 +1,76 @@
+
+BeH2 (exact ADAPT 10 steps, 105 evaluations)
+        policy   n  reached_pct  steps_mean  steps_se  exact_steps  more_steps_pct  fewer_steps_pct  evals_mean  evals_ratio_tie_avg  evals_ratio_exact_path  final_error_median_mHa  auc_ratio  err20_mHa  err_exact_steps_mHa  g_shortfall_mean  lowering_ratio_mean
+         exact 100        100.0       10.20     0.047           10            17.0              0.0      271.01                  NaN                   2.581                   1.078      1.007      1.137                1.383             0.000                0.937
+rho_random:0.1 100        100.0       10.19     0.044           10            17.0              0.0      272.91                  NaN                   2.599                   1.081      1.045      1.133                1.326             0.014                0.911
+
+H2O eq (exact ADAPT 17 steps, 208 evaluations)
+        policy   n  reached_pct  steps_mean  steps_se  exact_steps  more_steps_pct  fewer_steps_pct  evals_mean  evals_ratio_tie_avg  evals_ratio_exact_path  final_error_median_mHa  auc_ratio  err20_mHa  err_exact_steps_mHa  g_shortfall_mean  lowering_ratio_mean
+         exact 100        100.0       18.11     0.129           17            58.0              0.0      474.26                  NaN                    2.28                    1.55      1.009      1.551                2.001             0.000                0.912
+rho_random:0.1 100        100.0       17.89     0.121           17            47.0              0.0      472.25                  NaN                    2.27                    1.55      1.010      1.554                1.904             0.016                0.867
+
+H2O str (exact ADAPT 18 steps, 176 evaluations)
+        policy   n  reached_pct  steps_mean  steps_se  exact_steps  more_steps_pct  fewer_steps_pct  evals_mean  evals_ratio_tie_avg  evals_ratio_exact_path  final_error_median_mHa  auc_ratio  err20_mHa  err_exact_steps_mHa  g_shortfall_mean  lowering_ratio_mean
+         exact 100         99.0       19.47     0.149           18            75.0              1.0      543.04                  NaN                   3.085                   1.448      1.007      1.584                1.847             0.000                0.856
+rho_random:0.1 100         99.0       19.19     0.120           18            67.0              0.0      529.17                  NaN                   3.007                   1.482      1.003      1.520                1.766             0.013                0.839
+
+H4 1.0 (exact ADAPT 10 steps, 110 evaluations)
+        policy   n  reached_pct  steps_mean  steps_se  exact_steps  more_steps_pct  fewer_steps_pct  evals_mean  evals_ratio_tie_avg  evals_ratio_exact_path  final_error_median_mHa  auc_ratio  err20_mHa  err_exact_steps_mHa  g_shortfall_mean  lowering_ratio_mean
+         exact 100        100.0       10.26     0.046           10            25.0              0.0      276.29                  NaN                   2.512                   1.248      1.002      1.280                1.501             0.000                0.591
+rho_random:0.1 100        100.0       10.21     0.046           10            19.0              0.0      280.41                  NaN                   2.549                   1.206      0.990      1.262                1.474             0.017                0.553
+
+H4 2.0 (exact ADAPT 13 steps, 89 evaluations)
+        policy   n  reached_pct  steps_mean  steps_se  exact_steps  more_steps_pct  fewer_steps_pct  evals_mean  evals_ratio_tie_avg  evals_ratio_exact_path  final_error_median_mHa  auc_ratio  err20_mHa  err_exact_steps_mHa  g_shortfall_mean  lowering_ratio_mean
+         exact 100         95.0       21.32     0.401           13            98.0              2.0      594.46                  NaN                   6.679                   3.226      1.009      3.294                3.763             0.000                0.972
+rho_random:0.1 100         87.0       22.35     0.436           13            99.0              1.0      607.90                  NaN                   6.830                   3.228      1.030      3.343                3.955             0.009                0.933
+
+LiH 3.0 (exact ADAPT 6 steps, 39 evaluations)
+        policy   n  reached_pct  steps_mean  steps_se  exact_steps  more_steps_pct  fewer_steps_pct  evals_mean  evals_ratio_tie_avg  evals_ratio_exact_path  final_error_median_mHa  auc_ratio  err20_mHa  err_exact_steps_mHa  g_shortfall_mean  lowering_ratio_mean
+         exact 100         98.0        9.07     0.297            6            80.0              0.0       245.6                  NaN                   6.297                   1.161      1.013      1.148                2.638             0.000                0.769
+rho_random:0.1 100         95.0        9.04     0.289            6            83.0              0.0       248.0                  NaN                   6.359                   1.267      1.016      1.187                2.623             0.006                0.756
+Traceback (most recent call last):
+  File "/mnt/d/Dev Tools/Python/Scripts/codes/VQE_Measurement/part2_estimator_design/scripts/energy_policies_report.py", line 217, in <module>
+    main()
+  File "/mnt/d/Dev Tools/Python/Scripts/codes/VQE_Measurement/part2_estimator_design/scripts/energy_policies_report.py", line 213, in main
+    figure(allt, out / "dose_response", evals_table, evals_label)
+  File "/mnt/d/Dev Tools/Python/Scripts/codes/VQE_Measurement/part2_estimator_design/scripts/energy_policies_report.py", line 179, in figure
+    fig.savefig(path.with_suffix(".pdf"), bbox_inches="tight")
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/figure.py", line 3515, in savefig
+    self.canvas.print_figure(fname, **kwargs)
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/backend_bases.py", line 2257, in print_figure
+    self.figure.draw(renderer)
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/artist.py", line 94, in draw_wrapper
+    result = draw(artist, renderer, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/artist.py", line 71, in draw_wrapper
+    return draw(artist, renderer)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/figure.py", line 3282, in draw
+    mimage._draw_list_compositing_images(
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/image.py", line 133, in _draw_list_compositing_images
+    a.draw(renderer)
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/artist.py", line 71, in draw_wrapper
+    return draw(artist, renderer)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/axes/_base.py", line 3367, in draw
+    mimage._draw_list_compositing_images(
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/image.py", line 133, in _draw_list_compositing_images
+    a.draw(renderer)
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/artist.py", line 71, in draw_wrapper
+    return draw(artist, renderer)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/axis.py", line 1477, in draw
+    ticks_to_draw = self._update_ticks()
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/axis.py", line 1344, in _update_ticks
+    major_locs = self.get_majorticklocs()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/axis.py", line 1673, in get_majorticklocs
+    return self.major.locator()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/ticker.py", line 2470, in __call__
+    return self.tick_values(vmin, vmax)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/venvs/quasisymmetry/lib/python3.12/site-packages/matplotlib/ticker.py", line 2492, in tick_values
+    raise ValueError(
+ValueError: Data cannot be log-scaled because all values are <= 0.

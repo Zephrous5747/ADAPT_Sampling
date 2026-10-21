@@ -107,6 +107,48 @@ def set_optimizer_tolerance(gtol: float) -> None:
     trajectory.run_adapt.__kwdefaults__["gradient_tolerance"] = GRADIENT_STOP
 
 
+NOISE_EPS = None  # standard deviation (Ha) of one energy estimate inside the optimiser; None: exact optimisation
+
+
+def set_noisy_optimizer(eps: float, gtol: float, maxiter: int = 300) -> None:
+    """BFGS on shot-noise energies and gradients (end-to-end check of the optimiser tolerance).
+
+    Every evaluation returns the energy plus N(0, eps^2) and every gradient component plus N(0, eps^2 / 2): a parameter-shift
+    component is half the difference of two shifted energies, each with standard deviation eps (eps = 1 mHa gives 7e-4 Ha/rad,
+    the noise floor quoted in ``set_optimizer_tolerance``).  The parameters returned are those BFGS stops at (its gradient test
+    ``gtol``, a failed line search, or ``maxiter`` evaluations); the energy reported is the exact energy of those parameters.  The noise of a
+    trajectory comes from ``system.noise_rng`` (set by ``adapt_with_policy`` from the trajectory's stream); without it the
+    optimisation is exact, so the reference trajectory stays noise free.  A shot-noise evaluation costs
+    (1 + 2n) m_E (1 mHa / eps)^2 shots, with m_E the shots of an energy to 1 mHa: the analysis scales the evaluation counts."""
+    from scipy.optimize import minimize
+
+    set_optimizer_tolerance(gtol)
+    exact_optimise = AdaptSystem.optimise
+    global NOISE_EPS
+    NOISE_EPS = eps
+
+    def optimise(self, ops, start):
+        rng = getattr(self, "noise_rng", None)
+        if rng is None:
+            return exact_optimise(self, ops, start)
+
+        def noisy(x):
+            energy, grad = self._energy_and_gradient(x, ops)
+            return energy + eps * rng.standard_normal(), grad + eps / np.sqrt(2.0) * rng.standard_normal(len(grad))
+
+        result = minimize(noisy, start, jac=True, method="BFGS", options={"gtol": gtol, "maxiter": maxiter})
+        self.last_evaluations = int(result.nfev)
+        x = np.asarray(result.x)
+        return x, float(self._energy_and_gradient(x, ops)[0])
+
+    AdaptSystem.optimise = optimise
+
+
+def noise_stream(rng: np.random.Generator) -> np.random.Generator:
+    """The optimiser-noise stream of a trajectory, derived from its stream without consuming it (the choices stay those of the noise-free run)."""
+    return np.random.default_rng([int(rng.bit_generator.state["state"]["state"]) % (1 << 62), 0x6E015E])
+
+
 def curvature(system: AdaptSystem, psi: np.ndarray) -> np.ndarray:
     """h_i = d2E/dtheta2 at theta = 0 of exp(theta G_i) psi for every generator: 2 <psi|H G^2|psi> + 2 <G psi|H|G psi>."""
     h_psi = system.hamiltonian @ psi
@@ -191,8 +233,9 @@ def choose(policy: Policy, system: AdaptSystem, ops: list[int], params: np.ndarr
 
 
 def adapt_with_policy(system: AdaptSystem, policy: Policy, rng: np.random.Generator, *, tolerance: float,
-                      max_iterations: int, diagnose: bool = True) -> dict:
+                      max_iterations: int, diagnose: bool = True, noisy: bool = True) -> dict:
     """Same loop as ``trajectory.run_adapt`` with the choice made by ``policy``."""
+    system.noise_rng = noise_stream(rng) if (noisy and NOISE_EPS is not None) else None
     ops: list[int] = []
     params = np.zeros(0)
     errors, evaluations, n_params, labels, shortfall, lowering_ratio = [], [], [], [], [], []
@@ -233,13 +276,14 @@ def adapt_with_policy(system: AdaptSystem, policy: Policy, rng: np.random.Genera
             "evals_total": int(sum(evaluations)),
             "evals_weighted": float(sum(e * (1 + 2 * n) for e, n in zip(evaluations, n_params))),
             "energy_errors": errors, "selected": labels, "g_shortfall": shortfall,
-            "lowering_ratio": lowering_ratio, "seconds": round(time.perf_counter() - started, 2)}
+            "lowering_ratio": lowering_ratio, "seconds": round(time.perf_counter() - started, 2),
+            "noise_eps": NOISE_EPS if system.noise_rng is not None else None}
 
 
 def exact_reference(system: AdaptSystem, tolerance: float, max_iterations: int = 40) -> dict:
     """Exact ADAPT (largest |g|, ties to the lowest index) through the loop of the policies, with the stall rules in force."""
     r = adapt_with_policy(system, Policy.parse("exact"), np.random.default_rng(0), tolerance=tolerance, max_iterations=max_iterations,
-                          diagnose=False)
+                          diagnose=False, noisy=False)
     return {"iterations": r["iterations"], "final_error": r["final_error"], "energy_errors": r["energy_errors"],
             "evaluations": r["evaluations"], "n_params": r["n_params"], "added": r["selected"], "arms": r["arms"]}
 
@@ -257,11 +301,19 @@ def main() -> None:
                         help="BFGS gradient tolerance of every re-optimisation (default: that of AdaptSystem.optimise, 1e-9)")
     parser.add_argument("--no-diagnose", action="store_true", help="skip the one-parameter lowering of every step "
                         "(only for policies that do not need it)")
+    parser.add_argument("--noise-eps", type=float, default=None,
+                        help="shot-noise optimiser: standard deviation (Ha) of one energy estimate inside BFGS (needs --gtol); the choices "
+                        "stay exact, deterministic policies are repeated --trajectories times (one noise stream each)")
+    parser.add_argument("--noise-maxiter", type=int, default=300, help="BFGS iterations allowed to the shot-noise optimiser")
     parser.add_argument("--out", type=Path, default=Path("runs/energy_policies"))
     args = parser.parse_args()
 
     policies = [Policy.parse(s) for s in args.policies]
-    if args.gtol is not None:
+    if args.noise_eps is not None:
+        if args.gtol is None:
+            parser.error("--noise-eps needs --gtol")
+        set_noisy_optimizer(args.noise_eps, args.gtol, args.noise_maxiter)
+    elif args.gtol is not None:
         set_optimizer_tolerance(args.gtol)
     system = light_system(args.case)
     out = args.out / args.case
@@ -275,7 +327,7 @@ def main() -> None:
 
     for policy in policies:
         path = out / f"policy_{slug(policy.spec)}.jsonl"
-        n = 1 if policy.deterministic else args.trajectories
+        n = 1 if (policy.deterministic and NOISE_EPS is None) else args.trajectories
         done = set()
         if path.exists():
             for line in path.read_text().splitlines():

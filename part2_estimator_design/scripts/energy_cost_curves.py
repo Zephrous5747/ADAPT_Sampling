@@ -99,45 +99,64 @@ def curves(case: str, df: pd.DataFrame, ax) -> None:
     ax.set_xlabel("cumulative shots (selection + optimisation)")
 
 
+def method_label(method: str, confidence_pct: float) -> str:
+    """Axis label of a method: II-A with its confidence level, the baselines by name, a fixed budget with its size."""
+    if method.startswith("II-A"):
+        return f"II-A, {confidence_pct:.0f}%"
+    if method.startswith("Fixed"):
+        n = int(method.split()[1].rstrip(","))
+        e = int(np.floor(np.log10(n)))
+        return rf"fixed budget ${n / 10 ** e:.1f}\times10^{{{e}}}$ (pilot)"
+    return method.replace(", safe", "").replace(" safe", "")
+
+
 def totals_figure(frames: dict, out: Path) -> None:
-    """Per system: total cost of every method (selection + optimisation) as a multiple of the II-A total at 95 % (or the highest level present)."""
+    """Per system: total cost of every method (selection + optimisation) as a multiple of the II-A total at 95 % (or the highest level present).
+
+    Publication format: spelled-out labels, no code names, a key for the numbers at the end of the bars inside the artwork, fonts of at
+    least 6.5 pt at the size of the SI (0.9 of the text width).
+    """
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    plt.rcParams.update({"font.size": 7, "axes.spines.top": False, "axes.spines.right": False, "pdf.fonttype": 42})
+    plt.rcParams.update({"font.size": 8, "axes.spines.top": False, "axes.spines.right": False, "pdf.fonttype": 42})
+    title = {"H4_square_eq_side1p0_HF": r"H$_4$ 1.0 $\mathrm{\AA}$", "H4_square_stretch_side2p0_HF": r"H$_4$ 2.0 $\mathrm{\AA}$",
+             "LiH_R3p0_HF": r"LiH 3.0 $\mathrm{\AA}$", "H2O_eq_HF": r"H$_2$O eq", "H2O_stretch_HF": r"H$_2$O str"}
     ncols = 3
     nrows = -(-len(frames) // ncols)
-    fig, axes = plt.subplots(nrows, ncols, figsize=(7.2, 3.0 * nrows), squeeze=False)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(8.4, 3.5 * nrows), squeeze=False)
     for ax in axes.ravel()[len(frames):]:
         ax.axis("off")
     for ax, (case, df) in zip(axes.ravel(), frames.items()):
         t = summarise(case, df)
         ref = t[(t.method.str.startswith("II-A")) & ((t.confidence_pct - 95).abs() < 0.5)]
         ref = (ref if len(ref) else t[t.method.str.startswith("II-A")].sort_values("confidence_pct").iloc[[-1]]).iloc[0]
-        t = t.assign(label=[f"{m.replace(', safe', '').replace(' data', '')} {c:.0f}%" if m.startswith("II-A") else
-                            (m.replace(", pilot", "") if m.startswith("Fixed") else m)
-                            for m, c in zip(t.method, t.confidence_pct)])
+        t = t.assign(label=[method_label(m, c) for m, c in zip(t.method, t.confidence_pct)])
         t = t.assign(key=[f"Fixed {int(m.split()[1].rstrip(',')):015d}" if m.startswith("Fixed") else m for m in t.method])
         t = t.sort_values(["key", "confidence_pct"], ascending=[True, False]).reset_index(drop=True)
         y = np.arange(len(t))
         sel = t.selection_median / ref.total_median
         opt = t.optimisation_median / ref.total_median
-        ax.barh(y, opt, color="#BBBBBB", label="optimization (C_opt model)")
+        ax.barh(y, opt, color="#BBBBBB", label=r"modeled optimization $C_{\mathrm{opt}}$")
         ax.barh(y, sel, left=opt, color="#D55E00", label="selection shots")
         for yi, (s, o, r) in enumerate(zip(t.selection_share_pct, t.total_median / ref.total_median, t.reached_pct)):
-            ax.text(o + 0.02, yi, f"{s:.2g}%" + ("" if r >= 95 else f" (reach {r:.0f}%)"), va="center", fontsize=5.5)
+            ax.text(o + 0.02, yi, f"{s:.2g}%" + ("" if r >= 95 else f" (reach {r:.0f}%)"), va="center", fontsize=6.5)
         ax.axvline(1.0, color="#666666", lw=0.7, ls=":")
         ax.set_yticks(y)
-        ax.set_yticklabels(t.label, fontsize=5.5)
-        ax.set_xlim(0, max(1.6, float((t.total_median / ref.total_median).max()) * 1.35))
-        ax.set_title(LABEL.get(case, case))
-        ax.set_xlabel("total shots / II-A (95%)")
+        ax.set_yticklabels(t.label, fontsize=6.5)
+        ax.tick_params(axis="x", labelsize=7)
+        ax.set_xlim(0, max(1.6, float((t.total_median / ref.total_median).max()) * 2.0))
+        ax.set_title(title.get(case, LABEL.get(case, case)), fontsize=8.5)
+        ax.set_xlabel("total cost relative to II-A, 95%")
     spare = axes.ravel()[len(frames):]
     handles, labels = axes.ravel()[0].get_legend_handles_labels()
-    (spare[0] if len(spare) else axes.ravel()[len(frames) - 1]).legend(handles, labels, fontsize=7, frameon=False, loc="center")
-    fig.tight_layout()
+    key = spare[0] if len(spare) else axes.ravel()[len(frames) - 1]
+    key.legend(handles, labels, fontsize=7.5, frameon=False, loc="upper left", bbox_to_anchor=(0.0, 0.95))
+    key.text(0.0, 0.52, "Number at the end of a bar:\nselection share of the total.\n(reach x%): share of the runs that\nreach chemical accuracy,\nshown when below 95%.",
+             transform=key.transAxes, fontsize=7, va="top")
+    fig.tight_layout(w_pad=5.5, h_pad=1.5)
     fig.savefig(out / "cost_totals.pdf", bbox_inches="tight")
     fig.savefig(out / "cost_totals.png", bbox_inches="tight", dpi=200)
     plt.close(fig)

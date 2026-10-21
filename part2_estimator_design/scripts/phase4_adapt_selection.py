@@ -49,6 +49,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 import part1_bridge  # noqa: E402,F401
 from baselines import (FixedBudgetM1, FixedBudgetPilotM1, FixedBudgetSpec, IndependentBAI, IndependentConfig,  # noqa: E402
                        IndependentContexts, StaticM1)
+from classical_prior import sparse_state  # noqa: E402
 from contexts import build_context_library  # noqa: E402
 from design import DesignSet, build_fragment_problems  # noqa: E402
 from learning import LearnedM3, LearningConfig  # noqa: E402
@@ -72,6 +73,17 @@ METHODS = {
                                                      radius_min_shots=200, min_fold_shots=200),
     "II-A data, safe, min shots=400": LearningConfig(prior="none", nu=0.0, rule="safe", start="bound",
                                                      radius_min_shots=400, min_fold_shots=400),
+    # Classical sparse-state prior for the design (note "Classical priors for measurement design"; src/classical_prior.py): the prior
+    # state is rebuilt from the current ansatz at every selection (K = m + 1 determinants, mixed with the maximally mixed state, eps = 0.1).
+    # CPD: radii and planning from the data, minimum 400 shots; CPB: radii and planning from the design covariance, minimum 50.
+    "CPD split, sparse tau=100": LearningConfig(prior="sparse", nu=100.0, prior_eps=0.1, prior_update="moments", prior_radii="data",
+                                                rule="safe", start="bound", radius_min_shots=400, min_fold_shots=0),
+    "CPB split, sparse tau=100": LearningConfig(prior="sparse", nu=100.0, prior_eps=0.1, prior_update="moments", prior_radii="design",
+                                                rule="safe", start="bound", radius_min_shots=50, min_fold_shots=0),
+    "CPB alloc, sparse tau=100": LearningConfig(level="II-0", prior="sparse", nu=100.0, prior_eps=0.1, prior_update="moments",
+                                                prior_radii="design", rule="safe", start="bound", radius_min_shots=50, min_fold_shots=0),
+    "II-0 safe, min shots=400": LearningConfig(level="II-0", prior="none", nu=0.0, rule="safe", start="bound",
+                                               radius_min_shots=400, min_fold_shots=400),
     # External baselines (Paper A, SOTA comparison): run with ``--methods``.
     "M1 seq, safe": M1_SEQ_SAFE,
     "M1 static": "static",  # radius rho max|g| / 2, exact gradient scale and variances (an oracle bound)
@@ -150,11 +162,18 @@ class Phase4:
             self._reuse[grouping] = {"rl": rl, "prior": hf, "coords": coords}
         return self._reuse[grouping]
 
+    def _classical_moments(self):
+        """Moments of the sparse classical approximation of the state of the ansatz being measured (``prior="sparse"``)."""
+        ops, params = self.system.current_ansatz
+        c = sparse_state(self.system.generators, ops, params, self.system.hf)
+        return OracleMoments(self.library, self.system.full_state(c))
+
     def _select_with(self, spec, problem, full, rng):
         """One generator selection by ``spec`` on the current state."""
         if isinstance(spec, LearningConfig):
+            classical = self._classical_moments() if spec.prior == "sparse" else None
             learner = LearnedM3(problem, self.library, OracleMoments(self.library, full), self.prior,
-                                self.base, self.coords, spec)
+                                self.base, self.coords, spec, classical=classical)
             return learner.run(rng)
         if spec == "static":
             moments = OracleMoments(self.library, full)

@@ -3,10 +3,17 @@
 This package implements Steps 0–4 and Phases 2–4 of the implementation plan for
 `reports/part2_rewritten_universal_estimator_design.tex`. All planned runs are
 complete, including the LiH trajectory-state and H₂O finite-shot runs done on
-Trillium. Two write-ups use the results:
-- `reports/part2_rewritten.tex` (and its PDF) is the Part II report for colleagues.
-- `reports/AFI_ paper_A_plan_projects_1_2.tex` (and its PDF) is the Paper A draft;
-  its Methods and Results combine Part I and Part II.
+Trillium, and the round of 19 October 2026 (confidence level at BFGS 1e-5, BFGS on
+shot-noise energies, the 16-qubit window along its exact path). The results feed
+Paper A, which is written for the Journal of Chemical Theory and Computation:
+- `reports/draft.tex` is the main text (self-contained: generated tables and the
+  bibliography are pasted in; it needs only `figures/`);
+- `reports/supplement.tex` is the Supporting Information, generated from the same
+  stored runs by `scripts/paper_a_make_si.py` (see "Paper A: tables and figures");
+- `reports/energy_trajectory_findings.tex` is the working report of the
+  energy-trajectory study (policies, optimizer tolerance, confidence level, noise).
+
+The `reports/` folder is kept locally and is not tracked by git (see `.gitignore`).
 
 | Step | What | Where |
 |---|---|---|
@@ -19,7 +26,7 @@ Trillium. Two write-ups use the results:
 | Phase 2 | Exact ADAPT-VQE trajectories; every intermediate state saved as a case `<geometry>_ADAPT<k>` | `src/trajectory.py`, `scripts/phase2_adapt_states.py` |
 | Phase 3 | Complete, fully logged selection decisions: the work order's required outputs (i)–(xi) | `src/runlog.py`, `scripts/phase3_selection_record.py` |
 | Phase 4 | ADAPT trajectories whose selections are measured; cumulative selection cost to chemical accuracy | `scripts/phase4_adapt_selection.py` |
-| Paper A | Shot reuse and run evolution (Q3, Q5); selection versus optimisation cost along trajectories (Q7) | `scripts/paper_a_run_diagnostics.py`, `scripts/paper_a_cost_decomposition.py` |
+| Paper A | Shot reuse and run evolution; selection versus optimisation cost along trajectories; policies with injected selection errors; confidence level; noisy optimizer; tables and figures of the paper | `scripts/paper_a_*.py`, `scripts/energy_*.py`, `scripts/features_*.py` (see below) |
 
 Results and their reading are in `RESULTS.md`. In brief:
 - **Learned coefficient splitting (II-A):** costs 35–57% less than the shot-level
@@ -98,6 +105,40 @@ Level II-0 is Part I's estimator on Part I's contexts, and it reproduces Part I:
    is feasible even if the solver is not converged. It matches an independent
    single-arm solve to six digits and SLSQP on small joint instances.
 
+## Paper A: tables and figures
+
+Every table and figure of the main text and of the Supporting Information is
+written by a script from the stored runs in `runs/`; no number is typed. The
+Supporting Information (Sec. S7, table "Scripts and stored runs behind the tables
+and figures") lists which script reads which runs. In order:
+
+```bash
+cd part2_estimator_design
+python scripts/paper_a_results_tables.py       # Tables 1-3 (systems, planning bounds, learning)
+python scripts/paper_a_minshots_headline.py    # Table 4 (headline comparison, 21 states)
+python scripts/paper_a_trajectory_results.py   # Tables 5, 6 and Fig. 4
+python scripts/paper_a_figures.py              # Figs. 1-3 and SI figures
+python scripts/paper_a_totalcost_figure.py     # Fig. 5
+python scripts/paper_a_si_tables.py            # planning and learning tables of the SI
+python scripts/paper_a_window_path_table.py    # certified II-A along the window path
+python scripts/energy_findings_tables.py       # tables of the findings report and the SI
+python scripts/paper_a_inline.py               # paste the generated tables into reports/draft.tex
+python scripts/paper_a_make_si.py              # build reports/supplement.tex
+python scripts/paper_a_si_refs.py --aux <supplement.aux>   # numbers of SI sections cited in the draft
+```
+
+The other generators (`paper_a_referee_tables.py`, `paper_a_sota_tables.py`,
+`paper_a_sota_latex.py`, `paper_a_bootstrap.py`, `paper_a_fixed_budget.py`,
+`paper_a_depth_tables.py`, `paper_a_discussion_tables.py`) are listed in the SI
+table and in `scripts/make_archive.py`. `scripts/make_archive.py` packs code, stored
+outputs, a manifest and SHA-256 sums for the data availability statement.
+
+Random numbers: trial `i` of a run with seed `s` uses
+`SeedSequence(s).spawn(n)[i]`; the seed is stored in each run's meta file.
+Two builds were used: the Trillium cluster (Python 3.11.4, NumPy 2.4.2, SciPy
+1.17.1) and the WSL workstation (below). Optimizer evaluation counts are compared
+only within one build.
+
 ## Running
 
 The code needs NumPy ≥ 2, SciPy, and PySCF + OpenFermion for building problems.
@@ -120,6 +161,8 @@ python scripts/phase3_selection_record.py --cases LiH_R3p0_ADAPT3 --trials 3
 python scripts/phase4_adapt_selection.py --cases H4_square_eq_side1p0_HF --trajectories 50 --workers 12
 python scripts/paper_a_run_diagnostics.py --cases H4_square_eq_side1p0_CISD LiH_R3p0_HF
 python scripts/paper_a_cost_decomposition.py      # H4 x2 and LiH; reads the Phase 4 outputs
+python scripts/step5_external_baselines.py --help # published strategies at fixed states (options in the header)
+python scripts/energy_trajectory_policies.py --help # injected selection errors, --gtol, --noise-eps
 ```
 
 `paper_a_cost_decomposition.py` rebuilds the Hamiltonian with a fresh SCF. In
