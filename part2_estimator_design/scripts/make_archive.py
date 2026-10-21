@@ -37,18 +37,26 @@ EXCLUDE_PREFIX = ("All in one/", "Claude outputs/", "reports/_superseded/", "dis
 FORBIDDEN = [re.compile(p) for p in (r"zephrous", r"rrg-izmaylov", r"/scratch/[a-z]+/", r"C:\\Users\\", r"/home/[a-z]+/", r"/root/venvs")]
 TEXT_SUFFIX = {".py", ".md", ".txt", ".tex", ".bib", ".sh", ".json", ".csv", ".cfg", ".toml", ".yml", ".yaml", ".sbatch", ""}
 REGENERATE = """\
-Regenerate the tables and figures from the stored runs (no cluster access needed):
+Regenerate the tables and figures from the stored runs (no cluster access needed).  The table of the Supporting Information
+"Scripts and stored runs behind the tables and figures" (reports/supplement.tex, Sec. S7) lists which script reads which runs.
   cd part2_estimator_design
-  python scripts/paper_a_sota_tables.py           # runs/paper_a/sota_fixed_state.csv, sota_trajectories.csv
-  python scripts/paper_a_depth_tables.py --cases H4_square_eq_side1p0_CISD H4_square_stretch_side2p0_CISD LiH_R3p0_HF LiH_R3p0_ADAPT3 LiH_R3p0_ADAPT5 H2O_eq_CISD H2O_stretch_CISD H2O_eq_ADAPT11 H2O_stretch_ADAPT8
-  python scripts/paper_a_sota_latex.py --splice ../reports/draft.tex ; python scripts/paper_a_q8_text.py --paper ../reports/draft.tex
-  python scripts/paper_a_discussion_tables.py --splice ../reports/draft.tex
+  python scripts/paper_a_results_tables.py         # Tables 1-3 of the main text
+  python scripts/paper_a_minshots_headline.py      # Table 4 (headline comparison)
+  python scripts/paper_a_trajectory_results.py     # Tables 5, 6 and Fig. 4
+  python scripts/paper_a_figures.py                # Figs. 1-3 and the figures of the Supporting Information
+  python scripts/paper_a_totalcost_figure.py       # Fig. 5
+  python scripts/paper_a_si_tables.py              # planning and learning tables of the Supporting Information
+  python scripts/paper_a_referee_tables.py ; python scripts/paper_a_sota_tables.py ; python scripts/paper_a_sota_latex.py
   python scripts/paper_a_bootstrap.py --latex ../reports/generated/tab_headline_bootstrap.tex
-  python scripts/paper_a_fixed_budget.py --latex ../reports/generated/tab_fixed_budget.tex
-  python scripts/paper_a_figures.py
+  python scripts/paper_a_fixed_budget.py --latex ../reports/generated/tab_fixed_budget.tex --latex-rho ../reports/generated/tab_fixed_rho.tex
+  python scripts/paper_a_depth_tables.py ; python scripts/paper_a_discussion_tables.py
+  python scripts/energy_findings_tables.py ; python scripts/paper_a_window_path_table.py
+  python scripts/paper_a_inline.py                 # paste the generated tables into reports/draft.tex
+  python scripts/paper_a_make_si.py                # build reports/supplement.tex
   python scripts/sanity_checks.py <cases>          # the invariants every stored result must satisfy
-Rerun the simulations: scripts/step4_learned_designs.py, step5_external_baselines.py, phase4_adapt_selection.py (see their headers;
-whole-node cluster jobs were used for the larger cases, 24 h each, with checkpointed trials).  Tests: python -m pytest tests -q
+Rerun the simulations: scripts/step1_online_baseline.py, step3_oracle_ceiling.py, step4_learned_designs.py, step5_external_baselines.py,
+phase4_adapt_selection.py, features_ci_sweep.py, energy_trajectory_policies.py (see their headers; whole-node cluster jobs were used for
+the larger cases, 24 h each, with checkpointed trials; job lists in cluster/jobs).  Tests: python -m pytest tests -q
 """
 
 

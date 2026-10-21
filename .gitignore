@@ -60,3 +60,6 @@ part2_estimator_design/cluster/
 
 # Artifact archives built by part2_estimator_design/scripts/make_archive.py
 dist/
+
+# The reports folder (drafts, supplement, generated tables, figures, PDFs) is kept locally
+reports/

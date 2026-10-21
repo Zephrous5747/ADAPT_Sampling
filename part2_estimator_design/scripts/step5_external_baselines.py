@@ -241,12 +241,65 @@ for _n in (50, 200, 1000):
         II_A_SAFE_B, radius_min_shots=_n, min_fold_shots=_n, anytime=True, diagnose=True)
     REFEREE[f"II-0, safe, bound start, anytime, min shots={_n}, diagnose"] = dataclasses.replace(
         II_0_SAFE_B, radius_min_shots=_n, min_fold_shots=_n, anytime=True, diagnose=True)
+# The headline in one safe setting (2026-10-19): II-0 with the same raised minimum as II-A, so the comparison at n_min = 400 is matched.
+REFEREE["II-0, safe, bound start, min shots=400, diagnose"] = dataclasses.replace(
+    II_0_SAFE_B, radius_min_shots=400, min_fold_shots=400, diagnose=True)
+# ... and the published baselines under the same rule (their default threshold is also 50 shots: LearningConfig.radius_min_shots,
+# IndependentConfig.min_shots below which the Popoviciu bound replaces the sample sd).
+_M1_SEQ_400 = dataclasses.replace(M1_SEQ_SAFE_B, radius_min_shots=400, min_fold_shots=400)
+REFEREE["M1 seq, safe, bound start, min shots=400"] = _M1_SEQ_400
+REFEREE["M2 safe, bound start, min shots=400"] = IndependentConfig(rule="safe", start="bound", min_shots=400)
+REFEREE["M2 marginal, bound start, min shots=400"] = IndependentConfig(rule="marginal", start="bound", min_shots=400)
+REFEREE["Ikh reuse, FC, safe, bound start, min shots=400"] = Reuse(_M1_SEQ_400, "fc")
 CONFIGS.update(REFEREE)
+
+# Classical priors for the design (note "Classical priors for measurement design in ADAPT-VQE", Sec. 7.1).  The classical state is the
+# sparse approximation of the ansatz (K = m + 1 determinants, src/classical_prior.py) mixed with the maximally mixed state (eps), or, as
+# comparators, the HF determinant or the true state.  The prior enters as pseudo-outcomes of strength tau (``nu``) on the raw moments
+# (LearningConfig.prior_update="moments"); min_fold_shots = 0 lets a context enter a design before it holds shots.  Two variants:
+#   CPD  (design only, the note's rule): the radii and the planning of the shots see the measured data alone, so the prior only changes
+#        the coefficients.  Sign-aware family, a priori start, minimum 400 shots: the headline setting of the draft, to be compared with
+#        its II-0 / II-A rows at min shots=400.  The allocation-only arm (ii) of the note cannot exist here: planning must see what the
+#        radii see (learning.py), so a prior that steered only the shots would starve the contexts it calls quiet.
+#   CPB  (design and radii): the radii and the planning see the design covariance, the prior updated by the data, as in the draft's covariance
+#        shrinkage; sign-aware family, a priori start, the default minimum of 50 shots.  Not a certified interval (the note says so), so
+#        the share of correct selections is part of the result.  Arms (ii) to (iv) of the note; compare with the draft's II-0 / II-A at 50.
+_CPD = dict(rule="safe", start="bound", radius_min_shots=400, min_fold_shots=0, diagnose=True, prior_update="moments", prior_radii="data")
+_CPB = dict(rule="safe", start="bound", radius_min_shots=50, min_fold_shots=0, diagnose=True, prior_update="moments", prior_radii="design")
+INF = float("inf")
+
+
+def _cp(family, level, prior, nu, eps):
+    return LearningConfig(level=level, prior=prior, nu=nu, prior_eps=eps, **family)
+
+
+CLASSICAL_PRIOR = {
+    "CPD split, sparse static": _cp(_CPD, "II-A", "sparse", INF, 0.1),
+    "CPD split, sparse tau=100": _cp(_CPD, "II-A", "sparse", 100.0, 0.1),
+    "CPD split, sparse tau=1000": _cp(_CPD, "II-A", "sparse", 1000.0, 0.1),
+    "CPD split, sparse tau=100, eps=0.01": _cp(_CPD, "II-A", "sparse", 100.0, 0.01),
+    "CPD split, HF tau=100": _cp(_CPD, "II-A", "hf", 100.0, 0.1),
+    "CPD split, true state static": _cp(_CPD, "II-A", "oracle", INF, 0.0),
+    "CPD split, true state tau=100": _cp(_CPD, "II-A", "oracle", 100.0, 0.0),
+    "CPB alloc, sparse tau=100": _cp(_CPB, "II-0", "sparse", 100.0, 0.1),
+    "CPB split, sparse tau=100": _cp(_CPB, "II-A", "sparse", 100.0, 0.1),
+    "CPB split, sparse tau=1000": _cp(_CPB, "II-A", "sparse", 1000.0, 0.1),
+    "CPB split, HF tau=100": _cp(_CPB, "II-A", "hf", 100.0, 0.1),
+    "CPB split, HF nu=100 shrink": dataclasses.replace(II_A_SAFE_B, prior="hf", nu=100.0, diagnose=True),  # the draft's own covariance shrinkage
+    "CPB alloc, true state tau=100": _cp(_CPB, "II-0", "oracle", 100.0, 0.0),
+    "CPB split, true state tau=100": _cp(_CPB, "II-A", "oracle", 100.0, 0.0),
+}
+# data-only rows of the draft to compare with: the headline at 400 shots (CPD) and the default at 50 (CPB)
+CLASSICAL_PRIOR_REFERENCE = {
+    "CPD": {"II-0": "II-0, safe, bound start, min shots=400, diagnose", "II-A": "II-A data, safe, bound start, min shots=400, diagnose"},
+    "CPB": {"II-0": "II-0, safe, bound start, min shots=50, diagnose", "II-A": "II-A data, safe, bound start, min shots=50, diagnose"},
+}
+CONFIGS.update(CLASSICAL_PRIOR)
 EXTENSIONS = (Reuse, PivotSpec, BlockSpec, StaticSpec)
 DEFAULT = [n for n, c in CONFIGS.items() if not isinstance(c, EXTENSIONS) and not n.startswith("M2 QWC")
            and not n.endswith("selection z") and n not in ("II-0 estimated", "II-A data", "II-A data, safe", "M1 seq, safe")]
 POOL_CONFIGS = ["II-0 estimated", "II-A data", "M1 static", "M1 seq", "M2 pairwise", "M2 marginal"]
-DEFAULT = [n for n in DEFAULT if n not in REFEREE]
+DEFAULT = [n for n in DEFAULT if n not in REFEREE and n not in CLASSICAL_PRIOR]
 REUSE_NAMES = [n for n, c in CONFIGS.items() if isinstance(c, Reuse)]
 PIVOT_NAMES = [n for n, c in CONFIGS.items() if isinstance(c, PivotSpec)]
 BLOCK_NAMES = [n for n, c in CONFIGS.items() if isinstance(c, BlockSpec)]
@@ -306,6 +359,24 @@ def block_setup(problem, size: int, splitting: bool = False):
                           "bound_two_qubit": len(blocks) * size * (size - 1) // 2}}
 
 
+def classical_moments(case: str, library, cache: dict):
+    """Moments of the sparse classical approximation of a saved ADAPT state (the prior of the ``CP`` rows)."""
+    if "classical" not in cache:
+        from classical_prior import sparse_state_for_case
+
+        started = time.perf_counter()
+        state, info = sparse_state_for_case(case)
+        moments = OracleMoments(library, state)
+        moments.distributions_matrix()  # primed here so that forked workers do not each recompute them
+        for alpha in range(library.n_contexts):
+            moments.group_means(alpha)
+        cache["classical"] = (moments, info)
+        print(f"{case}: sparse classical state, m={info['m']} generators, K={info['K']} of {info['true_determinants']} determinants "
+              f"(sector {info['sector_dimension']}), overlap with the state {info['overlap']:.4f}, weight outside {info['true_weight_outside']:.2e} "
+              f"({time.perf_counter() - started:.0f}s)", flush=True)
+    return cache["classical"][0]
+
+
 def is_static(config) -> bool:
     return (config == "static" or isinstance(config, StaticSpec)
             or (isinstance(config, (PivotSpec, BlockSpec)) and config.learning == "static"))
@@ -362,7 +433,8 @@ def build_model(name, problem, case, strategy, shared, cache, energy_error, rho=
             return StaticM1(problem, info["library"], info["oracle"], design, radius=static_radius(problem, rho))
         return LearnedM3(problem, info["library"], info["oracle"], None, info["base"], info["coords"], config.learning)
     if isinstance(config, LearningConfig):
-        return LearnedM3(problem, library, oracle, prior, base, coords, config)
+        classical = classical_moments(case, library, cache) if config.prior == "sparse" else None
+        return LearnedM3(problem, library, oracle, prior, base, coords, config, classical=classical)
     if isinstance(config, IndependentConfig):
         key = ("independent", config.grouping)
         if key not in cache:
@@ -497,6 +569,8 @@ def main() -> None:
                 meta.setdefault("pivot_libraries", {})[f"{key[1]}/{key[2]}"] = info["structure"]
             elif isinstance(key, tuple) and key[0] == "blocks":
                 meta.setdefault("block_libraries", {})[str(key[1])] = info["structure"]
+        if "classical" in cache:
+            meta["classical_prior"] = cache["classical"][1]
         meta.update({"trials": args.trials, "seed": args.seed, "strategy": args.strategy, "energy_error": args.energy_error, "rho": args.rho,
                      "seeding": "trial i uses SeedSequence(seed).spawn(trials)[i]", "run": run_record()})
         scratch = meta_path.with_name(f"{meta_path.name}.{os.getpid()}.tmp")  # atomic: concurrent writers never interleave

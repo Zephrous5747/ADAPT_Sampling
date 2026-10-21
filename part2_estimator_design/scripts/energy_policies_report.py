@@ -12,9 +12,11 @@ For every case and policy (selection with injected errors, exact gradients):
   ``exact steps`` steps, as a ratio);
 * the mean gradient shortfall of the choices and the mean ratio of their one-parameter lowering to the best one.
 
-    python scripts/energy_policies_report.py [--runs runs/energy_policies] [--cases ...]
+    python scripts/energy_policies_report.py [--runs runs/energy_policies] [--cases ...] [--evals-runs runs/energy_policies_gtol1e-5_cl]
 
-Writes ``<runs>/report/policies_<case>.csv``, ``policies_all.csv`` and ``dose_response.pdf/png``.
+Writes ``<runs>/report/policies_<case>.csv``, ``policies_all.csv`` and ``dose_response.pdf/png``.  With ``--evals-runs`` the bottom row of the figure (evaluations)
+is taken from the report of another run set (the same policies at a looser optimiser tolerance: at the tight one the count carries the path noise of the
+BFGS polishing) and the tight-tolerance values of the random draw are kept as a dotted grey line.
 """
 from __future__ import annotations
 
@@ -104,28 +106,44 @@ def order_key(spec: str):
     return families.index(name), float(param) if param else 0.0
 
 
-def figure(table: pd.DataFrame, path: Path) -> None:
+def figure(table: pd.DataFrame, path: Path, evals_table: pd.DataFrame | None = None, evals_label: str = "") -> None:
+    import math
+
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
     plt.rcdefaults()
-    plt.rcParams.update({"font.size": 8, "axes.titlesize": 8.5, "axes.labelsize": 8, "legend.fontsize": 7,
+    plt.rcParams.update({"font.size": 7, "axes.titlesize": 8, "axes.labelsize": 7, "legend.fontsize": 6.5, "xtick.labelsize": 6.5, "ytick.labelsize": 6.5,
                          "axes.spines.top": False, "axes.spines.right": False, "pdf.fonttype": 42, "font.family": "DejaVu Sans"})
     systems = [s for s in LABEL.values() if s in set(table.system)]
-    fig, axes = plt.subplots(2, len(systems), figsize=(1.9 * len(systems) + 0.6, 4.2), squeeze=False, sharex=True)
+    ncols = 4
+    blocks = math.ceil(len(systems) / ncols)
+    fig = plt.figure(figsize=(7.2, 3.9 * blocks))
+    grid = fig.add_gridspec(2 * blocks, ncols, hspace=0.62, wspace=0.42)
     fams = [("rho_random", "random within rho of max |g|", BLUE, "o"), ("rho_worst_e", "worst energy within rho", RED, "s"),
             ("tau_random", "random within tau of best lowering", GREEN, "^"),
             ("nrho_random", "random within rho of |g|/sqrt(h_HF) (classical curvature)", PURPLE, "D")]
-    for col, system in enumerate(systems):
+    axes = []
+    for idx, system in enumerate(systems):
+        block, col = divmod(idx, ncols)
         d = table[table.system == system]
         window = "dz8o" in system
         top = ("err_ratio_exact_steps", None, "energy error at step 40 / exact") if window else ("steps_ratio", None, "steps / exact")
-        for row, (ycol, secol, ylabel) in enumerate([top, ("evals_ratio_tie_avg", "evals_ratio_tie_avg_se", "evaluations / tie-averaged exact")]):
-            ax = axes[row][col]
+        for row, (ycol, secol, ylabel) in enumerate([top, ("evals_ratio_tie_avg", "evals_ratio_tie_avg_se", "evaluations / tie-avg. exact")]):
+            ax = fig.add_subplot(grid[2 * block + row, col])
+            axes.append(ax)
+            src = d
+            if row == 1 and evals_table is not None and not evals_table[evals_table.system == system].empty:
+                src = evals_table[evals_table.system == system]
+                s9 = d[d.policy.str.startswith("rho_random:")].copy()
+                if not s9.empty:
+                    s9["x"] = s9.policy.str.split(":").str[1].astype(float)
+                    s9 = s9.sort_values("x")
+                    ax.plot(np.where(s9.x <= 0, 0.01, s9.x), s9[ycol], color=GREY, lw=0.8, ls=":", label="random within rho, tight tolerance 1e-9 (path noise)")
             for fam, text, colour, marker in fams:
-                s = d[d.policy.str.startswith(fam + ":")].copy()
+                s = src[src.policy.str.startswith(fam + ":")].copy()
                 if s.empty:
                     continue
                 s["x"] = s.policy.str.split(":").str[1].astype(float)
@@ -136,27 +154,28 @@ def figure(table: pd.DataFrame, path: Path) -> None:
                     err = 1.96 * s[secol]
                 elif "steps_se" in s:
                     err = 1.96 * s.steps_se / s.exact_steps
-                ax.errorbar(x, s[ycol], yerr=err, color=colour, marker=marker, ms=3, lw=1, capsize=1.5, label=text)
-            for spec, colour, text in (("onep_greedy", ORANGE, "energy-greedy (1 parameter)"), ("reopt_top:3", PURPLE, "energy-greedy (re-optimised, top 3)")):
-                s = d[d.policy == spec]
+                ax.errorbar(x, s[ycol], yerr=err, color=colour, marker=marker, ms=2.5, lw=0.9, capsize=1.2, label=text)
+            for spec, colour, text in (("onep_greedy", ORANGE, "energy-greedy (1 parameter)"), ("reopt_top:3", PURPLE, "energy-greedy (re-optimized, top 3)")):
+                s = src[src.policy == spec]
                 if not s.empty:
-                    ax.axhline(float(s[ycol].iloc[0]), color=colour, lw=0.9, ls="--", label=text)
-            ax.axhline(1.0, color=GREY, lw=0.7, ls=":")
+                    ax.axhline(float(s[ycol].iloc[0]), color=colour, lw=0.8, ls="--", label=text)
+            ax.axhline(1.0, color=GREY, lw=0.6, ls=":")
+            if row == 1 and evals_table is not None and src is d:
+                ax.text(0.97, 0.96, "tight tolerance 1e-9", transform=ax.transAxes, ha="right", va="top", fontsize=5.5, color=GREY)
             ax.set_xscale("log")
             if row == 0:
                 ax.set_title(system)
             else:
-                ax.set_xlabel("rho or tau (0 plotted at 0.01)")
+                ax.set_xlabel("rho or tau (0 at 0.01)")
             if col == 0:
-                ax.set_ylabel(ylabel)
-    handles, labels = axes[0][0].get_legend_handles_labels()
-    for ax in axes.ravel():
+                ax.set_ylabel(ylabel + (f"\n{evals_label}" if row == 1 and evals_label else ""))
+    handles, labels = [], []
+    for ax in axes:
         h, l = ax.get_legend_handles_labels()
         for hh, ll in zip(h, l):
             if ll not in labels:
                 handles.append(hh), labels.append(ll)
-    fig.legend(handles, labels, loc="lower center", ncol=3, frameon=False, bbox_to_anchor=(0.5, -0.04))
-    fig.tight_layout(rect=(0, 0.06, 1, 1))
+    fig.legend(handles, labels, loc="lower center", ncol=2, frameon=False, bbox_to_anchor=(0.5, -0.02))
     fig.savefig(path.with_suffix(".pdf"), bbox_inches="tight")
     fig.savefig(path.with_suffix(".png"), bbox_inches="tight", dpi=200)
     plt.close(fig)
@@ -166,6 +185,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--runs", type=Path, default=Path("runs/energy_policies"))
     parser.add_argument("--cases", nargs="*", default=None)
+    parser.add_argument("--evals-runs", type=Path, default=None, help="run set whose report supplies the evaluation row of the figure (looser tolerance)")
     args = parser.parse_args()
     cases = args.cases or [p.name for p in sorted(args.runs.iterdir()) if (p / "exact_reference.json").exists()]
     out = args.runs / "report"
@@ -186,7 +206,11 @@ def main() -> None:
     if tables:
         allt = pd.concat(tables, ignore_index=True)
         allt.to_csv(out / "policies_all.csv", index=False)
-        figure(allt, out / "dose_response")
+        evals_table, evals_label = None, ""
+        if args.evals_runs is not None and (args.evals_runs / "report" / "policies_all.csv").exists():
+            evals_table = pd.read_csv(args.evals_runs / "report" / "policies_all.csv")
+            evals_label = f"({args.evals_runs.name.split('gtol')[-1].replace('_cl', '')} tolerance)"
+        figure(allt, out / "dose_response", evals_table, evals_label)
 
 
 if __name__ == "__main__":

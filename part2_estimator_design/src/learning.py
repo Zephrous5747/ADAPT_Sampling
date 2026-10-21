@@ -102,7 +102,8 @@ from part1_bridge import confidence_z, epsilon_from_radius
 from rules import RULES, eliminate, rho_good_stop
 from sampler import pauli_covariance, walsh_hadamard
 
-PRIORS = ("hf", "flat", "oracle", "none")
+PRIORS = ("hf", "flat", "oracle", "none", "sparse")
+PRIOR_UPDATES = ("shrink", "moments")
 OBJECTIVES = ("arm", "contrast")
 STARTS = ("oracle", "bound")
 ELIMINATIONS = ("on", "off")
@@ -129,9 +130,30 @@ class LearningConfig:
     elimination: str = "on"  # "off": every arm stays in the allocation (sequential M1)
     confidence: str = "bonferroni"  # or "selection": the less conservative z of part1_bridge.confidence_z
     diagnose: bool = False  # record, for every interval that misses, how it missed (validation output only; not part of the label)
+    # Classical prior of the note "Classical priors for measurement design" (see classical_prior.py).  "moments": the prior enters the design
+    # covariance only, as pseudo-outcomes of strength ``nu`` added to the raw moments (Eqs. 21-23), while the radii use the measured data
+    # alone; "shrink" is the covariance shrinkage of Sec. "Learning covariances" (the prior also enters the radii).  ``prior_eps`` mixes the
+    # prior state with the maximally mixed state (Eq. 18), so that no direction has predicted variance zero.
+    prior_update: str = "shrink"
+    prior_eps: float = 0.0
+    prior_radii: str = "data"  # moment update only: "data" (radii and planning from the measured covariance) or "design" (from the updated one)
 
     def __post_init__(self) -> None:
+        if self.prior_radii not in ("data", "design"):
+            raise ValueError("prior_radii must be 'data' or 'design'")
         confidence_z(self.delta, 1, self.confidence)  # validates the mode
+        if self.prior not in PRIORS:
+            raise ValueError(f"prior must be one of {PRIORS}")
+        if self.prior_update not in PRIOR_UPDATES:
+            raise ValueError(f"prior_update must be one of {PRIOR_UPDATES}")
+        if self.prior_update == "moments" and self.prior not in ("hf", "sparse", "oracle"):
+            raise ValueError("the moment update needs a prior state: prior='hf', 'sparse' or 'oracle'")
+        if self.prior_update == "moments" and self.radii != "estimated":
+            raise ValueError("the moment update is defined for estimated radii")
+        if not 0.0 <= self.prior_eps < 1.0:
+            raise ValueError("prior_eps must lie in [0, 1)")
+        if self.prior_eps > 0 and self.prior not in ("hf", "sparse", "oracle"):
+            raise ValueError("prior_eps mixes a prior state: prior='hf', 'sparse' or 'oracle'")
         if self.elimination not in ELIMINATIONS:
             raise ValueError(f"elimination must be one of {ELIMINATIONS}")
         if self.elimination == "off" and self.objective != "arm":
@@ -149,10 +171,12 @@ class LearningConfig:
 
     @property
     def label(self) -> str:
+        nu = "inf" if math.isinf(self.nu) else f"{self.nu:g}"
         if self.level == "II-0":
             label = f"II-0/{self.radii} radii"
+            if self.prior_update == "moments":  # a prior that steers only the allocation
+                label += f"/prior={self.prior}/nu={nu}"
         else:
-            nu = "inf" if math.isinf(self.nu) else f"{self.nu:g}"
             label = f"{self.level}/prior={self.prior}/nu={nu}/{self.radii} radii/guard={'on' if self.guard else 'off'}"
         extras = [f"rule={self.rule}"] if self.rule != "pairwise" else []
         extras += [f"objective={self.objective}"] if self.objective != "arm" else []
@@ -164,17 +188,21 @@ class LearningConfig:
         extras += [f"min_fold_shots={self.min_fold_shots}"] if self.min_fold_shots not in (0, 50) else []
         extras += ["no-elimination"] if self.elimination == "off" else []
         extras += [f"confidence={self.confidence}"] if self.confidence != "bonferroni" else []
+        extras += [f"update={self.prior_update}"] if self.prior_update != "shrink" else []
+        extras += [f"eps={self.prior_eps:g}"] if self.prior_eps else []
+        extras += ["radii-from=design"] if self.prior_update == "moments" and self.prior_radii == "design" else []
         return "/".join([label] + extras)
 
 
 class CovarianceModel:
     """Shrinkage covariance per context and fold, from outcome histograms."""
 
-    def __init__(self, library, dim: int, prior, nu: float, oracle=None) -> None:
+    def __init__(self, library, dim: int, prior, nu: float, oracle=None, update: str = "shrink") -> None:
         self.library = library
         self.prior = prior  # OracleMoments, "flat" or None
         self.nu = nu
         self.oracle = oracle  # OracleMoments when the model *is* the truth
+        self.update = update  # "moments": prior pseudo-outcomes added to the raw moments (design covariance only)
         self.counts = np.zeros((2, library.n_contexts, dim), dtype=np.int64)
         self._means: dict[tuple, np.ndarray] = {}
 
@@ -207,11 +235,24 @@ class CovarianceModel:
             return np.eye(len(paulis))
         return self.prior.covariance(alpha, paulis)
 
-    def covariance(self, alpha: int, paulis: np.ndarray, fold=None) -> np.ndarray:
+    def covariance(self, alpha: int, paulis: np.ndarray, fold=None, data_only: bool = False) -> np.ndarray:
+        """Design covariance of the group's Paulis; ``data_only`` (moment update): the measured covariance alone, or the
+        bound ``k I`` when fewer than two shots are held (used by the radii, which never see the classical prior)."""
         if self.oracle is not None:
             return self.oracle.covariance(alpha, paulis)
         counts = self.counts[:, alpha].sum(axis=0) if fold is None else self.counts[fold, alpha]
         m = float(counts.sum())
+        if self.update == "moments":
+            zmask, sign = self._images(alpha, paulis)
+            if data_only:
+                if m < 2:
+                    return float(len(paulis)) * np.eye(len(paulis))
+                return pauli_covariance(self.group_means(alpha, fold), zmask, sign) * m / (m - 1.0)
+            g0 = self.prior.group_means(alpha)
+            if math.isinf(self.nu) or m == 0:
+                return pauli_covariance(g0, zmask, sign)
+            # Eqs. 21-23: the second moments R and means mu of (nu p_0 + counts) / (nu + N), then R - mu mu^T
+            return pauli_covariance((self.nu * g0 + m * self.group_means(alpha, fold)) / (self.nu + m), zmask, sign)
         prior = self._prior(alpha, paulis)
         if m < 2 or math.isinf(self.nu):
             return prior
@@ -229,8 +270,11 @@ class LearnedM3:
     """Shot-level best-arm identification with a learned, cross-fitted design."""
 
     def __init__(self, problem, library, oracle_moments, prior_moments, base_problems, split_coords, config,
-                 credit=None):
+                 credit=None, classical=None):
         self.problem = problem
+        # OracleMoments of the classical approximation of the state (prior="sparse"): see classical_prior.py
+        self.classical = classical
+        self._mixed: dict[int, object] = {}
         # Shots already held in each context when the selection starts (the last energy
         # evaluation of the VQE step, for the shot-reuse baseline).  They are sampled once
         # per trial, enter every estimate and allocation, and are not charged to the selection.
@@ -262,10 +306,28 @@ class LearnedM3:
 
     # --- designs --------------------------------------------------------------
 
+    def _mixed_prior(self, base):
+        """``base`` mixed with the maximally mixed state (Eq. 18); cached, so that its group means are computed once per learner."""
+        from classical_prior import MixedMoments
+
+        if self.config.prior_eps <= 0.0:
+            return base
+        if id(base) not in self._mixed:
+            self._mixed[id(base)] = MixedMoments(base, self.config.prior_eps)
+        return self._mixed[id(base)]
+
     def _model(self):
-        prior = {"hf": self.prior_moments, "flat": "flat", "oracle": self.oracle, "none": None}[self.config.prior]
-        oracle = self.oracle if self.config.prior == "oracle" and math.isinf(self.config.nu) else None
-        return CovarianceModel(self.library, self.dim, prior, self.config.nu, oracle)
+        config = self.config
+        if config.prior == "sparse":
+            if self.classical is None:
+                raise ValueError("prior='sparse' needs the classical approximation of the state (classical=...)")
+            prior = self._mixed_prior(self.classical)
+        else:
+            prior = {"hf": self.prior_moments, "flat": "flat", "oracle": self.oracle, "none": None}[config.prior]
+            if config.prior_eps > 0:
+                prior = self._mixed_prior(prior)
+        oracle = self.oracle if config.prior == "oracle" and math.isinf(config.nu) and config.prior_update == "shrink" else None
+        return CovarianceModel(self.library, self.dim, prior, config.nu, oracle, config.prior_update)
 
     def _fold_problems(self, model, fold) -> list[FragmentProblem]:
         home = self.library.home
@@ -409,7 +471,10 @@ class LearnedM3:
         """One-shot covariance of the held-out fold, or the bound ``k I`` below ``radius_min_shots``."""
         if shots[alpha] < self.config.radius_min_shots:
             return float(len(paulis)) * np.eye(len(paulis))
-        return model.covariance(alpha, paulis, fold)
+        # prior_radii="data": the radii (and, for consistency, the planning) see the measured data alone, the classical prior steers
+        # the coefficients only; "design": they see the design covariance, the prior updated by the data
+        data_only = self.config.prior_update == "moments" and self.config.prior_radii == "data"
+        return model.covariance(alpha, paulis, fold, data_only=data_only)
 
     def _covariance_matrix(self, model, designs, active, exact: bool = False) -> np.ndarray:
         """Cov(g_i, g_j) of the cross-fitted estimate over the active arms."""
@@ -502,19 +567,26 @@ class LearnedM3:
                 ctx, pauli, x = designs[f][arm]
                 for alpha in np.unique(ctx):
                     chosen = ctx == alpha
+                    # planning sees exactly what the radii will see (see the docstring): a prior that steers the shots but not the
+                    # radii starves the contexts it calls quiet, and the radii then never shrink there
                     sigma = self._held_out(model, int(alpha), pauli[chosen], 1 - f, shots[1 - f])
                     second[row, alpha] += 0.5 * max(float(x[chosen] @ sigma @ x[chosen]), 0.0)
         return np.sqrt(second)
 
     # --- the run -----------------------------------------------------------------
 
-    def _pilot_sigmas(self, active) -> np.ndarray:
+    def _pilot_sigmas(self, active, model=None) -> np.ndarray:
         """II-0 pilot.  Before any shots only the flat scale ``||a_{i,alpha}||`` is
-        known, unless the radii are oracle anyway."""
+        known, unless the radii are oracle anyway or a classical prior supplies the design covariance."""
         sig = np.zeros((len(active), self.n_contexts))
         for row, i in enumerate(active):
             p = self.base[i]
-            if self.config.radii == "oracle":
+            if self.config.prior_update == "moments" and model is not None:
+                for k, alpha in enumerate(p.ctx_ids):
+                    lo, hi = p.ctx_ptr[k], p.ctx_ptr[k + 1]
+                    x = p.x[lo:hi]
+                    sig[row, alpha] = math.sqrt(max(float(x @ model.covariance(int(alpha), p.coord_pauli[lo:hi]) @ x), 0.0))
+            elif self.config.radii == "oracle":
                 sig[row, p.ctx_ids] = np.sqrt(np.maximum(p.context_second_moments(), 0.0))
             else:
                 sig[row, p.ctx_ids] = np.sqrt(np.add.reduceat(p.x ** 2, p.ctx_ptr[:-1]))
@@ -606,7 +678,7 @@ class LearnedM3:
             epsilon = epsilon_from_radius(radius, z)
             clock = time.perf_counter()
             if rounds == 1:
-                wanted = allocate(self._pilot_sigmas(active), epsilon)
+                wanted = allocate(self._pilot_sigmas(active, model), epsilon)
             else:
                 sig = self._plan_sigmas(model, designs, active)
                 if plan_keys:

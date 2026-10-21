@@ -43,7 +43,12 @@
     "II-A data, safe, bound start, anytime, min shots=200, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=200/anytime/min_fold_shots=200",
     "II-A data, safe, bound start, min shots=100, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=100/min_fold_shots=100",
     "II-A data, safe, bound start, min shots=50, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50",
-    "II-A data, safe, bound start, anytime, min shots=50, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50/anytime"
+    "II-A data, safe, bound start, anytime, min shots=50, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50/anytime",
+    "II-0, safe, bound start, min shots=400, diagnose": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=400/min_fold_shots=400",
+    "M1 seq, safe, bound start, min shots=400": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=400/min_fold_shots=400/no-elimination",
+    "M2 safe, bound start, min shots=400": "M2 independent/rule=safe",
+    "M2 marginal, bound start, min shots=400": "M2 independent/rule=marginal",
+    "Ikh reuse, FC, safe, bound start, min shots=400": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=400/min_fold_shots=400/no-elimination/fc/reuse"
   },
   "reuse_libraries": {
     "fc": {

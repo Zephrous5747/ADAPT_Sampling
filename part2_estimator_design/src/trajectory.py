@@ -197,6 +197,7 @@ def run_adapt(
         if select is None:
             chosen, info = int(np.argmax(np.abs(g))), {}
         else:
+            system.current_ansatz = (list(ops), params.copy())  # for selectors that build a classical approximation of the state
             chosen, info = select(k, psi, g)
         step.selected, step.selection = int(chosen), info
         ops.append(int(chosen))

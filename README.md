@@ -30,7 +30,7 @@ candidates that can no longer be the largest.
 ## Layout
 
 ```
-reports/                            Part I, II and III write-ups (LaTeX)
+reports/                            Part I, II and III write-ups (LaTeX) (kept locally, not tracked by git)
 part1_full_reproducibility_package/ Part I implementation
   src/                              chemistry, groupings, shot models, the methods
   scripts/                          drivers, experiments, verification

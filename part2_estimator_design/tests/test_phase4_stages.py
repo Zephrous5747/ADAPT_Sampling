@@ -58,3 +58,26 @@ def test_time_budget_stops_before_a_selection_that_would_not_fit(study, tmp_path
     assert not last.get("paused") and not list(tmp_path.glob("*.partial.jsonl"))
     key = ("selected", "shots", "rounds", "shortfall")
     assert [[s[k] for k in key] for s in last["selections"]] == [[s[k] for k in key] for s in direct["selections"]]
+
+
+def test_sparse_prior_is_rebuilt_from_the_ansatz_at_every_selection(study):
+    """A measured trajectory with the classical sparse prior: the prior at step k is the K = k + 1 approximation of that step's ansatz."""
+    seen = []
+    original = study._classical_moments
+
+    def spy():
+        moments = original()
+        ops, params = study.system.current_ansatz
+        seen.append((len(ops), int(np.count_nonzero(moments.state)), float(np.linalg.norm(moments.state))))
+        return moments
+
+    study._classical_moments = spy
+    try:
+        result = study.trajectory(_rng(), p4.with_rho(p4.METHODS["CPB split, sparse tau=100"], 0.1))
+    finally:
+        del study._classical_moments
+    assert not result.get("paused") and result["iterations"] >= 1
+    assert [m for m, _, _ in seen] == list(range(len(seen)))  # one selection per step 0, 1, 2, ...
+    assert all(nnz <= m + 1 for m, nnz, _ in seen)
+    assert all(abs(norm - 1.0) < 1e-12 for _, _, norm in seen)
+    assert result["reached"]

@@ -45,10 +45,12 @@ from pauli_ops import PauliEvaluator  # noqa: E402  (Part I)
 from reuse import hamiltonian_terms  # noqa: E402
 from trajectory import CHEMICAL_ACCURACY, problem_at, run_adapt  # noqa: E402
 
+from energy_trajectory_policies import noise_stream, set_noisy_optimizer, set_optimizer_tolerance  # noqa: E402
 from paper_a_cost_decomposition import sorted_insertion_groups  # noqa: E402
 from phase4_adapt_selection import METHODS, Phase4  # noqa: E402
 
 ENERGY_ERROR = 1e-3  # Ha, standard error of one energy estimate in the C_opt model
+NOISE: dict = {}     # filled by --gtol / --noise-eps: {"gtol": ..., "eps": ...}; the c_opt of a noisy run is c_opt * (ENERGY_ERROR / eps)^2
 
 
 def configure(name: str, delta: float, rho: float):
@@ -96,6 +98,7 @@ class Study:
                     except json.JSONDecodeError:
                         break
         last = [0.0]
+        self.system.noise_rng = noise_stream(rng) if NOISE.get("eps") is not None else None
 
         def select(k, psi, exact_gradients):
             if k < len(replay):
@@ -153,7 +156,7 @@ class Study:
                   "exact_best": int(sum(r["exact_best"] for r in records)),
                   "rho_good": int(sum(r["shortfall"] <= self.rho + 1e-12 for r in records)),
                   "selections": records, "evaluations": evaluations, "n_params": n_params,
-                  "c_opt_steps": c_opt, "energy_errors": errors}
+                  "c_opt_steps": c_opt, "energy_errors": errors, "noise_eps": NOISE.get("eps"), "gtol": NOISE.get("gtol")}
         if ckpt is not None:
             ckpt.unlink(missing_ok=True)
         return result
@@ -199,9 +202,22 @@ def main() -> None:
                         help="checkpoint every selection, so that a killed or timed-out job resumes")
     parser.add_argument("--max-hours", type=float, default=None,
                         help="stop starting selections that would end after this many hours; rerun to continue")
+    parser.add_argument("--gtol", type=float, default=None,
+                        help="BFGS gradient tolerance of every re-optimisation, the exact reference included (default 1e-9 of AdaptSystem.optimise)")
+    parser.add_argument("--noise-eps", type=float, default=None,
+                        help="BFGS on shot-noise energies (standard deviation in Ha) and gradients, see energy_trajectory_policies.set_noisy_optimizer "
+                        "(needs --gtol); the reference trajectory stays exact")
     parser.add_argument("--only", nargs="*", type=int, default=None,
                         help="run only these trajectory indices (to spread one level over several jobs)")
     args = parser.parse_args()
+    if args.noise_eps is not None:
+        if args.gtol is None:
+            parser.error("--noise-eps needs --gtol")
+        set_noisy_optimizer(args.noise_eps, args.gtol)
+        NOISE.update(gtol=args.gtol, eps=args.noise_eps)
+    elif args.gtol is not None:
+        set_optimizer_tolerance(args.gtol)
+        NOISE.update(gtol=args.gtol, eps=None)
     if args.fast:
         import fastpath
 

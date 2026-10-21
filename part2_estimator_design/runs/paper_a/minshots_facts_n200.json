@@ -1,0 +1,352 @@
+{
+ "n_min": 200,
+ "ref": "matched",
+ "states": 6,
+ "states_main": 6,
+ "all_correct_iia": true,
+ "min_correct_iia": 1.0,
+ "all": {
+  "ii0_over_iia_range": [
+   1.2084122816116045,
+   4.540632580918259
+  ],
+  "ii0_matched": [
+   "H4_square_eq_side1p0_CISD",
+   "H4_square_stretch_side2p0_CISD",
+   "LiH_R3p0_HF",
+   "LiH_R3p0_ADAPT5",
+   "H2O_eq_CISD",
+   "LiH_R1p6_ADAPT4"
+  ],
+  "baselines_all_matched": false,
+  "ii0_over_iia_where_above_one": [
+   1.2084122816116045,
+   1.2509169018105666,
+   1.4442463647491675,
+   1.5233907965978313,
+   4.102237220191644,
+   4.540632580918259
+  ],
+  "ii0_over_iia_where_below_one": [],
+  "best_over_iia_where_below_one": [
+   0.8879593335066656
+  ],
+  "best_over_iia_where_above_one": [
+   1.312571309498914,
+   1.6013259453832978,
+   1.9567436228926374,
+   13.146948753993817,
+   21.82642316696356
+  ],
+  "ii0_significantly_dearer": [
+   "H4_square_eq_side1p0_CISD",
+   "H4_square_stretch_side2p0_CISD",
+   "LiH_R3p0_HF",
+   "LiH_R3p0_ADAPT5",
+   "H2O_eq_CISD",
+   "LiH_R1p6_ADAPT4"
+  ],
+  "ii0_significantly_cheaper": [],
+  "best_over_iia_range": [
+   0.8879593335066656,
+   21.82642316696356
+  ],
+  "best_significantly_dearer": [
+   "H4_square_stretch_side2p0_CISD",
+   "LiH_R3p0_HF",
+   "LiH_R3p0_ADAPT5",
+   "H2O_eq_CISD",
+   "LiH_R1p6_ADAPT4"
+  ],
+  "best_significantly_cheaper": [
+   "H4_square_eq_side1p0_CISD"
+  ],
+  "price_range": [
+   0.24449505983766076,
+   2.1110402239937898
+  ],
+  "price_where_above_one": [
+   1.6240523560631093,
+   1.893075807266093,
+   1.994056163995957,
+   2.1110402239937898
+  ],
+  "price_where_below_one": [
+   0.24449505983766076,
+   0.3008253568250309
+  ],
+  "ii0_over_iia_quartiles": [
+   1.2992492675452167,
+   1.4838185806734994,
+   3.457525614293191
+  ],
+  "best_over_iia_quartiles": [
+   1.3847599684700098,
+   1.7790347841379677,
+   10.349397471218522
+  ],
+  "trials_iia": 840,
+  "min_correct_ii0": 0.975,
+  "min_correct_baselines": 0.92
+ },
+ "main17": {
+  "ii0_over_iia_range": [
+   1.2084122816116045,
+   4.540632580918259
+  ],
+  "ii0_matched": [
+   "H4_square_eq_side1p0_CISD",
+   "H4_square_stretch_side2p0_CISD",
+   "LiH_R3p0_HF",
+   "LiH_R3p0_ADAPT5",
+   "H2O_eq_CISD",
+   "LiH_R1p6_ADAPT4"
+  ],
+  "baselines_all_matched": false,
+  "ii0_over_iia_where_above_one": [
+   1.2084122816116045,
+   1.2509169018105666,
+   1.4442463647491675,
+   1.5233907965978313,
+   4.102237220191644,
+   4.540632580918259
+  ],
+  "ii0_over_iia_where_below_one": [],
+  "best_over_iia_where_below_one": [
+   0.8879593335066656
+  ],
+  "best_over_iia_where_above_one": [
+   1.312571309498914,
+   1.6013259453832978,
+   1.9567436228926374,
+   13.146948753993817,
+   21.82642316696356
+  ],
+  "ii0_significantly_dearer": [
+   "H4_square_eq_side1p0_CISD",
+   "H4_square_stretch_side2p0_CISD",
+   "LiH_R3p0_HF",
+   "LiH_R3p0_ADAPT5",
+   "H2O_eq_CISD",
+   "LiH_R1p6_ADAPT4"
+  ],
+  "ii0_significantly_cheaper": [],
+  "best_over_iia_range": [
+   0.8879593335066656,
+   21.82642316696356
+  ],
+  "best_significantly_dearer": [
+   "H4_square_stretch_side2p0_CISD",
+   "LiH_R3p0_HF",
+   "LiH_R3p0_ADAPT5",
+   "H2O_eq_CISD",
+   "LiH_R1p6_ADAPT4"
+  ],
+  "best_significantly_cheaper": [
+   "H4_square_eq_side1p0_CISD"
+  ],
+  "price_range": [
+   0.24449505983766076,
+   2.1110402239937898
+  ],
+  "price_where_above_one": [
+   1.6240523560631093,
+   1.893075807266093,
+   1.994056163995957,
+   2.1110402239937898
+  ],
+  "price_where_below_one": [
+   0.24449505983766076,
+   0.3008253568250309
+  ],
+  "ii0_over_iia_quartiles": [
+   1.2992492675452167,
+   1.4838185806734994,
+   3.457525614293191
+  ],
+  "best_over_iia_quartiles": [
+   1.3847599684700098,
+   1.7790347841379677,
+   10.349397471218522
+  ],
+  "trials_iia": 840,
+  "min_correct_ii0": 0.975,
+  "min_correct_baselines": 0.92
+ },
+ "rows": {
+  "H4_square_eq_side1p0_CISD": {
+   "snapshot": false,
+   "n_min": 200,
+   "trials": 200,
+   "ii_a_mean": 42346.41,
+   "ii_a_correct": 1.0,
+   "ii_a50_mean": 26074.535,
+   "price": 1.6241,
+   "price_lo": 1.5488,
+   "price_hi": 1.7049,
+   "ii0_label": "II-0, safe, bound start, min shots=200",
+   "ii0_matched": true,
+   "ii0_trials": 200,
+   "ii0_mean": 52971.84,
+   "ii0_correct": 1.0,
+   "ii0_over_iia": 1.2509,
+   "ii0_lo": 1.2012,
+   "ii0_hi": 1.3017,
+   "baselines_matched": "",
+   "best_matched": false,
+   "best_baseline": "Ikh",
+   "best_trials": 200,
+   "best_mean": 37601.89,
+   "best_over_iia": 0.888,
+   "best_lo": 0.8363,
+   "best_hi": 0.9417,
+   "invalid_baselines": "",
+   "min_correct_baselines": 1.0
+  },
+  "H4_square_stretch_side2p0_CISD": {
+   "snapshot": false,
+   "n_min": 200,
+   "trials": 200,
+   "ii_a_mean": 26850.385,
+   "ii_a_correct": 1.0,
+   "ii_a50_mean": 13465.21,
+   "price": 1.9941,
+   "price_lo": 1.9066,
+   "price_hi": 2.0871,
+   "ii0_label": "II-0, safe, bound start, min shots=200",
+   "ii0_matched": true,
+   "ii0_trials": 200,
+   "ii0_mean": 32446.335,
+   "ii0_correct": 1.0,
+   "ii0_over_iia": 1.2084,
+   "ii0_lo": 1.1667,
+   "ii0_hi": 1.2526,
+   "baselines_matched": "",
+   "best_matched": false,
+   "best_baseline": "Ikh",
+   "best_trials": 200,
+   "best_mean": 35243.045,
+   "best_over_iia": 1.3126,
+   "best_lo": 1.2299,
+   "best_hi": 1.399,
+   "invalid_baselines": "",
+   "min_correct_baselines": 1.0
+  },
+  "LiH_R3p0_HF": {
+   "snapshot": false,
+   "n_min": 200,
+   "trials": 200,
+   "ii_a_mean": 584874.015,
+   "ii_a_correct": 1.0,
+   "ii_a50_mean": 308954.355,
+   "price": 1.8931,
+   "price_lo": 1.8708,
+   "price_hi": 1.9152,
+   "ii0_label": "II-0, safe, bound start, min shots=200",
+   "ii0_matched": true,
+   "ii0_trials": 200,
+   "ii0_mean": 844702.17,
+   "ii0_correct": 1.0,
+   "ii0_over_iia": 1.4442,
+   "ii0_lo": 1.424,
+   "ii0_hi": 1.4639,
+   "baselines_matched": "",
+   "best_matched": false,
+   "best_baseline": "M2",
+   "best_trials": 200,
+   "best_mean": 936573.935,
+   "best_over_iia": 1.6013,
+   "best_lo": 1.5504,
+   "best_hi": 1.6533,
+   "invalid_baselines": "",
+   "min_correct_baselines": 1.0
+  },
+  "LiH_R3p0_ADAPT5": {
+   "snapshot": false,
+   "n_min": 200,
+   "trials": 100,
+   "ii_a_mean": 46693648.95,
+   "ii_a_correct": 1.0,
+   "ii_a50_mean": 155218461.1125,
+   "price": 0.3008,
+   "price_lo": 0.2024,
+   "price_hi": 0.4576,
+   "ii0_label": "II-0, safe, bound start, min shots=200, diagnose",
+   "ii0_matched": true,
+   "ii0_trials": 100,
+   "ii0_mean": 71132675.07,
+   "ii0_correct": 1.0,
+   "ii0_over_iia": 1.5234,
+   "ii0_lo": 1.3016,
+   "ii0_hi": 1.7842,
+   "baselines_matched": "",
+   "best_matched": false,
+   "best_baseline": "M2",
+   "best_trials": 400,
+   "best_mean": 91367499.8125,
+   "best_over_iia": 1.9567,
+   "best_lo": 1.6942,
+   "best_hi": 2.2393,
+   "invalid_baselines": "",
+   "min_correct_baselines": 0.9975
+  },
+  "H2O_eq_CISD": {
+   "snapshot": false,
+   "n_min": 200,
+   "trials": 40,
+   "ii_a_mean": 4622349081.525,
+   "ii_a_correct": 1.0,
+   "ii_a50_mean": 2189607298.33,
+   "price": 2.111,
+   "price_lo": 1.7024,
+   "price_hi": 2.6498,
+   "ii0_label": "II-0, safe, bound start, min shots=200, diagnose",
+   "ii0_matched": true,
+   "ii0_trials": 40,
+   "ii0_mean": 20988388839.95,
+   "ii0_correct": 0.975,
+   "ii0_over_iia": 4.5406,
+   "ii0_lo": 4.0677,
+   "ii0_hi": 5.0783,
+   "baselines_matched": "",
+   "best_matched": false,
+   "best_baseline": "M1 seq",
+   "best_trials": 100,
+   "best_mean": 100889347078.79,
+   "best_over_iia": 21.8264,
+   "best_lo": 18.9741,
+   "best_hi": 25.1744,
+   "invalid_baselines": "M2:0.92;M2 marg.:0.93",
+   "min_correct_baselines": 0.92
+  },
+  "LiH_R1p6_ADAPT4": {
+   "snapshot": false,
+   "n_min": 200,
+   "trials": 100,
+   "ii_a_mean": 55572506.66,
+   "ii_a_correct": 1.0,
+   "ii_a50_mean": 227295008.32,
+   "price": 0.2445,
+   "price_lo": 0.214,
+   "price_hi": 0.2795,
+   "ii0_label": "II-0, safe, bound start, min shots=200, diagnose",
+   "ii0_matched": true,
+   "ii0_trials": 100,
+   "ii0_mean": 227971605.24,
+   "ii0_correct": 1.0,
+   "ii0_over_iia": 4.1022,
+   "ii0_lo": 3.6234,
+   "ii0_hi": 4.6248,
+   "baselines_matched": "",
+   "best_matched": false,
+   "best_baseline": "M2",
+   "best_trials": 100,
+   "best_mean": 730608897.19,
+   "best_over_iia": 13.1469,
+   "best_lo": 8.2675,
+   "best_hi": 19.5629,
+   "invalid_baselines": "",
+   "min_correct_baselines": 0.97
+  }
+ }
+}

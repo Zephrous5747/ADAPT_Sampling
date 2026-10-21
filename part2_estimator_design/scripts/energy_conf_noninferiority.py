@@ -70,6 +70,7 @@ def main() -> None:
     parser.add_argument("--policies", type=Path, default=Path("runs/energy_policies"))
     parser.add_argument("--margin", type=float, default=1.15)
     parser.add_argument("--cases", nargs="*", default=list(LABEL))
+    parser.add_argument("--out", type=Path, default=None, help="report directory (default: <first --runs>/report)")
     args = parser.parse_args()
     rng = np.random.default_rng(0)
     out = []
@@ -107,7 +108,7 @@ def main() -> None:
     if t.empty:
         print("no sweep data")
         return
-    rep = args.runs[0] / "report"
+    rep = args.out if args.out is not None else args.runs[0] / "report"
     rep.mkdir(parents=True, exist_ok=True)
     t.to_csv(rep / "conf_noninferiority.csv", index=False)
     cols = ["system", "confidence_pct", "n", "reached_pct", "steps_mean", "selection_median", "evals_mean", "evals_ratio_top",
