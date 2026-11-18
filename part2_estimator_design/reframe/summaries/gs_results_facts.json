@@ -231,6 +231,58 @@
     "rho_star": 0.9
    }
   },
+  "LiH 1.6": {
+   "1e-9": {
+    "exact_iterations": 5,
+    "trajectories": 200,
+    "ratio": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.07,
+     1.22,
+     1.87,
+     3.85
+    ],
+    "reached_pct": [
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     22
+    ],
+    "rho_star": 0.3
+   },
+   "1e-5": {
+    "exact_iterations": 5,
+    "trajectories": 200,
+    "ratio": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.07,
+     1.22,
+     1.87,
+     1.65
+    ],
+    "reached_pct": [
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     1
+    ],
+    "rho_star": 0.3
+   }
+  },
   "LiH 3.0": {
    "1e-9": {
     "exact_iterations": 6,
@@ -535,6 +587,14 @@
   }
  },
  "horizon": {
+  "SG-SE-CS": {
+   "iterations": 40,
+   "total_shots": 67672817920.0,
+   "final_error_mHa": 3.74,
+   "not_exact_best": 3,
+   "max_shortfall": 0.0118,
+   "capped": 0
+  },
   "SG-SE": {
    "iterations": 40,
    "total_shots": 248047331968.0,

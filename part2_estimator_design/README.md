@@ -384,7 +384,7 @@ pool and context hashes):
 | Folder under `runs/` | Content |
 |---|---|
 | `reframe_v2`, `reframe_v2_cas_a/b/c` | the matrix at rho = 0 and 0.1 (the three CAS folders hold trials 5-29 of one cell, merged by the summary script) |
-| `reframe_v4`, `reframe_v4_ig`, `reframe_v4_growth` | full pool with the dominance rule, individual grouping, checkpoint spacing 1.25 |
+| `reframe_v4`, `reframe_v4_ig`, `reframe_v4_growth`, `reframe_v7_growth` | full pool with the dominance rule, individual grouping, checkpoint spacing 1.25 (v4: two H4 and two LiH states; v7: two BeH2 and two water states, SG-SE and SG-SE-CS only) |
 | `reframe_v2_grp` | qubit-wise and pivot contexts |
 | `reframe_traj`, `reframe_traj_lih`, `reframe_traj_fix`, `reframe_traj_cas`, `reframe_traj_cas_fix` | measured trajectories |
 | `reframe_v5_lo`, `reframe_traj_lo` | leader-out certificate (fixed states and trajectories) |

@@ -256,13 +256,15 @@ def cost() -> None:
 
 def growth() -> None:
     base, fine = matrix_cells(), defaultdict(dict)
-    for key, rows in load("runs/reframe_v4_growth").items():
-        state, method, setting, _ = key.split("__")
-        arm = {"FC_FULL": "SG_FULL", "FC_SE": "SG_SE", "FC_SE_CS_DATA": "SG_SE_CS"}.get(method)
-        if arm and not state.endswith("CISD"):  # CISD states are not part of the main study
-            fine[(state, setting)][arm] = rows
+    # v4: two H4 and two LiH states; v7: BeH2 ADAPT 4 and 7, water ADAPT 11 and 8 (same protocol, factor 1.25)
+    for folder in ("runs/reframe_v4_growth", "runs/reframe_v7_growth"):
+        for key, rows in load(folder).items():
+            state, method, setting, _ = key.split("__")
+            arm = {"FC_FULL": "SG_FULL", "FC_SE": "SG_SE", "FC_SE_CS_DATA": "SG_SE_CS"}.get(method)
+            if arm and not state.endswith("CISD"):  # CISD states are not part of the main study
+                fine[(state, setting)][arm] = rows
     if not fine:
-        print("[growth] runs/reframe_v4_growth not synced")
+        print("[growth] runs/reframe_v4_growth and runs/reframe_v7_growth not synced")
         return
     tex = []
     for (state, setting), d in sorted(fine.items(), key=lambda kv: (kv[0][1], state_key(kv[0][0]))):
@@ -274,6 +276,8 @@ def growth() -> None:
                 fine_ratio, coarse_ratio = shots(d[arm]).mean() / shots(ref_f).mean(), shots(base[(state, setting)][arm]).mean() / shots(ref_b).mean()
                 parts.append(f"{arm} ratio factor 1.25: {fine_ratio:.2f}  factor 2: {coarse_ratio:.2f}")
                 cells += [f"{coarse_ratio:.2f}", f"{fine_ratio:.2f}"]
+            else:  # SG-FULL was not run at the finer spacing on the v7 states
+                cells += ["--", "--"]
         if ref_f and ref_b:
             parts.append(f"SG_SE_CS shots 1.25 / 2: {shots(ref_f).mean() / shots(ref_b).mean():.2f}")
             cells.append(f"{shots(ref_f).mean() / shots(ref_b).mean():.2f}")
