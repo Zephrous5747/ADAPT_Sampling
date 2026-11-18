@@ -389,7 +389,8 @@ pool and context hashes):
 | `reframe_traj`, `reframe_traj_lih`, `reframe_traj_fix`, `reframe_traj_cas`, `reframe_traj_cas_fix` | measured trajectories |
 | `reframe_v5_lo`, `reframe_traj_lo` | leader-out certificate (fixed states and trajectories) |
 | `reframe_v6_delta` | rho = 0.1 together with delta = 0.2 |
-| `state_gaps_cas`, `energy_policies*` | gaps of the active-space states, injected-error runs |
+| `state_gaps_cas` | gaps of the active-space states |
+| `energy_policies`, `energy_policies_gtol1e-5_cl` | injected-error runs (exact gradients, exact optimization) at optimizer gradient threshold 1e-9 and 1e-5; `reframe_paper_results.py` reads both `report/policies_all.csv` |
 
 Regenerate the numbers of the paper from the stored records (no cluster access needed; the tables go to
 `reports/reframed/generator_selection_paper_filled/generated`, which is created if it is missing):
