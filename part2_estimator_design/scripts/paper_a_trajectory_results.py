@@ -42,7 +42,7 @@ ORDER5 = ["H4_square_eq_side1p0_HF", "H4_square_stretch_side2p0_HF", "LiH_R3p0_H
 ORDER_Q10 = ["H2O_eq_HF", "H2O_stretch_HF", "H4_square_eq_side1p0_HF", "H4_square_stretch_side2p0_HF", "LiH_R1p6_HF", "LiH_R3p0_HF"]
 LABEL = {"H4_square_eq_side1p0_HF": r"H$_4$ 1.0~\AA", "H4_square_stretch_side2p0_HF": r"H$_4$ 2.0~\AA", "LiH_R3p0_HF": r"LiH 3.0~\AA",
          "LiH_R1p6_HF": r"LiH 1.6~\AA", "BeH2_HF": r"BeH$_2$", "H2O_eq_HF": r"H$_2$O eq", "H2O_stretch_HF": r"H$_2$O str"}
-POLICY_SYSTEMS = ["H4 1.0", "H4 2.0", "LiH 3.0", "BeH2", "H2O eq", "H2O str"]
+POLICY_SYSTEMS = ["H4 1.0", "H4 2.0", "LiH 1.6", "LiH 3.0", "BeH2", "H2O eq", "H2O str"]
 WINDOWS = ["H2O dz8o eq", "H2O dz8o str"]
 COST = {"9": "features", "5": "features_gtol1e-5_cl", "3": "features_gtol1e-3_cl"}
 Q10 = {"9": "features_q10", "5": "features_q10_gtol1e-5", "3": "features_q10_gtol1e-3"}
@@ -282,12 +282,14 @@ def policy_facts_and_figure() -> None:
     plt.rcParams.update({"font.size": 8.5, "axes.linewidth": 0.8, "lines.linewidth": 1.5, "lines.markersize": 4.5, "axes.spines.top": False,
                          "axes.spines.right": False, "pdf.fonttype": 42})
     BLUE, VERMILION, GREEN, PINK = "#0072B2", "#D55E00", "#009E73", "#CC79A7"
-    titles = {"H4 1.0": r"(a) H$_4$, 1.0 $\mathrm{\AA}$", "H4 2.0": r"(b) H$_4$, 2.0 $\mathrm{\AA}$", "LiH 3.0": r"(c) LiH, 3.0 $\mathrm{\AA}$",
-              "BeH2": r"(d) BeH$_2$", "H2O eq": r"(e) H$_2$O, equilibrium", "H2O str": r"(f) H$_2$O, stretched",
-              "H2O dz8o eq": "(g) CAS(8e,8o), equilibrium", "H2O dz8o str": "(h) CAS(8e,8o), stretched"}
-    fig = plt.figure(figsize=(7.2, 6.2))
-    grid = fig.add_gridspec(3, 3, hspace=0.55, wspace=0.28, left=0.095, right=0.985, top=0.965, bottom=0.07)
-    axes = {s: fig.add_subplot(grid[i // 3, i % 3]) for i, s in enumerate(POLICY_SYSTEMS + WINDOWS)}
+    titles = {"H4 1.0": r"(a) H$_4$, 1.0 $\mathrm{\AA}$", "H4 2.0": r"(b) H$_4$, 2.0 $\mathrm{\AA}$", "LiH 1.6": r"(c) LiH, 1.6 $\mathrm{\AA}$",
+              "LiH 3.0": r"(d) LiH, 3.0 $\mathrm{\AA}$", "BeH2": r"(e) BeH$_2$", "H2O eq": r"(f) H$_2$O, equilibrium", "H2O str": r"(g) H$_2$O, stretched",
+              "H2O dz8o eq": "(h) CAS(8e,8o), equilibrium", "H2O dz8o str": "(i) CAS(8e,8o), stretched"}
+    fig = plt.figure(figsize=(7.2, 6.3))
+    grid = fig.add_gridspec(4, 3, height_ratios=[1, 1, 1, 0.36], hspace=0.62, wspace=0.42, left=0.095, right=0.985, top=0.97, bottom=0.045)
+    places = {"H4 1.0": (0, 0), "H4 2.0": (0, 1), "LiH 1.6": (0, 2), "LiH 3.0": (1, 0), "BeH2": (1, 1), "H2O eq": (1, 2), "H2O str": (2, 0),
+              WINDOWS[0]: (2, 1), WINDOWS[1]: (2, 2)}
+    axes = {s: fig.add_subplot(grid[places[s]]) for s in POLICY_SYSTEMS + WINDOWS}
     for system, ax in axes.items():
         window = system in WINDOWS
         col = "err_ratio_exact_steps" if window else "steps_ratio"
@@ -339,21 +341,21 @@ def policy_facts_and_figure() -> None:
         ax.set_xticks([0, 0.5, 1])
         ax.set_xticklabels(["0", "0.5", "1"])
         ax.tick_params(labelsize=8)
-    for system in ("BeH2", "H2O eq", "H2O str") + tuple(WINDOWS):
+    for system in ("H2O str",) + tuple(WINDOWS):
         axes[system].set_xlabel(r"tolerance $\rho$ or $\tau$")
-    for system in ("H4 1.0", "BeH2"):
+    for system in ("H4 1.0", "LiH 3.0", "H2O str"):
         axes[system].set_ylabel("iterations / exact ADAPT")
-    axes[WINDOWS[0]].set_ylabel("energy error at 40 iterations\n/ exact ADAPT", fontsize=8)
-    for system in ("H4 2.0", "LiH 3.0", "H2O eq", "H2O str"):
+    axes[WINDOWS[0]].set_ylabel("energy error at 40\niterations / exact ADAPT", fontsize=7.5)
+    for system in axes:
         axes[system].tick_params(labelleft=True)
-    key = fig.add_subplot(grid[2, 2])
+    key = fig.add_subplot(grid[3, :])
     key.axis("off")
     entries = [Line2D([], [], color=BLUE, marker="o", label=r"random in the $\rho$-set"),
                Line2D([], [], color=VERMILION, marker="s", label=r"smallest $\Delta E$ in the $\rho$-set"),
                Line2D([], [], color=GREEN, marker="^", label=r"random in the $\tau$-set"),
                Line2D([], [], color=PINK, ls="--", label="largest one-parameter\nlowering"),
                Line2D([], [], color="0.55", lw=3, alpha=0.5, label="within 3% of\nexact ADAPT")]
-    key.legend(handles=entries, loc="center left", frameon=False, fontsize=7.8, handlelength=2.0, borderaxespad=0, labelspacing=0.7)
+    key.legend(handles=entries, loc="center", ncol=3, frameon=False, fontsize=7.6, handlelength=2.0, borderaxespad=0, columnspacing=1.6, labelspacing=0.6)
     fig.savefig(FIG / "fig_dose.pdf")
     fig.savefig(FIG / "fig_dose.png", dpi=200)
     plt.close(fig)

@@ -30,7 +30,7 @@ import pandas as pd
 
 BLUE, ORANGE, GREEN, RED, PURPLE, SKY, GREY = "#0072B2", "#E69F00", "#009E73", "#D55E00", "#CC79A7", "#56B4E9", "#666666"
 SLACK = 1e-4  # Ha: a stalled trajectory has reached what exact ADAPT reaches when it is within this of it
-LABEL = {"H4_square_eq_side1p0_HF": "H4 1.0", "H4_square_stretch_side2p0_HF": "H4 2.0", "LiH_R3p0_HF": "LiH 3.0",
+LABEL = {"H4_square_eq_side1p0_HF": "H4 1.0", "H4_square_stretch_side2p0_HF": "H4 2.0", "LiH_R1p6_HF": "LiH 1.6", "LiH_R3p0_HF": "LiH 3.0",
          "BeH2_HF": "BeH2", "H2O_eq_HF": "H2O eq", "H2O_stretch_HF": "H2O str",
          "H2O_dz8o_eq_HF": "H2O dz8o eq", "H2O_dz8o_str_HF": "H2O dz8o str"}
 

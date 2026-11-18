@@ -40,7 +40,7 @@ plt.rcParams.update({"font.size": 8, "axes.spines.top": False, "axes.spines.righ
                      "axes.titlesize": 8, "axes.labelsize": 8, "legend.fontsize": 7})
 BLUE, ORANGE, GREEN, RED, GREY = "#0072B2", "#E69F00", "#009E73", "#D55E00", "#6b6b6b"
 SYSTEMS = ["H4 1.0", "H4 2.0", "LiH 3.0", "H2O eq", "H2O str"]
-TEXNAME = {"H4 1.0": r"H$_4$ 1.0~\AA", "H4 2.0": r"H$_4$ 2.0~\AA", "LiH 3.0": r"LiH 3.0~\AA", "BeH2": r"BeH$_2$", "H2O eq": r"H$_2$O eq.", "H2O str": r"H$_2$O str.",
+TEXNAME = {"H4 1.0": r"H$_4$ 1.0~\AA", "H4 2.0": r"H$_4$ 2.0~\AA", "LiH 1.6": r"LiH 1.6~\AA", "LiH 3.0": r"LiH 3.0~\AA", "BeH2": r"BeH$_2$", "H2O eq": r"H$_2$O eq.", "H2O str": r"H$_2$O str.",
            "H2O dz8o eq": "CAS eq.", "H2O dz8o str": "CAS str."}
 
 # ------------------------------------------------------------------ R4: gradient against full relaxation, optimizer of SI S1
@@ -112,7 +112,7 @@ for i, system in enumerate(SYSTEMS):
         ax.ticklabel_format(useOffset=False)
         ax.set_title(f"{system}, {tag} ({step}), $\\rho_S$={row.spearman_full:.2f}", fontsize=7)
         if j == 0:
-            ax.set_ylabel("lowering after full\nreoptimization (mHa)")
+            ax.set_ylabel("lowering after full\nreoptimization (m$E_h$)")
         if i == len(SYSTEMS) - 1:
             ax.set_xlabel("|g|")
         if i == 0 and j == 0:
@@ -125,7 +125,7 @@ plt.close(fig)
 GRID = [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1.0]
 pol = {tol: pd.read_csv(RUNS / folder / "report" / "policies_all.csv") for tol, folder in (("1e-9", "energy_policies"), ("1e-5", "energy_policies_gtol1e-5_cl"))}
 lines, dose = [], {}
-for system in ["H4 1.0", "H4 2.0", "LiH 3.0", "BeH2", "H2O eq", "H2O str"]:
+for system in ["H4 1.0", "H4 2.0", "LiH 1.6", "LiH 3.0", "BeH2", "H2O eq", "H2O str"]:
     entry = {}
     for tol, t in pol.items():
         s = t[t.system == system]
@@ -296,7 +296,7 @@ if horizon:
                                                  "max_shortfall": round(max(s["shortfall"] for s in t["selections"]), 4), "capped": int(sum(s["cap_hit"] for s in t["selections"]))}
     axes[0].set_yscale("log")
     axes[0].set_xlabel("ADAPT iteration")
-    axes[0].set_ylabel("energy error (mHa)")
+    axes[0].set_ylabel("energy error (m$E_h$)")
     axes[0].legend(frameon=False, fontsize=6.5)
     axes[1].set_yscale("log")
     axes[1].set_xlabel("ADAPT iteration")
