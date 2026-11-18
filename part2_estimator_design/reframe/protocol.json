@@ -1,0 +1,448 @@
+{
+  "protocol_version": "GS-1.0",
+  "status": "specified_not_numerically_validated",
+  "primary_methods": [
+    "FC_FULL",
+    "FC_SE",
+    "FC_SE_CS"
+  ],
+  "supplementary_method": "IND_SE",
+  "systems": [
+    {
+      "id": "H4_a1",
+      "model": "H4",
+      "basis": "sto-3g",
+      "a_A": 1.0,
+      "electrons": 4,
+      "orbitals": 4,
+      "pool_size": 26
+    },
+    {
+      "id": "H4_a2",
+      "model": "H4",
+      "basis": "sto-3g",
+      "a_A": 2.0,
+      "electrons": 4,
+      "orbitals": 4,
+      "pool_size": 26
+    },
+    {
+      "id": "LiH_r16",
+      "model": "LiH",
+      "basis": "sto-3g",
+      "R_A": 1.6,
+      "electrons": 4,
+      "orbitals": 6,
+      "pool_size": 92
+    },
+    {
+      "id": "LiH_r30",
+      "model": "LiH",
+      "basis": "sto-3g",
+      "R_A": 3.0,
+      "electrons": 4,
+      "orbitals": 6,
+      "pool_size": 92
+    },
+    {
+      "id": "BeH2_r133",
+      "model": "BeH2",
+      "basis": "sto-3g",
+      "R_A": 1.33,
+      "electrons": 6,
+      "orbitals": 7,
+      "pool_size": 204
+    },
+    {
+      "id": "H2O_eq",
+      "model": "H2O",
+      "basis": "sto-3g",
+      "R_A": 0.9572,
+      "angle_deg": 104.52,
+      "electrons": 10,
+      "orbitals": 7,
+      "pool_size": 140
+    },
+    {
+      "id": "H2O_str",
+      "model": "H2O",
+      "basis": "sto-3g",
+      "R_A": 1.75,
+      "angle_deg": 104.52,
+      "electrons": 10,
+      "orbitals": 7,
+      "pool_size": 140
+    },
+    {
+      "id": "H2O_cas_eq",
+      "model": "H2O",
+      "basis": "cc-pvdz",
+      "R_A": 0.9584,
+      "angle_deg": 104.45,
+      "electrons": 8,
+      "orbitals": 8,
+      "pool_size": 360,
+      "active_space": true
+    },
+    {
+      "id": "H2O_cas_str",
+      "model": "H2O",
+      "basis": "cc-pvdz",
+      "R_A": 1.75,
+      "angle_deg": 104.45,
+      "electrons": 8,
+      "orbitals": 8,
+      "pool_size": 360,
+      "active_space": true
+    }
+  ],
+  "fixed_states": [
+    {
+      "id": "H4_a1_ADAPT3",
+      "system": "H4_a1",
+      "kind": "ADAPT",
+      "m": 3,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H4_a1_ADAPT5",
+      "system": "H4_a1",
+      "kind": "ADAPT",
+      "m": 5,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H4_a2_ADAPT2",
+      "system": "H4_a2",
+      "kind": "ADAPT",
+      "m": 2,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H4_a2_ADAPT5",
+      "system": "H4_a2",
+      "kind": "ADAPT",
+      "m": 5,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "LiH_r16_HF",
+      "system": "LiH_r16",
+      "kind": "HF",
+      "m": 0,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "LiH_r16_ADAPT2",
+      "system": "LiH_r16",
+      "kind": "ADAPT",
+      "m": 2,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "LiH_r16_ADAPT3",
+      "system": "LiH_r16",
+      "kind": "ADAPT",
+      "m": 3,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "LiH_r16_ADAPT4",
+      "system": "LiH_r16",
+      "kind": "ADAPT",
+      "m": 4,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "LiH_r30_HF",
+      "system": "LiH_r30",
+      "kind": "HF",
+      "m": 0,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "LiH_r30_ADAPT3",
+      "system": "LiH_r30",
+      "kind": "ADAPT",
+      "m": 3,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "LiH_r30_ADAPT5",
+      "system": "LiH_r30",
+      "kind": "ADAPT",
+      "m": 5,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "BeH2_r133_ADAPT2",
+      "system": "BeH2_r133",
+      "kind": "ADAPT",
+      "m": 2,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "BeH2_r133_ADAPT4",
+      "system": "BeH2_r133",
+      "kind": "ADAPT",
+      "m": 4,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "BeH2_r133_ADAPT7",
+      "system": "BeH2_r133",
+      "kind": "ADAPT",
+      "m": 7,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "BeH2_r133_ADAPT9",
+      "system": "BeH2_r133",
+      "kind": "ADAPT",
+      "m": 9,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H2O_eq_ADAPT11",
+      "system": "H2O_eq",
+      "kind": "ADAPT",
+      "m": 11,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H2O_str_ADAPT8",
+      "system": "H2O_str",
+      "kind": "ADAPT",
+      "m": 8,
+      "group": "core",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H4_a1_CISD",
+      "system": "H4_a1",
+      "kind": "CISD",
+      "m": null,
+      "group": "stress",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H4_a2_CISD",
+      "system": "H4_a2",
+      "kind": "CISD",
+      "m": null,
+      "group": "stress",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H2O_eq_CISD",
+      "system": "H2O_eq",
+      "kind": "CISD",
+      "m": null,
+      "group": "stress",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H2O_str_CISD",
+      "system": "H2O_str",
+      "kind": "CISD",
+      "m": null,
+      "group": "stress",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H2O_cas_eq_CISD",
+      "system": "H2O_cas_eq",
+      "kind": "CISD",
+      "m": null,
+      "group": "active_space",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H2O_cas_eq_ADAPT10",
+      "system": "H2O_cas_eq",
+      "kind": "ADAPT",
+      "m": 10,
+      "group": "active_space",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H2O_cas_str_CISD",
+      "system": "H2O_cas_str",
+      "kind": "CISD",
+      "m": null,
+      "group": "active_space",
+      "input_status": "unresolved_archive_or_regeneration"
+    },
+    {
+      "id": "H2O_cas_str_ADAPT10",
+      "system": "H2O_cas_str",
+      "kind": "ADAPT",
+      "m": 10,
+      "group": "active_space",
+      "input_status": "unresolved_archive_or_regeneration"
+    }
+  ],
+  "supported_pool": {
+    "id": "QEB",
+    "systems": [
+      "LiH_r16",
+      "LiH_r30",
+      "H2O_str"
+    ],
+    "steps": [
+      0,
+      2,
+      5
+    ],
+    "trials": 100,
+    "adapter_status": "BLOCKED_pending_operator_equivalence"
+  },
+  "fixed": {
+    "rho": 0.0,
+    "delta": 0.05,
+    "trials_core": 100,
+    "trials_stress": 100,
+    "trials_active_space": 30
+  },
+  "trajectories": {
+    "systems": [
+      "H4_a1",
+      "H4_a2",
+      "LiH_r16",
+      "LiH_r30",
+      "BeH2_r133",
+      "H2O_eq",
+      "H2O_str"
+    ],
+    "trials": 30,
+    "settings": [
+      {
+        "id": "strict",
+        "rho": 0.0,
+        "delta": 0.05
+      },
+      {
+        "id": "rho005",
+        "rho": 0.05,
+        "delta": 0.05
+      },
+      {
+        "id": "rho010",
+        "rho": 0.1,
+        "delta": 0.05
+      },
+      {
+        "id": "rho020",
+        "rho": 0.2,
+        "delta": 0.05
+      },
+      {
+        "id": "risk020",
+        "rho": 0.0,
+        "delta": 0.2
+      }
+    ],
+    "max_generators": 60
+  },
+  "active_space_horizon": {
+    "trials": 20,
+    "max_generators": 40,
+    "method": "FC_SE_CS",
+    "settings": [
+      "strict",
+      "rho010"
+    ],
+    "status": "conditional_on_timing"
+  },
+  "prior": {
+    "K": "min(m+1,Ndet)",
+    "nu": 32,
+    "lambda": 0.001,
+    "means_prior": false,
+    "CISD": "HF_covariance_stress_only"
+  },
+  "SE": {
+    "rounds": 30,
+    "epsilon_base_Eh": 0.001,
+    "epsilon_formula": "r<=10: (5-0.4*r)*epsilon_base; r>10: epsilon_base*2**(-(r-10))",
+    "T_multiplier": 8,
+    "block_min_shots": 32,
+    "first_check_budget": 4096,
+    "checkpoint_multiplier": 2
+  },
+  "confidence": {
+    "block_budget_fraction": 0.5,
+    "fixed_history_budget_fraction": 0.5,
+    "interval": "bounded_variance_Bernstein",
+    "failure_on_empty_intersection": true
+  },
+  "solver": {
+    "relative_tolerance": 1e-08,
+    "validation_relative_tolerance": 1e-07,
+    "max_iterations": 500,
+    "wall_limit_seconds": 60,
+    "name_version": "CVXPY/CLARABEL; record installed versions before production"
+  },
+  "optimizer": {
+    "algorithm": "BFGS",
+    "gradient": "analytic_exact",
+    "gtol": 1e-05,
+    "max_iterations": 2000,
+    "max_joint_evaluations": 2000,
+    "retries": 1,
+    "energy_increase_tolerance_Eh": 1e-10
+  },
+  "caps": {
+    "selection_sto3g": 10000000000,
+    "trajectory_sto3g": 1000000000000,
+    "selection_active_space": 100000000000,
+    "trajectory_active_space": 10000000000000
+  },
+  "similarity": {
+    "success_difference_lower_margin": -0.05,
+    "median_iteration_ratio_upper_margin": 1.1,
+    "confidence": 0.95
+  },
+  "analysis": {
+    "bootstrap_resamples": 10000,
+    "binomial_interval": "Wilson",
+    "chemical_accuracy_Eh": 0.0016,
+    "fixed_success_gate": 0.95,
+    "success_difference_interval": "Newcombe from independent Wilson intervals"
+  },
+  "compute_gate": {
+    "job_minutes": 10,
+    "stage_cpu_hours": 2,
+    "worker_memory_GiB": 16,
+    "requires_cost_review": true
+  },
+  "backend": {
+    "implemented": false,
+    "archive_recovered": false,
+    "source_commit": null
+  },
+  "result_slots": [
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+    "R5",
+    "R6"
+  ]
+}

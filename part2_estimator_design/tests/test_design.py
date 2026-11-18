@@ -278,3 +278,28 @@ def test_joint_solver_matches_slsqp_on_tiny_instances(seed):
     problems, n_contexts = _tiny_instance(seed)
     solution = DesignSet(problems, n_contexts).solve([0, 1], 1.0)
     assert solution.total == pytest.approx(reference, rel=2e-4)
+
+
+def test_without_overlap_the_optimised_split_equals_the_fixed_reconstruction():
+    """Every Pauli product is measurable in exactly one context (no splitting freedom, Ctx/prod = 1): the joint program has the fixed reconstruction as its only
+    feasible split, so the optimised coefficients equal the targets and the optimised counts equal the optimal counts of the fixed reconstruction."""
+    blocks = {0: np.array([[1.0, 0.3], [0.3, 0.7]]), 1: np.array([[0.9]])}
+    paulis = {0: [0, 1], 1: [2]}
+
+    def covariance(alpha, ids):
+        position = [paulis[alpha].index(int(i)) for i in ids]
+        return blocks[alpha][np.ix_(position, position)]
+
+    target = {0: 0.8, 1: -0.5, 2: 0.3}
+    home = np.array([0, 0, 1])
+    problem = FragmentProblem(0, np.array([0, 0, 1]), np.array([0, 1, 2]), target, home, covariance)
+    epsilon = 0.05
+    problem.x = np.zeros(problem.n_coordinates)
+    problem.x[problem.reference] = problem.pauli_target
+    problem.update_blocks(covariance)
+    solution = DesignSet([problem], 2).solve([0], epsilon)
+    x_fixed = np.array([target[0], target[1], target[2]])
+    assert np.allclose(problem.x, x_fixed, atol=1e-9)
+    sigma = np.array([np.sqrt(np.array([target[0], target[1]]) @ blocks[0] @ np.array([target[0], target[1]])), np.sqrt(target[2] ** 2 * blocks[1][0, 0])])
+    expected = allocate(sigma[None, :], epsilon)
+    assert np.allclose(solution.shots, expected, rtol=1e-6)

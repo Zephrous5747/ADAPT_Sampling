@@ -86,6 +86,10 @@ METHODS = {
                                                radius_min_shots=400, min_fold_shots=400),
     # External baselines (Paper A, SOTA comparison): run with ``--methods``.
     "M1 seq, safe": M1_SEQ_SAFE,
+    # Critique round 2 (Q2): the trajectory comparison at the headline minimum of 400 shots for every method
+    "M1 seq, safe, min shots=400": LearningConfig(level="II-0", prior="none", nu=0.0, rule="safe", start="bound", radius_min_shots=400,
+                                                  min_fold_shots=400, elimination="off"),
+    "M2 safe, min shots=400": IndependentConfig(rule="safe", start="bound", min_shots=400),
     "M1 static": "static",  # radius rho max|g| / 2, exact gradient scale and variances (an oracle bound)
     "M2 safe": IndependentConfig(rule="safe", start="bound"),
     "M2 marginal": IndependentConfig(rule="marginal", start="bound"),
@@ -125,7 +129,7 @@ def label_of(spec) -> str:
 
 class Phase4:
     def __init__(self, case: str, strategy: str, tolerance: float, rho: float = 0.1,
-                 energy_error: float = ENERGY_ERROR) -> None:
+                 energy_error: float = ENERGY_ERROR, grouping: str = "weight") -> None:
         self.case = case
         self.tolerance = tolerance
         self.rho = rho
@@ -135,6 +139,10 @@ class Phase4:
         self._reuse: dict = {}
         self.system = AdaptSystem.build(case)
         problem = self.system.problem
+        if grouping != "weight":  # sorted insertion by coefficient mass (critique Q1): the groups of the shared library and of M2
+            from part1_bridge import apply_grouping
+
+            apply_grouping(problem, grouping)
         self.library = build_context_library(problem, strategy)
         # The HF determinant supplies the (unused by estimated radii) blocks the
         # coordinate builders need; coordinates themselves do not depend on the state.
@@ -286,15 +294,20 @@ def main() -> None:
                         help="stop every trajectory before the selection that would end after this many hours of this job "
                              "(at twice the length of its previous one) and write no tables; run the same command in the next "
                              "job, the stage in which every trajectory finishes writes the tables")
+    parser.add_argument("--grouping", choices=("weight", "mass"), default="weight",
+                        help="first-fit insertion order of the fully commuting groups: decreasing Pauli weight (the benchmark) or sorted insertion by "
+                             "coefficient mass; the partial files are named by method only, so another grouping needs its own --out")
     parser.add_argument("--tag", default="",
                         help="write <case>_phase4_<tag>_*.csv instead of <case>_phase4_*.csv, so that a run of other "
                              "methods never overwrites an earlier run's tables")
     args = parser.parse_args()
+    if args.grouping != "weight" and Path(args.out) == Path("runs"):
+        parser.error("--grouping other than weight needs --out (for example runs_group_mass): the partial files do not carry the grouping")
     deadline = None if args.max_hours is None else time.time() + args.max_hours * 3600.0
 
     for case in args.cases:
         started = time.perf_counter()
-        study = Phase4(case, args.strategy, args.tolerance, args.rho, args.energy_error)
+        study = Phase4(case, args.strategy, args.tolerance, args.rho, args.energy_error, args.grouping)
         exact_iterations = len(study.exact) - 1
         print(f"{case}: exact ADAPT {exact_iterations} steps to dE {study.exact[-1].error:.2e} "
               f"(setup {time.perf_counter() - started:.0f}s)", flush=True)

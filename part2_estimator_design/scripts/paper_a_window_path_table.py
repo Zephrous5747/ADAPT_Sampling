@@ -23,8 +23,12 @@ def sci(x: float) -> str:
 
 
 def main() -> None:
-    lines = [r"\begin{tabular}{@{}llrrrrr@{}}", r"\toprule",
-             r"Geometry & Iteration $k$ & Selection shots (median) & Within $\rho$ & Best & Design and statistics (h) & Trials \\", r"\midrule"]
+    share = {}
+    for tol in ("1e-5", "1e-9"):
+        for r in csv.DictReader((ROOT / "runs" / f"window_share_gtol{tol}.csv").open()):
+            share[(r["geometry"], int(r["k"]), tol)] = r
+    lines = [r"\begin{tabular}{@{}llrrrrrrr@{}}", r"\toprule",
+             r"Geometry & Iteration $k$ & Selection shots (median) & Within $\rho$ & Best & Design and statistics (h) & $C_{\mathrm{opt}}$, $10^{-5}$ & Share, $10^{-5}$ & Share, $10^{-9}$ \\", r"\midrule"]
     for g, (key, name) in enumerate(GEOMETRIES):
         for i, k in enumerate(STATES):
             case = f"H2O_dz8o_{key}_ADAPT{k}"
@@ -33,7 +37,8 @@ def main() -> None:
             r = rows[0]
             hours = (float(r["design_seconds_mean"]) + float(r["statistics_seconds_mean"])) / 3600
             lines.append(f"{name if i == 0 else ''} & {k} & {sci(float(r['shots_median']))} & {100 * float(r['good_10pct_rate']):.0f}\\% & "
-                         f"{100 * float(r['correct_rate']):.0f}\\% & {hours:.1f} & {r['n_trials']} \\\\")
+                         f"{100 * float(r['correct_rate']):.0f}\\% & {hours:.1f} & {sci(float(share[(key, k, '1e-5')]['c_opt']))} & "
+                         f"{100 * float(share[(key, k, '1e-5')]['share_median']):.1f}\\% & {100 * float(share[(key, k, '1e-9')]['share_median']):.1f}\\% \\\\")
         if g < len(GEOMETRIES) - 1:
             lines.append(r"\midrule")
     lines += [r"\bottomrule", r"\end{tabular}"]

@@ -62,7 +62,7 @@ def write(name: str, lines: list[str]) -> None:
 SCALING = ["paper_a", "paper_a_n2", "paper_a_dz", "paper_a_dz11o", "paper_a_631g"]
 T1_ROWS = [("H4_square_eq_side1p0_CISD", r"H$_4$", "H4_square_eq_side1p0_HF"), ("LiH_R3p0_HF", "LiH", "LiH_R3p0_HF"),
            ("BeH2_HF", r"BeH$_2$", None), ("H2O_eq_HF", r"H$_2$O", "H2O_eq_HF"),
-           ("H2O_dz8o_eq_HF", r"H$_2$O, cc-pVDZ window", None), ("H6_chain_HF", r"H$_6$ chain\textsuperscript{a}", None),
+           ("H2O_dz8o_eq_HF", r"H$_2$O, CAS(8e,8o)", None), ("H6_chain_HF", r"H$_6$ chain\textsuperscript{a}", None),
            ("N2_HF", r"N$_2$\textsuperscript{a}", None)]
 
 
@@ -148,9 +148,9 @@ def tab_planning() -> None:
 
 T3_STATES = [("H4_square_eq_side1p0_CISD", r"H$_4$ 1.0~\AA, CISD"), ("H4_square_stretch_side2p0_CISD", r"H$_4$ 2.0~\AA, CISD"), ("LiH_R3p0_HF", r"LiH 3.0~\AA, HF"),
              ("H2O_eq_CISD", r"H$_2$O eq, CISD"), ("H2O_stretch_CISD", r"H$_2$O str, CISD"),
-             ("H4_square_eq_side1p0_ADAPT5", r"H$_4$ 1.0~\AA, iteration 5"), ("LiH_R3p0_ADAPT3", r"LiH 3.0~\AA, iteration 3"),
-             ("LiH_R3p0_ADAPT5", r"LiH 3.0~\AA, iteration 5"), ("H2O_eq_ADAPT11", r"H$_2$O eq, iteration 11"),
-             ("H2O_stretch_ADAPT8", r"H$_2$O str, iteration 8")]
+             ("H4_square_eq_side1p0_ADAPT5", r"H$_4$ 1.0~\AA, ADAPT 5"), ("LiH_R3p0_ADAPT3", r"LiH 3.0~\AA, ADAPT 3"),
+             ("LiH_R3p0_ADAPT5", r"LiH 3.0~\AA, ADAPT 5"), ("H2O_eq_ADAPT11", r"H$_2$O eq, ADAPT 11"),
+             ("H2O_stretch_ADAPT8", r"H$_2$O str, ADAPT 8")]
 
 
 def tab_learning() -> None:

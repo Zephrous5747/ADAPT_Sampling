@@ -63,3 +63,12 @@ dist/
 
 # The reports folder (drafts, supplement, generated tables, figures, PDFs) is kept locally
 reports/
+
+# Group-meeting presentation (LaTeX sources, figure copies, build files and PDF) is kept locally
+presentation/
+
+# Scratch folder of an oracle experiment
+tmp_oracle/
+
+# Checkpoints of runs in progress (the finished records are the .jsonl files next to them)
+**/ckpt/

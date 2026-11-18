@@ -166,18 +166,17 @@ def evals_env() -> None:
     def total(path: Path):
         return sum(json.loads(path.read_text())["evaluations"]) if path.exists() else None
 
-    hers = {"H4_square_eq_side1p0_HF": 285, "H4_square_stretch_side2p0_HF": 242, "LiH_R3p0_HF": 96}
     dirs = {"wsl9": "energy_policies_smoke", "cl9": "energy_policies", "wsl5": "energy_policies_gtol1e-5", "cl5": "energy_policies_gtol1e-5_cl",
             "wsl3": "energy_policies_gtol1e-3", "cl3": "energy_policies_gtol1e-3_cl"}
     keys = ("wsl9", "cl9", "wsl5", "cl5", "wsl3", "cl3")
     cases = ("H4_square_eq_side1p0_HF", "H4_square_stretch_side2p0_HF", "LiH_R3p0_HF", "BeH2_HF", "H2O_eq_HF", "H2O_stretch_HF")
     stretched = "H4_square_stretch_side2p0_HF"
-    lines = [r" & Independent study & \multicolumn{2}{c}{$\epsilon_{\mathrm{opt}}=10^{-9}$} & \multicolumn{2}{c}{$\epsilon_{\mathrm{opt}}=10^{-5}$} & \multicolumn{2}{c}{$\epsilon_{\mathrm{opt}}=10^{-3}$} \\",
-             r"\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}",
-             r"System & ($10^{-9}$) & Workstation & Cluster & Workstation & Cluster & Workstation & Cluster \\", r"\midrule"]
+    lines = [r" & \multicolumn{2}{c}{$\epsilon_{\mathrm{opt}}=10^{-9}$} & \multicolumn{2}{c}{$\epsilon_{\mathrm{opt}}=10^{-5}$} & \multicolumn{2}{c}{$\epsilon_{\mathrm{opt}}=10^{-3}$} \\",
+             r"\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}",
+             r"System & Workstation & Cluster & Workstation & Cluster & Workstation & Cluster \\", r"\midrule"]
     val: dict = {}
     for case in cases:
-        cells = [str(hers[case]) if case in hers else "--"]
+        cells = []
         for key in keys:
             p = RUNS / dirs[key] / case / "exact_reference.json"
             if key == "wsl5" and case == "BeH2_HF":
@@ -197,13 +196,13 @@ def evals_env() -> None:
     cap = r"Optimizer evaluations of the exact-ADAPT path in two builds and at three optimizer tolerances."
     note = (r"Exact ADAPT appends the generator of largest $\lvert g\rvert$ in every iteration (ties to the lowest index); the count is the number of energy-and-gradient evaluations of the BFGS "
             r"reoptimizations, summed over all iterations up to chemical accuracy, at the tolerance $\epsilon_{\mathrm{opt}}$ of the header. Workstation and cluster: two builds of the code "
-            r"(\notationref{}); independent study: the counts at $10^{-9}$ of an earlier independent study on another machine. At the tight tolerance the count depends on the build, "
+            r"(\notationref{}). At the tight tolerance the count depends on the build, "
             f"because the orbitals of degenerate subspaces differ and with them the Pauli expansion of the Hamiltonian, so only ratios within one build are meaningful. "
             f"At $10^{{-5}}$ and $10^{{-3}}$ the two builds give the same count in {same} of {len(pairs)} comparisons. "
             f"Within one build the count falls by {span('wsl9', 'wsl5')} times (workstation) and {span('cl9', 'cl5')} times (cluster) at $10^{{-5}}$ and by {span('wsl9', 'wsl3')} (workstation) and {span('cl9', 'cl3')} (cluster) at $10^{{-3}}$ "
             r"(stretched H$_4$ left out). "
             r"$^\dagger$With the looser tolerance, stretched H$_4$ no longer stalls on the gradient test, and the run stops on the energy gain after 13 iterations instead of 10.")
-    table("findings_evals", cap, "tab:find_evals", "lrrrrrrr", lines, note)
+    table("findings_evals", cap, "tab:find_evals", "lrrrrrr", lines, note)
 
 
 def gtol_paths() -> None:
@@ -361,8 +360,8 @@ def cost_tolerances() -> None:
     cap = r"Selection share and total cost of complete measured runs at three optimizer tolerances."
     note = (r"Replay of the recorded runs: the selections and the selection shots are kept and the optimization is rerun at $\epsilon_{\mathrm{opt}}$ (cluster build). Total: selection shots plus modeled "
             r"optimization cost, median over the runs, relative to II-A at 95\% at the same tolerance; selection share: selection shots over the total. Reach: share of the runs that end at chemical accuracy "
-            r"at the tight and at the loosest tolerance; a run that does not is stopped ten iterations above the count of exact ADAPT, so its total is a lower bound. Methods and fixed budgets as in "
-            r"Table~\ref{tab:find_cost}. Runs: the other methods are the 36 recorded runs of H$_2$O, the fixed budgets 12 runs each.")
+            r"at the tight and at the loosest tolerance; a run that does not is stopped ten iterations above the count of exact ADAPT, so its total is a lower bound. Methods: II-A at a confidence level, II-0, M2 and M1 seq at 95\%; fixed $N$ (pilot): uncertified selection with a budget of $N$ context-shots per iteration and the pilot allocation. "
+            r"Runs: the other methods are the 36 recorded runs of H$_2$O, the fixed budgets 12 runs each.")
     table("findings_cost_tol", cap, "tab:find_cost_tol", "llrrrrrrrr", lines, note)
 
 
@@ -676,7 +675,7 @@ def policies() -> None:
     cap = r"Iterations of ADAPT with a random choice from the $\rho$-set in every iteration, relative to exact ADAPT."
     note = (r"Every selection is a uniform draw from the $\rho$-set $\{i:\lvert g_i\rvert\ge(1-\rho)\max_j\lvert g_j\rvert\}$; exact gradients and exact optimization at $\epsilon_{\mathrm{opt}}=10^{-9}$, "
             r"200 trajectories per entry, common random numbers over $\rho$. Entries: mean number of iterations divided by that of exact ADAPT. $\rho^\ast$: the largest $\rho$ of the grid up to which the entries stay "
-            r"within $3\%$ of one. Reach: share of the trajectories that end at chemical accuracy (for stretched H$_4$: within $0.1$~mHa of the final energy of exact ADAPT) at $\rho=0.9$. "
+            r"at most $1.03$ (fewer iterations than exact ADAPT count as harmless; H$_4$ 1.0~\AA\ needs $7$ to $9\%$ fewer from $\rho=0.5$ on). Reach: share of the trajectories that end at chemical accuracy (for stretched H$_4$: within $0.1$~mHa of the final energy of exact ADAPT) at $\rho=0.9$. "
             r"Random ADAPT ($\rho=1$) still reaches it on H$_4$ (a pool of 26 generators), but in $10\%$ of the LiH 3.0~\AA\ runs and in none of the BeH$_2$ and H$_2$O runs. The iterations are the same at "
             r"$10^{-5}$ and $10^{-3}$ for $\rho\le0.7$, but random ADAPT then reaches chemical accuracy in only about half of the H$_4$ 1.0~\AA\ runs ($51\%$, $48\%$) and in $6\%$ and $2\%$ of the LiH runs, "
             r"because a plateau stops the optimizer (Sec.~\ref{sec:gtol}).")
@@ -772,7 +771,7 @@ def e5() -> None:
                      f"{100 * np.mean(sh < 1e-9):.1f}\\% & {sci(shots.mean(), 2)} [{sci(lo, 2)}, {sci(hi, 2)}] \\\\")
     cap = r"Complete II-A trajectories on LiH 3.0~\AA\ with different minimum numbers of shots per fold."
     note = (r"Exact ADAPT needs 6 iterations. II-A with a priori first radius, $\rho=0.1$ and per-round intervals (\notationref{}); the minimum number of shots per context and fold is also the "
-            r"floor of the learned estimators. Default (50): the 90 runs of the main set (seeds 7 and 8). Runs above exact: share of the trajectories that need more iterations than exact ADAPT; the extra "
+            r"floor of the learned estimators. Default (50): 138 runs, the 90 trajectories of the measured set (seeds 7 and 8; five of them took an extra iteration) and 48 runs of the classical-prior study at the same setting (one). Runs above exact: share of the trajectories that need more iterations than exact ADAPT; the extra "
             r"iteration is the only effect. $\rho$-good and exact-best selections: share of all selections of the runs. Selection shots: mean over the runs with a 95\% bootstrap interval.")
     table("findings_e5", cap, "tab:find_e5", "lrrrrrl", lines, note)
 

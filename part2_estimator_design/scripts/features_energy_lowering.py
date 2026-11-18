@@ -122,19 +122,32 @@ def full_reopt_lowering(system: AdaptSystem, ops: list[int], params: np.ndarray,
     return out
 
 
+def sampled_subset(absg: np.ndarray, seed: int, n_top: int = 5, n_rest: int = 5) -> np.ndarray:
+    """SI sampled-candidate rule: the ``n_top`` largest exact-gradient candidates plus ``n_rest`` drawn uniformly without replacement from the other
+    candidates with a nonvanishing gradient (fixed diagnostic seed)."""
+    order = np.argsort(-absg, kind="stable")
+    top = order[:n_top]
+    rest = np.array([i for i in order[n_top:] if absg[i] > 1e-8], dtype=int)
+    pick = np.random.default_rng(seed).choice(rest, size=min(n_rest, rest.size), replace=False) if rest.size else np.zeros(0, dtype=int)
+    return np.concatenate([top, pick]).astype(int)
+
+
 def summarise(label: str, kind: str, k: int | None, g: np.ndarray, de1: np.ndarray, defull: np.ndarray,
-              rho: float, energy_error: float) -> dict:
+              rho: float, energy_error: float, sampled: np.ndarray | None = None) -> dict:
     absg = np.abs(g)
     gmax = absg.max()
     row = {"system": label, "state": kind, "k": "" if k is None else k, "energy_error_mHa": 1e3 * energy_error,
            "max_abs_g": gmax}
-    for name, de in (("1p", de1), ("full", defull)):
+    sets = [("1p", de1), ("full", defull)]
+    if sampled is not None:
+        sets.append(("sampled", sampled))
+    for name, de in sets:
         if np.all(np.isnan(de)):
             for key in ("spearman", "best_g_is_best_dE", "share_best_g", "share_worst_rho_good", "best_dE_mHa",
                         "n_rho_good", "best_dE_in_rho_good"):
                 row[f"{key}_{name}"] = ""
             continue
-        mask = absg > 1e-8
+        mask = (absg > 1e-8) & ~np.isnan(de)
         gain = -de  # positive lowering
         best_gain = np.nanmax(gain)
         top_g = np.flatnonzero(absg >= gmax - 1e-10)  # the largest |g| (ties included)
@@ -156,6 +169,9 @@ def main() -> None:
     parser.add_argument("--full-reopt", nargs="*", default=[],
                         help="geometries whose trajectory states also get the full re-optimisation lowering")
     parser.add_argument("--rho", type=float, default=0.1)
+    parser.add_argument("--gtol", type=float, default=1e-9,
+                        help="BFGS gradient tolerance of the ADAPT path and of the full re-optimisation (the stored R4 used 1e-9; SI S1 and the protocol: 1e-5)")
+    parser.add_argument("--sample-seed", type=int, default=20261116, help="seed of the sampled-candidate subset (5 largest |g| plus 5 uniform)")
     parser.add_argument("--out", type=Path, default=Path("runs/features"))
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
@@ -165,6 +181,7 @@ def main() -> None:
         label, cisd_case = GEOMETRIES[case]
         clock = time.perf_counter()
         system = light_system(case)
+        system.gtol = args.gtol
         states = [("HF", None, system.hf, [], np.zeros(0))]
         if cisd_case is not None:
             states.append(("CISD", None, cisd_vector(system, cisd_case), None, None))
@@ -177,16 +194,20 @@ def main() -> None:
             e0 = system.energy(psi)
             de1, theta = one_parameter_lowering(system, psi)
             defull = np.full_like(de1, np.nan)
+            defull_sampled = None
             if case in args.full_reopt and ops is not None:
                 if len(ops) == 0:
                     defull = de1.copy()
                 else:
                     defull = full_reopt_lowering(system, ops, params, e0, np.flatnonzero(np.abs(g) > 1e-8))
+                subset = sampled_subset(np.abs(g), args.sample_seed + (0 if k is None else int(k)))
+                defull_sampled = np.full_like(defull, np.nan)
+                defull_sampled[subset] = defull[subset]
             for i in range(len(g)):
                 gen_rows.append({"system": label, "state": kind, "k": "" if k is None else k, "generator": i,
                                  "label": system.labels[i], "abs_g": abs(g[i]), "dE1_mHa": 1e3 * de1[i],
                                  "theta1": theta[i], "dEfull_mHa": "" if np.isnan(defull[i]) else 1e3 * defull[i]})
-            state_rows.append(summarise(label, kind, k, g, de1, defull, args.rho, e0 - system.fci_energy))
+            state_rows.append(summarise(label, kind, k, g, de1, defull, args.rho, e0 - system.fci_energy, defull_sampled))
         print(f"{label}: {len(states)} states, {len(system.generators)} generators "
               f"({time.perf_counter() - clock:.0f}s)", flush=True)
         _write(gen_path, gen_rows)

@@ -143,7 +143,7 @@ class AdaptSystem:
 
     def optimise(self, ops: list[int], start: np.ndarray) -> tuple[np.ndarray, float]:
         result = minimize(self._energy_and_gradient, start, args=(ops,), jac=True,
-                          method="BFGS", options={"gtol": 1e-9, "maxiter": 2000})
+                          method="BFGS", options={"gtol": getattr(self, "gtol", 1e-9), "maxiter": 2000})
         self.last_evaluations = int(result.nfev)  # energy-and-gradient evaluations
         return np.asarray(result.x), float(result.fun)
 

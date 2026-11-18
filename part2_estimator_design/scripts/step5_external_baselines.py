@@ -251,6 +251,27 @@ REFEREE["M1 seq, safe, bound start, min shots=400"] = _M1_SEQ_400
 REFEREE["M2 safe, bound start, min shots=400"] = IndependentConfig(rule="safe", start="bound", min_shots=400)
 REFEREE["M2 marginal, bound start, min shots=400"] = IndependentConfig(rule="marginal", start="bound", min_shots=400)
 REFEREE["Ikh reuse, FC, safe, bound start, min shots=400"] = Reuse(_M1_SEQ_400, "fc")
+# Critique round (2026-10-27): (Q14) cross-fitting ablation at the headline minimum, (Q15) the radius shrink factor gamma, (II-A with reuse at 400 shots).
+_II_A_400 = dataclasses.replace(II_A_SAFE_B, radius_min_shots=400, min_fold_shots=400)
+REFEREE["II-A data, safe, bound start, min shots=400, no crossfit"] = dataclasses.replace(_II_A_400, crossfit=False)
+REFEREE["II-A data, safe, bound start, min shots=400, diagnose, no crossfit"] = dataclasses.replace(_II_A_400, crossfit=False, diagnose=True)
+for _g in (0.8, 0.95):
+    REFEREE[f"II-A data, safe, bound start, min shots=400, gamma={_g:g}"] = dataclasses.replace(_II_A_400, shrink=_g)
+    REFEREE[f"II-0, safe, bound start, min shots=400, gamma={_g:g}"] = dataclasses.replace(
+        II_0_SAFE_B, radius_min_shots=400, min_fold_shots=400, shrink=_g)
+    REFEREE[f"M2 safe, bound start, min shots=400, gamma={_g:g}"] = IndependentConfig(rule="safe", start="bound", min_shots=400, shrink=_g)
+REFEREE["II-A data, safe + reuse, FC, bound start, min shots=400"] = Reuse(_II_A_400, "fc")
+REFEREE["II-0 safe + reuse, FC, bound start, min shots=400"] = Reuse(dataclasses.replace(II_0_SAFE_B, radius_min_shots=400, min_fold_shots=400), "fc")
+# Critique round 2 (2026-10-28): (Q6) the first radius scaled up from the a priori bound; (Q7) the same runs as the headline, a new label so that the columns
+# circuit_batches and contexts_max_round (contexts that receive shots in a round) are written to fresh files.
+for _s in (2, 5, 20):
+    REFEREE[f"II-A data, safe, bound start, min shots=400, R0 x{_s}"] = dataclasses.replace(_II_A_400, start_scale=float(_s))
+    REFEREE[f"II-0, safe, bound start, min shots=400, R0 x{_s}"] = dataclasses.replace(II_0_SAFE_B, radius_min_shots=400, min_fold_shots=400, start_scale=float(_s))
+    REFEREE[f"M2 safe, bound start, min shots=400, R0 x{_s}"] = IndependentConfig(rule="safe", start="bound", min_shots=400, start_scale=float(_s))
+REFEREE["II-A data, safe, bound start, min shots=400, circuits"] = _II_A_400
+REFEREE["II-0, safe, bound start, min shots=400, circuits"] = dataclasses.replace(II_0_SAFE_B, radius_min_shots=400, min_fold_shots=400)
+REFEREE["M1 seq, safe, bound start, min shots=400, circuits"] = _M1_SEQ_400
+REFEREE["M2 safe, bound start, min shots=400, circuits"] = IndependentConfig(rule="safe", start="bound", min_shots=400)
 CONFIGS.update(REFEREE)
 
 # Classical priors for the design (note "Classical priors for measurement design in ADAPT-VQE", Sec. 7.1).  The classical state is the
@@ -289,6 +310,24 @@ CLASSICAL_PRIOR = {
     "CPB alloc, true state tau=100": _cp(_CPB, "II-0", "oracle", 100.0, 0.0),
     "CPB split, true state tau=100": _cp(_CPB, "II-A", "oracle", 100.0, 0.0),
 }
+# CPF = CPD with the floor matched to the data-only headline rows: min_fold_shots = 400, so a context carries learned coefficients only
+# once both folds hold 400 shots (the II-A rows at min shots=400 use exactly this).  Tests whether the CPD losses on LiH come from the
+# prior recruiting contexts that must first be bought out of the radius bound (2026-11-09).
+_CPF = dict(_CPD, min_fold_shots=400)
+CLASSICAL_PRIOR.update({
+    "CPF split, true state static": _cp(_CPF, "II-A", "oracle", INF, 0.0),
+    "CPF split, true state tau=100": _cp(_CPF, "II-A", "oracle", 100.0, 0.0),
+    "CPF split, sparse tau=100, eps=0.01": _cp(_CPF, "II-A", "sparse", 100.0, 0.01),
+    "CPF split, sparse tau=100": _cp(_CPF, "II-A", "sparse", 100.0, 0.1),
+})
+# Intermediate floors (dose-response of the cost against min_fold_shots: 0 = CPD, 100, 200, 400 = CPF).  The radii keep radius_min_shots = 400.
+for _f in (100, 200):
+    _fam = dict(_CPD, min_fold_shots=_f)
+    CLASSICAL_PRIOR.update({
+        f"CPF{_f} split, true state tau=100": _cp(_fam, "II-A", "oracle", 100.0, 0.0),
+        f"CPF{_f} split, sparse tau=100, eps=0.01": _cp(_fam, "II-A", "sparse", 100.0, 0.01),
+        f"CPF{_f} split, sparse tau=100": _cp(_fam, "II-A", "sparse", 100.0, 0.1),
+    })
 # data-only rows of the draft to compare with: the headline at 400 shots (CPD) and the default at 50 (CPB)
 CLASSICAL_PRIOR_REFERENCE = {
     "CPD": {"II-0": "II-0, safe, bound start, min shots=400, diagnose", "II-A": "II-A data, safe, bound start, min shots=400, diagnose"},
@@ -485,6 +524,10 @@ def main() -> None:
     parser.add_argument("--cases", nargs="+", default=["H4_square_eq_side1p0_CISD", "H4_square_stretch_side2p0_CISD"])
     parser.add_argument("--configs", nargs="+", default=DEFAULT, choices=list(CONFIGS))
     parser.add_argument("--strategy", default="mass")
+    parser.add_argument("--grouping", choices=("weight", "mass", "vaware_hf"), default="weight",
+                        help="first-fit insertion order of the fully commuting groups: decreasing Pauli weight (the benchmark) or sorted insertion by "
+                             "coefficient mass (critique Q1), or vaware_hf: the covariance-aware insertion of paper_a_oracle_ceiling.py with Hartree-Fock "
+                             "covariances and contrast rows from the exact gradients at --rho (oracle rows); another order needs its own --out, because the labels do not carry it")
     parser.add_argument("--rho", type=float, default=0.0,
                         help="stop at a rho-good selection (|g| >= (1 - rho) max|g|); 0: exact identification. "
                              "Needed on pools with exactly tied leaders; M1 static then uses radius rho max|g| / 2")
@@ -500,12 +543,14 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=Path("runs"))
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
+    if args.grouping != "weight" and Path(args.out) == Path("runs"):
+        parser.error("--grouping other than weight needs --out (for example runs_group_mass): the labels of the trial files do not carry the grouping")
     shard = parse_shard(args.shard)
 
     NOISE.update(two_qubit=args.gate_error, readout=args.readout_error)
     noise_tag = f", noise={args.gate_error:g}/{args.readout_error:g}" if (args.gate_error or args.readout_error) else ""
     for case in args.cases:
-        problem, library, oracle, prior, base, coords = setup(case, args.strategy)
+        problem, library, oracle, prior, base, coords = setup(case, args.strategy, args.grouping, args.rho)
         if noise_tag:  # the fully commuting library of the main study, sampled through noisy circuits
             oracle = moments_for(library, problem.evaluator.state)
             base = build_fragment_problems(problem, library, oracle, "II-0")

@@ -1,5 +1,7 @@
-# Part II environment, pinned to the versions every committed result was produced
-# with (WSL Ubuntu, Python 3.12.3).  NumPy >= 2 is required: the Walsh-Hadamard and
+# Part II environment, pinned to the versions of the local runs and tests (WSL Ubuntu,
+# Python 3.12.3).  The cluster production runs used Python 3.11.4, NumPy 2.4.2, SciPy 1.17.1,
+# PySCF 2.14.0 and OpenFermion 1.8.1; a fixed seed reproduces stored records bit for bit under
+# both (tests/test_review_stage1.py).  NumPy >= 2 is required: the Walsh-Hadamard and
 # commutation code uses numpy.bitwise_count.
 numpy==2.5.2
 scipy==1.18.1

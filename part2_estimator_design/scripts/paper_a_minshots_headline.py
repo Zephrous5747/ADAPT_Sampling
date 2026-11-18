@@ -7,6 +7,10 @@ that II-A becomes dearer than II-0 there.  The cluster round ``ref3_minshots_*``
 (a priori start, sign-aware rule, per-round intervals) on the 17 states of Table ``tab:apriori`` and on four ADAPT snapshots of H4.
 This script compares those runs with the stored runs of the same states:
 
+``--rho 0.1`` reads the runs of ``cluster/jobs/rho01_headline_*.txt`` (labels ending in ``, rho=0.1``, critique Q2 and Q3) instead: the same comparison with the tolerance of the
+trajectories; the default minimum of 50 shots was not run at rho = 0.1, so the price of the larger minimum is left out and only the matched comparison is made.  Outputs get the
+suffix ``_rho0.1``.
+
 * II-A at ``n_min`` against II-A at the default of 50 (the price of the larger minimum);
 * II-0 against II-A at ``n_min``; the II-0 reference is II-0 at the same ``n_min`` where such a run exists (``--ref matched``,
   the default) and II-0 at 50 otherwise; ``--ref default`` always uses II-0 at 50;
@@ -72,14 +76,18 @@ II_0_DEFAULT = ("step4", "II-0 safe, bound start")
 BASELINES = [("M1 seq", "step5", "M1 seq, safe, bound start"), ("M2", "step5", "M2 safe, bound start"),
              ("M2 marg.", "step5", "M2 marginal, bound start"), ("Ikh", "step5", "Ikh reuse, FC, safe, bound start")]
 VALID = 0.95  # a baseline counts as "best" only if at least this share of its selections is correct
+SUCCESS_RHO = 0.0  # set by --rho: the share of 'correct' selections is then the share inside the rho-set
+
+
+SUFFIX = ""  # ", rho=0.1" for the runs at the tolerance of the trajectories (--rho)
 
 
 def ii_a_labels(n: int) -> list[str]:
-    return [f"II-A data, safe, bound start, min shots={n}, diagnose", f"II-A data, safe, bound start, min shots={n}"]
+    return [f"II-A data, safe, bound start, min shots={n}, diagnose{SUFFIX}", f"II-A data, safe, bound start, min shots={n}{SUFFIX}"]
 
 
 def ii_0_labels(n: int) -> list[str]:
-    return [f"II-0, safe, bound start, min shots={n}, diagnose", f"II-0, safe, bound start, min shots={n}"]
+    return [f"II-0, safe, bound start, min shots={n}, diagnose{SUFFIX}", f"II-0, safe, bound start, min shots={n}{SUFFIX}"]
 
 
 def load(case: str) -> dict[tuple[str, str], tuple[np.ndarray, float]]:
@@ -89,7 +97,11 @@ def load(case: str) -> dict[tuple[str, str], tuple[np.ndarray, float]]:
         for label, rows in read_trials(ROOT / "runs", case, step).items():
             if len(rows) < int(rows[0]["n_trials"]):
                 continue
-            out[(step, label)] = (np.array([float(r["shots"]) for r in rows]), float(np.mean([int(r["correct"]) for r in rows])))
+            if SUCCESS_RHO > 0:  # rho > 0: a selection counts when it is inside the rho-set (shortfall <= rho), not only when it is the exact best
+                ok = float(np.mean([(float(r["shortfall"]) if r.get("shortfall") not in (None, "") else 1.0 - int(r["correct"])) <= SUCCESS_RHO + 1e-12 for r in rows]))
+            else:
+                ok = float(np.mean([int(r["correct"]) for r in rows]))
+            out[(step, label)] = (np.array([float(r["shots"]) for r in rows]), ok)
     return out
 
 
@@ -117,8 +129,17 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--nmin", type=int, default=400)
     parser.add_argument("--ref", choices=("matched", "default"), default="matched")
+    parser.add_argument("--rho", type=float, default=0.0, help="0.1: the rho = 0.1 runs (labels end in ', rho=0.1'); only the matched comparison")
     parser.add_argument("--latex", type=Path, default=REPORTS / "generated" / "tab_minshots.tex")
     args = parser.parse_args()
+    global SUFFIX, SUCCESS_RHO
+    SUCCESS_RHO = args.rho
+    if args.rho > 0:
+        if args.ref != "matched":
+            parser.error("--rho needs --ref matched (the default minimum was not run at rho > 0)")
+        SUFFIX = f", rho={args.rho:g}"
+        if args.latex == REPORTS / "generated" / "tab_minshots.tex":
+            args.latex = REPORTS / "generated" / f"tab_minshots_rho{args.rho:g}.tex"
     rng = np.random.default_rng(SEED)
     rows, lines = [], []
     for case, name in STATES:
@@ -128,24 +149,27 @@ def main() -> None:
             print(f"{case}: no II-A run at min shots {args.nmin}")
             continue
         a, a_correct = ours
-        a50, _ = t[II_A_DEFAULT]
+        a50 = t[II_A_DEFAULT][0] if args.rho == 0 else None
         label_0, matched = first(t, ii_0_labels(args.nmin)) if args.ref == "matched" else (None, None)
+        if matched is None and args.rho > 0:
+            print(f"{case}: no II-0 run at min shots {args.nmin}, rho {args.rho:g}")
+            continue
         ref_label, (r0, r0_correct) = (label_0, matched) if matched is not None else (II_0_DEFAULT[1], t[II_0_DEFAULT])
         base, base_matched = [], []
         for bname, step, lab in BASELINES:
-            raised = (step, f"{lab}, min shots={args.nmin}")
+            raised = (step, f"{lab}, min shots={args.nmin}{SUFFIX}")
             if args.ref == "matched" and raised in t:
                 base.append((bname, t[raised]))
                 base_matched.append(bname)
-            elif (step, lab) in t:
+            elif args.rho == 0 and (step, lab) in t:
                 base.append((bname, t[(step, lab)]))
         valid = [(bname, s) for bname, (s, c) in base if c >= VALID]
         best_name, best = min(valid, key=lambda item: item[1].mean())
-        price = ratio_interval(a, a50, "mean", rng)
+        price = ratio_interval(a, a50, "mean", rng) if a50 is not None else (float("nan"),) * 3
         vs0 = ratio_interval(r0, a, "mean", rng)
         vsb = ratio_interval(best, a, "mean", rng)
         row = {"case": case, "snapshot": case in SNAPSHOTS, "n_min": args.nmin, "trials": a.size, "ii_a_mean": a.mean(),
-               "ii_a_correct": a_correct, "ii_a50_mean": a50.mean(), "price": price[0], "price_lo": price[1], "price_hi": price[2],
+               "ii_a_correct": a_correct, "ii_a50_mean": a50.mean() if a50 is not None else float("nan"), "price": price[0], "price_lo": price[1], "price_hi": price[2],
                "ii0_label": ref_label, "ii0_matched": matched is not None, "ii0_trials": r0.size, "ii0_mean": r0.mean(),
                "ii0_correct": r0_correct, "ii0_over_iia": vs0[0], "ii0_lo": vs0[1], "ii0_hi": vs0[2],
                "baselines_matched": ";".join(base_matched), "best_matched": best_name in base_matched,
@@ -155,8 +179,8 @@ def main() -> None:
                "min_correct_baselines": min(c for b, (s, c) in base)}
         # what the larger minimum costs the comparators: II-0 and the best valid baseline, each against its own default of 50
         default_valid = [t[(step, lab)][0] for _, step, lab in BASELINES if (step, lab) in t and t[(step, lab)][1] >= VALID]
-        row["ii0_price"] = r0.mean() / t[II_0_DEFAULT][0].mean()
-        row["best_price"] = best.mean() / min(s.mean() for s in default_valid)
+        row["ii0_price"] = r0.mean() / t[II_0_DEFAULT][0].mean() if args.rho == 0 else float("nan")
+        row["best_price"] = best.mean() / min(s.mean() for s in default_valid) if args.rho == 0 and default_valid else float("nan")
         rows.append(row)
         lines.append(f"{name} & {sci(a.mean())} & {price[0]:.2f} & {cell(*vs0)} & {cell(*vsb)} & {best_name} \\\\")
         print(f"{case:34s} II-A {a.mean():.3e} ({a.size}, {a_correct:.2f})  x{price[0]:.2f} of n=50  "
@@ -164,6 +188,9 @@ def main() -> None:
               f"{best_name}/II-A {vsb[0]:.2f} [{vsb[1]:.2f},{vsb[2]:.2f}]  invalid: {row['invalid_baselines']}")
         if case == STATES[16][0]:
             lines.append(r"\midrule")
+    if not rows:
+        print("no complete run found for this setting")
+        return
     # tabular body
     body = [r"\begin{tabular}{@{}lrrrrl@{}}", r"\toprule",
             rf"State & II-A & II-A$_{{{args.nmin}}}$ / II-A$_{{50}}$ & II-0 / II-A & best baseline / II-A & baseline \\", r"\midrule", *lines,
@@ -171,7 +198,7 @@ def main() -> None:
     args.latex.parent.mkdir(parents=True, exist_ok=True)
     args.latex.write_text("\n".join(body), encoding="utf-8", newline="\n")
     out = ROOT / "runs" / "paper_a"
-    tag = "" if args.ref == "matched" else "_default"
+    tag = ("" if args.ref == "matched" else "_default") + (f"_rho{args.rho:g}" if args.rho > 0 else "")
     out.mkdir(parents=True, exist_ok=True)
     import csv
     with (out / f"minshots_headline_n{args.nmin}{tag}.csv").open("w", newline="") as handle:

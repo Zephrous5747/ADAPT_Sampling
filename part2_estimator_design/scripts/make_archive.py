@@ -37,6 +37,15 @@ EXCLUDE_PREFIX = ("All in one/", "Claude outputs/", "reports/_superseded/", "dis
 FORBIDDEN = [re.compile(p) for p in (r"zephrous", r"rrg-izmaylov", r"/scratch/[a-z]+/", r"C:\\Users\\", r"/home/[a-z]+/", r"/root/venvs")]
 TEXT_SUFFIX = {".py", ".md", ".txt", ".tex", ".bib", ".sh", ".json", ".csv", ".cfg", ".toml", ".yml", ".yaml", ".sbatch", ""}
 REGENERATE = """\
+Generator-selection paper (finite-sample protocol, GS tables and figures; see part2_estimator_design/README.md, last section):
+  cd part2_estimator_design
+  python scripts/reframe_summary.py                # matrix, cost, growth, trajectories, grouping, leader-out, rho and delta (reads runs/reframe_*)
+  python scripts/reframe_paper_results.py          # figures and the injected-error facts (reads runs/energy_policies*)
+  python scripts/reframe_state_gaps.py --help      # gaps, contexts per product and CZ counts (needs the cached problems)
+  python -m pytest tests -q                        # under Linux or WSL
+Snapshots of the summary tables and facts: part2_estimator_design/reframe/summaries/.
+
+Earlier paper (planning bounds and the first learned designs):
 Regenerate the tables and figures from the stored runs (no cluster access needed).  The table of the Supporting Information
 "Scripts and stored runs behind the tables and figures" (reports/supplement.tex, Sec. S7) lists which script reads which runs.
   cd part2_estimator_design
@@ -51,6 +60,24 @@ Regenerate the tables and figures from the stored runs (no cluster access needed
   python scripts/paper_a_fixed_budget.py --latex ../reports/generated/tab_fixed_budget.tex --latex-rho ../reports/generated/tab_fixed_rho.tex
   python scripts/paper_a_depth_tables.py ; python scripts/paper_a_discussion_tables.py
   python scripts/energy_findings_tables.py ; python scripts/paper_a_window_path_table.py
+  python scripts/paper_a_eta_shares.py             # selection share for other numbers of energies per parameter, with intervals (SI)
+  python scripts/paper_a_nmin_table.py             # headline ratios at 50 and 400 shots (SI)
+  python scripts/paper_a_window_rho_ci.py          # intervals of the tolerance effect on the CAS(8e,8o) energy (SI)
+  python scripts/paper_a_ladder_table.py           # floor, learned design and oracle ceiling (SI)
+  python scripts/paper_a_baselines_table.py        # every method against II-0 on nine fixed states (SI)
+  python scripts/paper_a_trajectory_counts.py      # what the shot-limited selections did to the ADAPT trajectories (SI, main text)
+  python scripts/paper_a_cas400_summary.py         # CAS(8e,8o) fixed states at 400 and 50 shots: ratios, intervals, missed rounds (SI, main text)
+  python scripts/paper_a_coverage_summary.py       # coverage test on states with a set gap: table and agreement of two clusters (SI, main text)
+  python scripts/paper_a_critique_tables.py        # tail of the cost of a selection and predictors of the saving (SI, main text; needs the cached problems)
+  python scripts/paper_a_breakeven.py              # device shot rate below which the saving outweighs the classical time (SI, main text)
+  python scripts/paper_a_minshots_headline.py --rho 0.1   # headline at the tolerance of the trajectories (SI)
+  python scripts/paper_a_ablations_400.py          # cross-fitting, gamma and reuse runs at 400 shots (SI)
+  python scripts/paper_a_round4_tables.py          # tables of the four lines above and of the reproduction of Yen et al. (SI)
+  python scripts/paper_a_q129_summary.py           # grouping by mass, trajectories at 400 shots, qubit and qeb pools at 400 shots (SI; q2_methods400.csv needs the job logs)
+  python scripts/paper_a_grouping_tables.py        # covariance-aware grouping, oracle optimum of the groupings, trajectories with the mass grouping (job logs), scale of the first radius (SI)
+  python scripts/paper_a_circuits_q7.py            # circuit configurations loaded per selection (SI)
+  python scripts/reproduce_yen_splitting.py        # the Hamiltonian-variance tables of Yen et al. recomputed with our splitting code (SI)
+  python scripts/paper_a_si_numbers.py             # provenance of the numbers of the hand-written SI parts (check, no output)
   python scripts/paper_a_inline.py                 # paste the generated tables into reports/draft.tex
   python scripts/paper_a_make_si.py                # build reports/supplement.tex
   python scripts/sanity_checks.py <cases>          # the invariants every stored result must satisfy

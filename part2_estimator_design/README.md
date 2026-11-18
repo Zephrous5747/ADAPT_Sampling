@@ -4,7 +4,7 @@ This package implements Steps 0–4 and Phases 2–4 of the implementation plan 
 `reports/part2_rewritten_universal_estimator_design.tex`. All planned runs are
 complete, including the LiH trajectory-state and H₂O finite-shot runs done on
 Trillium, and the round of 19 October 2026 (confidence level at BFGS 1e-5, BFGS on
-shot-noise energies, the 16-qubit window along its exact path). The results feed
+shot-noise energies, the CAS(8e,8o) active space along its exact path). The results feed
 Paper A, which is written for the Journal of Chemical Theory and Computation:
 - `reports/draft.tex` is the main text (self-contained: generated tables and the
   bibliography are pasted in; it needs only `figures/`);
@@ -108,7 +108,7 @@ Level II-0 is Part I's estimator on Part I's contexts, and it reproduces Part I:
 ## Paper A: tables and figures
 
 Every table and figure of the main text and of the Supporting Information is
-written by a script from the stored runs in `runs/`; no number is typed. The
+written by a script from the stored runs in `runs/`. The
 Supporting Information (Sec. S7, table "Scripts and stored runs behind the tables
 and figures") lists which script reads which runs. In order:
 
@@ -120,12 +120,36 @@ python scripts/paper_a_trajectory_results.py   # Tables 5, 6 and Fig. 4
 python scripts/paper_a_figures.py              # Figs. 1-3 and SI figures
 python scripts/paper_a_totalcost_figure.py     # Fig. 5
 python scripts/paper_a_si_tables.py            # planning and learning tables of the SI
-python scripts/paper_a_window_path_table.py    # certified II-A along the window path
+python scripts/window_selection_share.py --policies runs/energy_policies_nrho_gtol1e-5 --out runs/window_share_gtol1e-5.csv   # cluster job: modeled share on the CAS(8e,8o) active space (also gtol1e-9)
+python scripts/paper_a_window_path_table.py    # certified II-A and its share along the active-space path
+python scripts/paper_a_eta_shares.py           # share of the selection for 2, 4, 8 energies per parameter, with bootstrap intervals (SI)
+python scripts/paper_a_nmin_table.py           # headline ratios at 50 and 400 shots per context and fold, 21 states (SI)
+python scripts/paper_a_window_rho_ci.py        # intervals of the tolerance effect on the CAS(8e,8o) energy (SI)
+python scripts/paper_a_ladder_table.py         # floor, learned design and oracle ceiling at 50 and 400 shots (SI)
+python scripts/paper_a_cas400_summary.py       # CAS(8e,8o) fixed states at 400 and 50 shots (SI, main text); step5_merge_summary.py merges the summary rows
+python scripts/paper_a_coverage_summary.py     # coverage test on states with a set gap (coverage_gap_states.py writes the states): SI table and cluster agreement
+python scripts/paper_a_critique_tables.py      # tail of the cost of a selection and predictors of the saving (needs the cached problems: WSL or cluster)
+python scripts/paper_a_breakeven.py            # break-even device shot rate, classical time against device time
+python scripts/paper_a_minshots_headline.py --rho 0.1   # headline at rho = 0.1 (jobs rho01_headline_*)
+python scripts/paper_a_ablations_400.py        # cross-fitting, gamma, reuse at 400 shots (jobs crit_*)
+python scripts/paper_a_round4_tables.py        # SI tables of these runs and of the Yen et al. reproduction
+python scripts/paper_a_q129_summary.py         # grouping by mass (runs_group_mass/), trajectories at 400 shots, other pools at 400 shots
+python scripts/paper_a_grouping_tables.py       # covariance-aware grouping (runs_group_vaware_hf/), oracle optimum of the groupings, mass-grouping trajectories (job logs), scale of the first radius
+python scripts/paper_a_circuits_q7.py          # circuit configurations loaded per selection (runs labelled ", circuits")
+python scripts/reproduce_yen_splitting.py      # Hamiltonian-variance tables of Yen et al. with our splitting code
+python scripts/paper_a_baselines_table.py      # every method against II-0 on nine fixed states (SI)
+python scripts/paper_a_trajectory_counts.py    # what the shot-limited selections did to the ADAPT trajectories (SI, main text)
+python scripts/paper_a_si_numbers.py           # check: every number of the hand-written SI parts occurs in its sources
 python scripts/energy_findings_tables.py       # tables of the findings report and the SI
 python scripts/paper_a_inline.py               # paste the generated tables into reports/draft.tex
 python scripts/paper_a_make_si.py              # build reports/supplement.tex
 python scripts/paper_a_si_refs.py --aux <supplement.aux>   # numbers of SI sections cited in the draft
 ```
+
+Coverage of the selection on states with a set gap (not run yet): `cluster/jobs/coverage_gap.txt` writes the states with
+`scripts/coverage_gap_states.py` (a template ADAPT state rotated to a target relative gap) and runs the interval diagnostics of
+`step5_external_baselines.py` on them (seed 13); `scripts/paper_a_coverage_table.py` tabulates wrong selections with their exact
+upper bound and the share of trials with a missed interval.
 
 The other generators (`paper_a_referee_tables.py`, `paper_a_sota_tables.py`,
 `paper_a_sota_latex.py`, `paper_a_bootstrap.py`, `paper_a_fixed_budget.py`,
@@ -331,3 +355,61 @@ for f in cluster/jobs/ext_h2o_*.txt; do sbatch --job-name=$(basename $f .txt) cl
 bash cluster/sync_from_trillium.sh USER python    # also merges step5 / step7
 python scripts/paper_a_sota_tables.py && python scripts/paper_a_copt_sensitivity.py
 ```
+
+
+## Generator selection under a finite-sample protocol (Nov 2026)
+
+The paper "Spend Measurements on the Decision" (shared gradient sampling, successive elimination and a selection
+tolerance in ADAPT-VQE) rests on a finite-sample selection protocol with empirical-Bernstein intervals, a history
+bound, fresh blocks at doubling checkpoints and a relative certificate. Development history: `logs/DEVLOG.md`
+(entries from 2026-11-12); the scope and the plan of the study are in `reframe/SCOPE.md` and `reframe/protocol.json`.
+
+| What | Where |
+|---|---|
+| The selector (design, intervals, elimination, certificate, caps) | `src/reframe.py` (`ReframeSelector.run`; `leader_out=True` is the leader-out certificate) |
+| Fixed states (UCCSD pool, 19 states plus CISD stress states, shared / qubit-wise / pivot / individual contexts) | `scripts/reframe_run.py` |
+| Measured ADAPT trajectories (selection from sampled outcomes, exact reoptimization) | `scripts/reframe_traj_run.py` |
+| Injected selection errors in exact-gradient ADAPT | `scripts/energy_trajectory_policies.py`, `scripts/energy_policies_report.py` (run it without `--cases`: it rewrites `report/policies_all.csv`) |
+| Tables, ratios, intervals and the facts quoted in the paper | `scripts/reframe_summary.py` (writes `reports/prior/*.csv` and the `generated/*.tex` bodies of the paper folder), `scripts/reframe_paper_results.py` (figures and the injected-error facts), `scripts/reframe_state_gaps.py` (gaps, contexts per product, CZ counts; needs the cached problems), `scripts/reframe_context_sizes.py` |
+| Snapshots of the summary tables and facts at the commit of the paper | `reframe/summaries/` |
+| Tests | `tests/test_reframe_intervals.py`, `test_reframe_t24.py`, `test_reframe_t25.py`, `test_review_stage1.py`, `test_pivot.py`, `test_design.py`, `test_energy_policies.py` |
+
+Names. The paper writes SG-FULL, SG-SE, SG-SE-CS (the proposed method), SG-SE-CS+prior and IG-SE; the code and the record
+files use `FC_FULL`, `FC_SE`, `FC_SE_CS_DATA`, `FC_SE_CS` and `FC_SE` on the individual-grouping library. Settings are
+named `strict` (rho = 0), `rho005`, `rho010`, `rho020` and `rho010risk020` (rho = 0.1 with delta = 0.2).
+
+Records (one JSON line per trial or per trajectory; each carries the protocol hash, the seed and the state, Hamiltonian,
+pool and context hashes):
+
+| Folder under `runs/` | Content |
+|---|---|
+| `reframe_v2`, `reframe_v2_cas_a/b/c` | the matrix at rho = 0 and 0.1 (the three CAS folders hold trials 5-29 of one cell, merged by the summary script) |
+| `reframe_v4`, `reframe_v4_ig`, `reframe_v4_growth` | full pool with the dominance rule, individual grouping, checkpoint spacing 1.25 |
+| `reframe_v2_grp` | qubit-wise and pivot contexts |
+| `reframe_traj`, `reframe_traj_lih`, `reframe_traj_fix`, `reframe_traj_cas`, `reframe_traj_cas_fix` | measured trajectories |
+| `reframe_v5_lo`, `reframe_traj_lo` | leader-out certificate (fixed states and trajectories) |
+| `reframe_v6_delta` | rho = 0.1 together with delta = 0.2 |
+| `state_gaps_cas`, `energy_policies*` | gaps of the active-space states, injected-error runs |
+
+Regenerate the numbers of the paper from the stored records (no cluster access needed; the tables go to
+`reports/reframed/generator_selection_paper_filled/generated`, which is created if it is missing):
+
+```bash
+cd part2_estimator_design
+python scripts/reframe_summary.py            # matrix, cost, growth, trajectories, grouping, leader-out, rho and delta
+python scripts/reframe_paper_results.py      # figures and the injected-error facts
+```
+
+The ADAPT snapshot states (`<geometry>_ADAPT<k>`) are rebuilt from the saved exact-gradient ADAPT trajectories (`runs/<geometry>_HF/*_adapt_trajectory*`); cached problems live in the git-ignored `.cache/`.
+
+Rerun a small case (a few minutes once the problems are cached; the production runs used whole cluster nodes, 24 h each, checkpointed):
+
+```bash
+python scripts/reframe_run.py --states H4_a1_ADAPT3 --methods FC_SE FC_SE_CS_DATA --trials 10 --workers 2 \
+    --setting rho010 --restart-ratio 0 --batch-fix --out runs/reframe_local
+python -m pytest tests/test_reframe_intervals.py tests/test_reframe_t25.py -q
+```
+
+The runs of the cluster were made with Python 3.11.4, NumPy 2.4.2, SciPy 1.17.1, PySCF 2.14.0 and OpenFermion 1.8.1; the tests
+run under the versions of `requirements.txt` (a fixed seed reproduces stored cluster records bit for bit under both). The `resource`
+module is POSIX-only, so the test suite runs under WSL or Linux.

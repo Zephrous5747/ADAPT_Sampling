@@ -374,27 +374,38 @@ WINDOW_STATES = [("H2O_dz8o_eq_CISD", "eq, CISD"), ("H2O_dz8o_eq_ADAPT10", "eq, 
 
 
 def tab_window(out: Path) -> None:
-    """Fixed states of the 16-qubit H2O cc-pVDZ window (8 orbitals), a priori start, sign-aware rule, rho = 0.1."""
-    methods = [("II-A", "II-A data, safe, bound start, rho=0.1"), ("II-0", "II-0, safe, bound start, rho=0.1"),
-               ("M1 seq", "M1 seq, safe, bound start, rho=0.1"), ("M2", "M2 safe, bound start, rho=0.1")]
-    lines = [r"\begin{tabular}{@{}llrrrrr@{}}", r"\toprule",
-             r"State & method & trials & mean shots & ratio to II-A & within $\rho$ of the best (\%) & exactly the best (\%) \\", r"\midrule"]
-    print("\nH2O cc-pVDZ window (16 qubits), fixed states, rho = 0.1")
+    """Fixed states of the 16-qubit H2O cc-pVDZ window (8 orbitals), a priori start, sign-aware rule, rho = 0.1, at the headline minimum of 400 shots and at the default of 50."""
+    labels = {400: {"II-A": "II-A data, safe, bound start, min shots=400, diagnose, rho=0.1", "II-0": "II-0, safe, bound start, min shots=400, diagnose, rho=0.1",
+                    "M1 seq": "M1 seq, safe, bound start, min shots=400, rho=0.1", "M2": "M2 safe, bound start, min shots=400, rho=0.1"},
+              50: {"II-A": "II-A data, safe, bound start, rho=0.1", "II-0": "II-0, safe, bound start, rho=0.1",
+                   "M1 seq": "M1 seq, safe, bound start, rho=0.1", "M2": "M2 safe, bound start, rho=0.1"}}
+    import re
+    import pandas as pd
+    summary = pd.read_csv(RUNS / "paper_a" / "cas400_summary.csv")  # paper_a_cas400_summary.py: rounds with a missed interval per trial
+    missed = {(re.sub(r"[ ,]", "", s), m, int(n)): float(v) for s, m, n, v in zip(summary.state, summary.method, summary.n_min, summary.missed_interval_rounds_per_trial)}
+    lines = [r"\begin{tabular}{@{}llrrrrrrrrrrr@{}}", r"\toprule",
+             r" & & \multicolumn{5}{c}{$n_{\min}=400$ (headline)} & \multicolumn{5}{c}{$n_{\min}=50$ (default)} & \\",
+             r"\cmidrule(lr){3-7}\cmidrule(lr){8-12}",
+             r"State & method & mean shots & ratio to II-A & within $\rho$ (\%) & best (\%) & missed rounds & mean shots & ratio to II-A & within $\rho$ (\%) & best (\%) & missed rounds & 400 over 50 \\",
+             r"\midrule"]
+    print("\nH2O cc-pVDZ window (16 qubits), fixed states, rho = 0.1, n_min = 400 and 50")
     for case, name in WINDOW_STATES:
         rows = {r["config"]: r for r in read_rows(RUNS / case / f"{case}_step5_external_baselines.csv")}
-        base = rows.get(methods[0][1])
-        if base is None:
+        base = {n: rows.get(labels[n]["II-A"]) for n in (400, 50)}
+        if base[400] is None or base[50] is None:
             continue
         first = True
-        for method, label in methods:
-            r = rows.get(label)
-            if r is None:
-                continue
-            ratio = float(r["shots_mean"]) / float(base["shots_mean"])
-            lines.append(f"{'H$_2$O ' + name if first else ''} & {method} & {r['n_trials']} & {sci(float(r['shots_mean']))} & {ratio:.2f} & "
-                         f"{100 * float(r['good_10pct_rate']):.0f} & {100 * float(r['correct_rate']):.0f} \\\\")
-            print(f"  {case:22s} {method:7s} n={r['n_trials']:>3s} shots {float(r['shots_mean']):.3e}  x{ratio:6.2f}  good10 {float(r['good_10pct_rate']):.2f}  exact {float(r['correct_rate']):.2f}  "
-                  f"design+stat {(float(r['design_seconds_mean'] or 0) + float(r['statistics_seconds_mean'] or 0)) / 3600:.1f} h")
+        for method in ("II-A", "II-0", "M1 seq", "M2"):
+            cells, shots = [], {}
+            for n in (400, 50):
+                r = rows[labels[n][method]]
+                shots[n] = float(r["shots_mean"])
+                cells.append(f"{sci(shots[n])} & {shots[n] / float(base[n]['shots_mean']):.2f} & {100 * float(r['good_10pct_rate']):.0f} & {100 * float(r['correct_rate']):.0f} & "
+                             f"{missed[(re.sub(r'[ ,]', '', name), method, n)]:.1f}")
+                hours = (float(r["design_seconds_mean"] or 0) + float(r["statistics_seconds_mean"] or 0)) / 3600
+                print(f"  {case:22s} {method:7s} n_min={n:>3d} n={r['n_trials']:>3s} shots {shots[n]:.3e}  x{shots[n] / float(base[n]['shots_mean']):6.2f}  "
+                      f"good10 {float(r['good_10pct_rate']):.2f}  exact {float(r['correct_rate']):.2f}  design+stat {hours:.1f} h")
+            lines.append(f"{'H$_2$O ' + name if first else ''} & {method} & {cells[0]} & {cells[1]} & {shots[400] / shots[50]:.2f} \\\\")
             first = False
         lines.append(r"\midrule")
     if lines[-1] == r"\midrule":

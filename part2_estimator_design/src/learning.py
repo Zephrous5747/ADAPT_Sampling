@@ -129,6 +129,8 @@ class LearningConfig:
     anytime: bool = False  # union bound over rounds: delta_r = 6 delta / (pi^2 r^2)
     elimination: str = "on"  # "off": every arm stays in the allocation (sequential M1)
     confidence: str = "bonferroni"  # or "selection": the less conservative z of part1_bridge.confidence_z
+    start_scale: float = 1.0  # the a priori first radius times this factor (sensitivity to R_0; the floor stays at 1e-6 of the bound)
+    crossfit: bool = True  # False (ablation only): design fitted and applied on the same, pooled shots, so the estimate is biased and the radii are in-sample
     diagnose: bool = False  # record, for every interval that misses, how it missed (validation output only; not part of the label)
     # Classical prior of the note "Classical priors for measurement design" (see classical_prior.py).  "moments": the prior enters the design
     # covariance only, as pseudo-outcomes of strength ``nu`` added to the raw moments (Eqs. 21-23), while the radii use the measured data
@@ -187,6 +189,8 @@ class LearningConfig:
         extras += [f"refit_growth={self.refit_growth:g}"] if self.refit_growth != 1.5 else []
         extras += [f"min_fold_shots={self.min_fold_shots}"] if self.min_fold_shots not in (0, 50) else []
         extras += ["no-elimination"] if self.elimination == "off" else []
+        extras += ["no-crossfit"] if not self.crossfit else []
+        extras += [f"start_scale={self.start_scale:g}"] if self.start_scale != 1.0 else []
         extras += [f"confidence={self.confidence}"] if self.confidence != "bonferroni" else []
         extras += [f"update={self.prior_update}"] if self.prior_update != "shrink" else []
         extras += [f"eps={self.prior_eps:g}"] if self.prior_eps else []
@@ -197,8 +201,11 @@ class LearningConfig:
 class CovarianceModel:
     """Shrinkage covariance per context and fold, from outcome histograms."""
 
-    def __init__(self, library, dim: int, prior, nu: float, oracle=None, update: str = "shrink") -> None:
+    def __init__(self, library, dim: int, prior, nu: float, oracle=None, update: str = "shrink", pooled: bool = False) -> None:
         self.library = library
+        # pooled (ablation of the cross-fitting): both "folds" see all the shots, each credited with half of them, so that the
+        # thresholds in shots per fold and the weights 0.25 and 0.5 of the estimate and of its variance keep their meaning
+        self.pooled = pooled
         self.prior = prior  # OracleMoments, "flat" or None
         self.nu = nu
         self.oracle = oracle  # OracleMoments when the model *is* the truth
@@ -214,10 +221,13 @@ class CovarianceModel:
                 self._means.pop((None, int(alpha)), None)
 
     def shots(self, fold=None) -> np.ndarray:
+        if self.pooled and fold is not None:
+            return self.counts.sum(axis=0).sum(axis=1) / 2.0
         counts = self.counts.sum(axis=0) if fold is None else self.counts[fold]
         return counts.sum(axis=1)
 
     def group_means(self, alpha: int, fold=None) -> np.ndarray:
+        fold = None if self.pooled else fold
         key = (fold, alpha)
         if key not in self._means:
             counts = self.counts[:, alpha].sum(axis=0) if fold is None else self.counts[fold, alpha]
@@ -240,6 +250,7 @@ class CovarianceModel:
         bound ``k I`` when fewer than two shots are held (used by the radii, which never see the classical prior)."""
         if self.oracle is not None:
             return self.oracle.covariance(alpha, paulis)
+        fold = None if self.pooled else fold
         counts = self.counts[:, alpha].sum(axis=0) if fold is None else self.counts[fold, alpha]
         m = float(counts.sum())
         if self.update == "moments":
@@ -327,7 +338,7 @@ class LearnedM3:
             if config.prior_eps > 0:
                 prior = self._mixed_prior(prior)
         oracle = self.oracle if config.prior == "oracle" and math.isinf(config.nu) and config.prior_update == "shrink" else None
-        return CovarianceModel(self.library, self.dim, prior, config.nu, oracle, config.prior_update)
+        return CovarianceModel(self.library, self.dim, prior, config.nu, oracle, config.prior_update, pooled=not config.crossfit)
 
     def _fold_problems(self, model, fold) -> list[FragmentProblem]:
         home = self.library.home
@@ -645,8 +656,8 @@ class LearnedM3:
             radius = float(truth.max())
             floor = radius * 1e-3
         else:
-            radius = float(self.bound)
-            floor = radius * 1e-6
+            radius = float(self.bound) * config.start_scale
+            floor = float(self.bound) * 1e-6
         model = self._model()
         spent = np.zeros(self.n_contexts, dtype=np.int64)
         held = np.flatnonzero(self.credit > 0)
@@ -669,6 +680,8 @@ class LearnedM3:
         seconds = {"design": 0.0, "statistics": 0.0, "allocation": 0.0}
         stopped = False
         rounds = 0
+        circuit_batches = 0  # contexts that receive shots, summed over the rounds: circuit configurations loaded
+        contexts_max_round = 0
         for rounds in range(1, 401):
             if stopped or len(alive) <= 1 or radius < floor:
                 break
@@ -692,6 +705,8 @@ class LearnedM3:
             seconds["allocation"] += time.perf_counter() - clock
             added = target - spent
             grew = np.flatnonzero(added > 0)
+            circuit_batches += int(grew.size)
+            contexts_max_round = max(contexts_max_round, int(grew.size))
             first = (added[grew] + 1) // 2
             if grew.size:
                 fold0 = rng.multinomial(first, self.distributions[grew])
@@ -771,6 +786,8 @@ class LearnedM3:
             "stopped_rho": bool(stopped),
             "refits": refits,
             "contexts_used": int((spent > self.credit).sum()),
+            "circuit_batches": circuit_batches,
+            "contexts_max_round": contexts_max_round,
             "cz_per_shot_mean": float(((spent - self.credit) * self.cz).sum() / max(spent.sum() - self.credit.sum(), 1)),
             **{f"{k}_seconds": round(v, 3) for k, v in seconds.items()},
         }

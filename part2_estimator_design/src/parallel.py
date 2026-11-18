@@ -171,7 +171,8 @@ def write_trials(path: Path, label: str, n_trials: int, seed: int, results) -> P
 
 EXTRA_COLUMNS = {"shortfall": float, "miscovered_rounds": int, "best_eliminated": lambda v: v == "True",
                  "stopped_rho": lambda v: v == "True", "design_seconds": float,
-                 "statistics_seconds": float, "contexts_used": int, "cz_per_shot_mean": float}
+                 "statistics_seconds": float, "contexts_used": int, "cz_per_shot_mean": float,
+                 "circuit_batches": int, "contexts_max_round": int}
 
 
 def read_trials(out: Path, case: str, step: str) -> dict[str, list[dict]]:

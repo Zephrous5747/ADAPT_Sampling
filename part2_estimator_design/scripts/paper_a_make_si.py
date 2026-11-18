@@ -10,9 +10,12 @@ floats stay in the main text.  The script copies, per SI section (S1-S10, see ``
 Text is copied verbatim; trimming and rewriting of the SI prose is a later step.
 
 * The SI is a separate document with the same preamble as the draft; tables and figures are numbered S1, S2, ... and sections S1, ...
-* The main text and the SI refer to each other with ``xr-hyper``: prefix ``M-`` for labels of ``draft.tex`` used inside the SI,
+* The main text and the SI refer to each other with ``the static label file draft_labels.tex (scripts/paper_a_draft_labels.py; xr-hyper fails on Overleaf)``: prefix ``M-`` for labels of ``draft.tex`` used inside the SI,
   prefix ``S-`` for labels of the SI used inside the draft.  A label that is defined in the SI keeps its name there, so a label may
   exist in both documents (the SI keeps the long version of what the main text summarizes).
+* A hand-written part (``file`` item) may place a float of the full draft with a line ``%%FLOAT <label>``; the float is restyled like the other
+  copied floats (``paper_a_si_clean.CAPTIONS``).  A line ``%%TABULAR <name>`` places the ``tabular`` of the generated table
+  ``reports/generated/<name>.tex`` (inside ``\fitcol``), so that several generated tables can be panels of one float.  A section may carry its own label as a third element of its ``SECTIONS`` entry (default ``sec:si<i>``).
 * ``% BEGIN INLINE <name>`` blocks of the findings report are kept, so ``scripts/paper_a_inline.py --draft ../reports/supplement.tex``
   refreshes the generated tables in the SI as well.
 * Every float of the full draft must be either in the SI or in ``MAIN_ONLY`` (the floats that stay in the main text; they must still
@@ -40,7 +43,7 @@ OUT = REPORTS / "supplement.tex"
 
 # floats of the full draft that stay in the main text of the compressed paper (everything else goes to the SI); the Results of the live
 # draft still hold all floats until their rewrite (step 3 of the plan), so this set is not computed from the live draft
-MAIN_ONLY = {"fig:pipeline", "fig:rounds", "fig:depth", "fig:dose", "tab:q7", "tab:minshots", "tab:premiumtotal"}
+MAIN_ONLY = {"fig:pipeline", "fig:rounds", "fig:depth", "fig:dose", "tab:minshots"}
 
 # labels of the findings report that collide with labels of the draft: renamed inside the SI
 RENAME_FINDINGS: dict = {}  # the findings figure fig:dose is no longer in the SI (the main text has the figure)
@@ -60,76 +63,36 @@ STOP = re.compile(r"\\paragraph\{|\\subsection\{|\\section\{|\\begin\{(?:table|f
 SECTIONS = [
     ("Notation, settings and extended methods", [
         ("file", "si_parts/s1_notation.tex"),
-        ("file", "si_parts/s1_extended_methods.tex"),
-    ]),
-    # S2 to S6 follow the research questions of the Results (A to E); S4 also holds the Discussion paragraphs that the main text
-    # shortened, under the question they belong to
-    ("Sharing and elimination", [
-        ("sub", "Q1:"), ("sub", "Q2:"), ("sub", "Q3:"),
-        ("float", "tab:q1"), ("float", "tab:q23"), ("float", "tab:q3"), ("float", "tab:sign"),
-    ]),
-    ("Learned estimators", [
-        ("sub", "Q4:"), ("sub", "Q5:"),
-        ("float", "tab:q4oracle"), ("float", "tab:q4learned"), ("float", "tab:q4more"), ("float", "tab:q5"),
-    ]),
-    ("Comparison with published strategies", [
-        ("sub", "Q8:"),
-        ("para", "Q12:", "Reproducing the published baseline."),
-        ("float", "tab:q8best"), ("float", "tab:q8fixed"), ("float", "tab:q8traj"), ("float", "tab:q8pools"), ("float", "tab:q8eps"),
-        ("float", "tab:reproduction"),
-        ("sub", "Q9:"),
-        ("para", "Q11:", "Thresholds."),
-        ("float", "tab:apriori"), ("float", "tab:diag"), ("float", "tab:anytime"), ("float", "tab:headlineci"), ("float", "tab:thresholds"),
+        ("file", "si_parts/s1_methods_a.tex"),
+        ("file", "si_parts/s1_baselines.tex"),
+        ("file", "si_parts/s1_methods_b.tex"),
+    ], "sec:si1"),
+    # Evidence for the claims of the Results (rebuild of 2026-10-26): hand-written blocks A to C, one claim ledger; block E is still the
+    # section below (Total cost...) until it is rebuilt
+    ("Evidence for the claims of the Results", [
+        ("file", "si_parts/b0_ledger.tex"),
+        ("file", "si_parts/b1_planning.tex"),
+        ("file", "si_parts/b2_learned.tex"),
+        ("file", "si_parts/b3_baselines.tex"),
+        ("file", "si_parts/b3b_round4.tex"),
+        ("file", "si_parts/b4_trajectory.tex"),
+        ("file", "si_parts/b5_total.tex"),
+    ], "sec:evidence"),
+    # robustness and diagnostics of the comparison (to be rewritten: the copied paragraphs of the old Results are kept for now)
+    # robustness and diagnostics of the comparison and of the optimizer model (hand-written parts c*; the fidelity paragraph and the Discussion
+    # paragraphs are still the copies of the full draft)
+    ("Robustness and diagnostics", [
+        ("file", "si_parts/c1_shots.tex"),
         ("subsec", "Fidelity of the baselines", "sec:si_fidelity"),
         ("para", "Discussion", "What was compared, and how faithfully."),
-        ("subsec", "Measurement depth and gate noise", "sec:si_depthnoise"),
-        ("para", "Discussion", "Shots against circuit depth."),
-        ("para", "Discussion", "Intermediate depths and the published pivot contexts."),
-        ("para", "Discussion", "Gate errors."),
-        ("para", "Discussion", "Limits of the noise model."),
-        ("float", "tab:depth"), ("float", "tab:noise"),
-        ("subsec", "The confidence radius", "sec:si_radius"),
-        ("para", "Discussion", "What the radius buys and costs."),
-        ("float", "tab:radius"),
-    ]),
-    ("Trajectories, selection errors and the confidence level", [
-        ("sub", "Q6:"),
-        ("float", "tab:q6"), ("float", "fig:trajectory"),
-        ("file", "si_parts/s_minshots.tex"),
-        ("file", "si_parts/s_errors_a.tex"),
-        ("para", "Discussion", "The gradient as a proxy."),
-        ("file", "si_parts/s_errors_b.tex"),
-        ("subsec", "Confidence level and the trajectory", "sec:conf"),
-        ("para", "Q11:", "Confidence level."),
-        ("float", "tab:confidence"),
-        ("file", "si_parts/s_tr_conf.tex"),
-    ]),
-    ("Total cost, certification and scale", [
-        ("file", "si_parts/s_tr_together.tex"),
-        ("file", "si_parts/s_tr_gtol.tex"),
-        ("file", "si_parts/s_tr_evalenv.tex"),
-        ("file", "si_parts/s_tr_noise.tex"),
-        ("para", "Q12:", "A sampled optimizer."),
-        ("float", "tab:sampledopt"),
-        ("sub", "Q10:"),
-        ("para", "Q11:", "Tolerance $\\rho$."),
-        ("float", "tab:fixedbudget"), ("float", "fig:fixedbudget"), ("float", "tab:fixedrho"),
-        ("subsec", "Scale and the 16-qubit window", "sec:si_scale"),
-        ("para", "Q11:", "Scale."),
-        ("para", "Q11:", "A larger basis, at shot level."),
-        ("float", "tab:scaling"), ("float", "tab:window"),
-        ("file", "si_parts/s_window_path.tex"),
-        ("subsec", "Stopping the run, other scores and help from classical computation", "sec:si_stop"),
-        ("para", "Discussion", "Stopping the run."),
-        ("para", "Discussion", "Selection and optimization."),
-        ("para", "Discussion", "Other scores, other pools, several operators."),
-        ("para", "Discussion", "Scale, and help from classical computation."),
-        ("float", "tab:termination"), ("float", "tab:score"),
-    ]),
+        ("file", "si_parts/c2_depth.tex"),
+        ("file", "si_parts/c3_optimizer.tex"),
+        ("file", "si_parts/c4_stop.tex"),
+    ], "sec:si4"),
     ("Implementation checks and reproduction", [
         ("file", "si_parts/s_checks.tex"),
         ("file", "si_parts/s_repro.tex"),
-    ]),
+    ], "sec:si7"),
 ]
 
 INLINE = re.compile(r"% BEGIN INLINE (?P<name>[A-Za-z0-9_]+)\n(?P<body>.*?)% END INLINE (?P=name)\n", re.S)
@@ -242,8 +205,8 @@ def preamble(draft: str) -> str:
         "\\newcommand{\\notationref}{Table~\\ref{tab:notation}}  % the generated table notes cite the table of notation with this macro\n"
         "% a wrapping table cell: p-columns do not compile under revtex4-2 with this preamble\n"
         "\\newcommand{\\pc}[2]{\\parbox[t]{#1}{\\raggedright #2}}\n"
-        "\\usepackage{xr-hyper}\n"
-        "\\externaldocument[M-]{draft}\n"
+        "\\usepackage{placeins}  % \\FloatBarrier at the end of an evidence block keeps its tables in it\n"
+        "\\input{draft_labels}  % labels of draft.tex with the prefix M- (static file of scripts/paper_a_draft_labels.py; works without draft.aux, e.g. on Overleaf)\n"
         "% table of contents: wide number boxes (S1.13)\n"
         "\\makeatletter\n"
         "\\renewcommand*\\l@section{\\@dottedtocline{1}{0em}{2.6em}}\n"
@@ -275,7 +238,7 @@ def build():
     body: list[str] = []
     used: set[str] = set()
     src.skipped = []  # items of the full draft that the live draft still holds (they reach the SI when the main text drops them)
-    for i, (title, items) in enumerate(SECTIONS, start=1):
+    for i, (title, items, *opt) in enumerate(SECTIONS, start=1):
         parts: list[str] = []
         n_content = 0
         for item in items:
@@ -286,7 +249,27 @@ def build():
                 parts.append(item[1])
                 n_content += 1
             elif kind == "file":
-                parts.append(expand_inline(read(REPORTS / item[1])).rstrip("\n") + "\n")
+                text = expand_inline(read(REPORTS / item[1]))
+
+                def place(mm: re.Match) -> str:  # a float of the full draft inside a hand-written part
+                    lab = mm.group(1)
+                    assert lab in src.floats, f"%%FLOAT {lab!r}: not a float of the full draft"
+                    assert lab not in main_floats and lab not in draft_labels, f"%%FLOAT {lab}: the float stays in the main text"
+                    assert lab not in used, f"%%FLOAT {lab}: placed twice"
+                    used.add(lab)
+                    return src.floats[lab].rstrip("\n") + "\n"
+
+                text = re.sub(r"(?m)^%%FLOAT (\S+)[ \t]*$", place, text)
+
+                def tabular(mm: re.Match) -> str:  # the tabular of a generated table, as one panel of a float
+                    path = REPORTS / "generated" / f"{mm.group(1)}.tex"
+                    assert path.exists(), f"%%TABULAR {mm.group(1)}: reports/generated/{mm.group(1)}.tex does not exist"
+                    found = re.search(r"\\begin\{tabular\}.*?\\end\{tabular\}", read(path), re.S)
+                    assert found, f"%%TABULAR {mm.group(1)}: no tabular in the file"
+                    return "\\fitcol{%\n" + found.group(0) + "}"
+
+                text = re.sub(r"(?m)^%%TABULAR (\S+)[ \t]*$", tabular, text)
+                parts.append(text.rstrip("\n") + "\n")
                 n_content += 1
             elif kind == "subhead":
                 parts.append(f"\\subsection{{{item[1]}}}\n")
@@ -332,7 +315,7 @@ def build():
             else:
                 raise AssertionError(kind)
         if n_content:  # a section whose items are all still in the main text is left out
-            body.append(f"\n% {'=' * 100}\n% S{i}\n% {'=' * 100}\n\\section{{{title}}}\n\\label{{sec:si{i}}}\n")
+            body.append(f"\n% {'=' * 100}\n% S{i}\n% {'=' * 100}\n\\section{{{title}}}\n\\label{{{opt[0] if opt else f'sec:si{i}'}}}\n")
             body.extend(parts)
     in_main = {lab for lab in src.floats if lab in draft_labels}
     missing = set(src.floats) - used - in_main - set(clean.DROP_FLOATS)
@@ -372,7 +355,8 @@ def build():
         "% ============================================================================================\n"
         "% TO BE COMPLETED BY THE AUTHORS: title, author list and affiliations as in draft.tex.\n"
         "% This file is generated by scripts/paper_a_make_si.py from archive/draft_full_pre_compression.tex and the findings report;\n"
-        "% S1 is hand-written (reports/si_parts/s1_extended_methods.tex); the other sections are copied from the full draft, minus what the main text states.\n"
+        "% The sections are hand-written (reports/si_parts/*.tex: setup s1_*, evidence b*, robustness c*, checks s_*); the generated tables are pasted from reports/generated/;\n"
+        "% only the paragraph on the fidelity of the baselines and the Discussion paragraphs of the last robustness subsection are still copied from the full draft.\n"
         "% ============================================================================================\n"
         # the title and the authors are those of the main text, so the two documents cannot disagree
         "\\title{Supporting Information for: " + re.search(r"\\title\{(.*)\}\n", draft).group(1) + "}\n"

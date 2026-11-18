@@ -171,3 +171,34 @@ def gradient_matrix(problem: GradientProblem, n_library: int | None = None):
         (np.asarray(data), (np.asarray(rows), np.asarray(cols))),
         shape=(problem.n_generators, width),
     )
+
+
+GROUPINGS = ("weight", "mass")
+
+
+def apply_grouping(problem, grouping: str) -> None:
+    """Switch the first-fit insertion order of the fully commuting groupings of a loaded problem (``weight``: Part I's default, decreasing Pauli weight).
+
+    ``mass`` is sorted insertion by coefficient size (Crawford et al.): the shared parent grouping inserts the Paulis of ``B_0`` by decreasing
+    ``sum_i |C_il|`` (the coefficient mass over the whole pool), the grouping of each gradient on its own (independent elimination) by its own
+    ``|C_il|``; ties by label.  Part I's code is not touched: the cached groupings are replaced on the instance.
+    """
+    if grouping not in GROUPINGS:
+        raise ValueError(f"grouping must be one of {GROUPINGS}")
+    if grouping == "weight":
+        return
+    from pauli_fc import greedy_fc_groups  # Part I
+
+    mass: dict[str, float] = {}
+    for terms in problem.commutator_terms:
+        for label, coefficient in terms.items():
+            mass[label] = mass.get(label, 0.0) + abs(coefficient)
+    order = sorted(problem.universal_support, key=lambda s: (-mass[s], s))
+    problem._parent_groups = greedy_fc_groups(order, sort=False)
+    problem._parent_sigmas = None
+
+    def individual() -> list[list[list[str]]]:
+        return [greedy_fc_groups(sorted(terms, key=lambda s: (-abs(terms[s]), s)), sort=False) for terms in problem.commutator_terms]
+
+    problem.individual_fc_groups = individual
+    problem.fc_ordering = "mass"

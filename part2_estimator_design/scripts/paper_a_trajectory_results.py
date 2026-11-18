@@ -49,6 +49,7 @@ Q10 = {"9": "features_q10", "5": "features_q10_gtol1e-5", "3": "features_q10_gto
 POL = {"9": "energy_policies", "5": "energy_policies_gtol1e-5_cl", "3": "energy_policies_gtol1e-3_cl"}
 EXP = {"9": r"$10^{-9}$", "5": r"$10^{-5}$", "3": r"$10^{-3}$"}
 FACTS: dict = {}
+FIGDATA: dict = {"premium": []}  # values of the two tables that the figure of the cost shares draws
 
 
 def fact(key: str, value) -> None:
@@ -111,6 +112,7 @@ def cost_tables() -> None:
     fact("q7.copt_reduction_1e-5", [round(min(red5), 2), round(max(red5), 2)])
     fact("q7.copt_reduction_1e-3", [round(min(red3), 2), round(max(red3), 2)])
     fact("q7.shares_pct_9_5_3", shares)
+    FIGDATA["share"] = shares
 
     lines = [r"System & method & runs & \multicolumn{3}{c}{$C_{\mathrm{sel}}/C_{\mathrm{ADAPT}}$} & \multicolumn{3}{c}{total / II-A} \\",
              r"\cmidrule(lr){4-6}\cmidrule(lr){7-9}",
@@ -189,6 +191,7 @@ def premium_table() -> None:
                      + f" & {it_c / it_f:.2f} \\\\")
         fact(f"q10.{case} (runs fixed/certified, sel premium, total 9/5/3, iterations ratio)",
              [len(fx9), len(ce9), round(sel_c / sel_f, 3), [tuple(round(v, 2) for v in totals[k]) for k in "953"], round(it_c / it_f, 3), round(it_f - it_c, 2)])
+        FIGDATA["premium"].append((case, sel_c / sel_f, totals, it_c / it_f))
         tight.append(totals["9"][0])
         loose += [totals["5"][0], totals["3"][0]]
     write("tab_premium_total", "@{}lrrrrlllr@{}", lines)
@@ -273,14 +276,19 @@ def policy_facts_and_figure() -> None:
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+    from matplotlib.ticker import FixedLocator, NullFormatter, ScalarFormatter
 
-    plt.rcParams.update({"font.size": 9, "axes.linewidth": 0.8, "lines.linewidth": 1.8, "lines.markersize": 4.5,
-                         "mathtext.fontset": "cm", "font.family": "serif"})
-    titles = {"H4 1.0": "(a) H$_4$, 1.0 Å", "H4 2.0": "(b) H$_4$, 2.0 Å", "LiH 3.0": "(c) LiH, 3.0 Å", "BeH2": "(d) BeH$_2$",
-              "H2O eq": "(e) H$_2$O, eq.", "H2O str": "(f) H$_2$O, str.", "H2O dz8o eq": "(g) cc-pVDZ, eq.",
-              "H2O dz8o str": "(h) cc-pVDZ, str."}
-    fig, axes = plt.subplots(2, 4, figsize=(7.0, 4.3), sharex=True)
-    for ax, system in zip(axes.flat, POLICY_SYSTEMS + WINDOWS):
+    plt.rcParams.update({"font.size": 8.5, "axes.linewidth": 0.8, "lines.linewidth": 1.5, "lines.markersize": 4.5, "axes.spines.top": False,
+                         "axes.spines.right": False, "pdf.fonttype": 42})
+    BLUE, VERMILION, GREEN, PINK = "#0072B2", "#D55E00", "#009E73", "#CC79A7"
+    titles = {"H4 1.0": r"(a) H$_4$, 1.0 $\mathrm{\AA}$", "H4 2.0": r"(b) H$_4$, 2.0 $\mathrm{\AA}$", "LiH 3.0": r"(c) LiH, 3.0 $\mathrm{\AA}$",
+              "BeH2": r"(d) BeH$_2$", "H2O eq": r"(e) H$_2$O, equilibrium", "H2O str": r"(f) H$_2$O, stretched",
+              "H2O dz8o eq": "(g) CAS(8e,8o), equilibrium", "H2O dz8o str": "(h) CAS(8e,8o), stretched"}
+    fig = plt.figure(figsize=(7.2, 6.2))
+    grid = fig.add_gridspec(3, 3, hspace=0.55, wspace=0.28, left=0.095, right=0.985, top=0.965, bottom=0.07)
+    axes = {s: fig.add_subplot(grid[i // 3, i % 3]) for i, s in enumerate(POLICY_SYSTEMS + WINDOWS)}
+    for system, ax in axes.items():
         window = system in WINDOWS
         col = "err_ratio_exact_steps" if window else "steps_ratio"
 
@@ -296,30 +304,56 @@ def policy_facts_and_figure() -> None:
                 es.append(0.0 if window or not np.isfinite(r.steps_se) else 1.96 * float(r.steps_se) / float(r.exact_steps))
             return xs, ys, es
 
-        x, y, e = series("rho_random", [0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1])
-        ax.errorbar(x, y, yerr=e, color="blue", marker="o", capsize=2, label=r"random generator in the $\rho$-set")
-        x, y, e = series("rho_worst_e", [0.1, 0.3, 0.5])
-        ax.errorbar(x, y, yerr=e, color="red", marker="s", capsize=2, label=r"smallest energy lowering in the $\rho$-set")
-        x, y, e = series("tau_random", [0.05, 0.1, 0.2, 0.3, 0.5])
-        ax.errorbar(x, y, yerr=e, color="black", marker="^", capsize=2, label=r"random generator in the $\tau$-set")
+        ax.axhspan(0.97, 1.03, color="0.88", zorder=0)
+        ax.axhline(1.0, color="0.55", lw=0.7, zorder=1)
         g = val(t, system, "onep_greedy", col)
         if np.isfinite(g):
-            ax.axhline(g, color="magenta", ls="--", lw=1.5, label="largest one-parameter lowering")
-        ax.axhline(1.0, color="0.6", lw=0.8, ls=":")
-        ax.set_title(titles[system], fontsize=9)
+            ax.axhline(g, color=PINK, ls="--", lw=1.4, zorder=2)
+        x, y, e = series("tau_random", [0.05, 0.1, 0.2, 0.3, 0.5])
+        ax.errorbar(x, y, yerr=e, color=GREEN, marker="^", ms=5, capsize=1.5, elinewidth=0.8, zorder=3)
+        x, y, e = series("rho_worst_e", [0.1, 0.3, 0.5])
+        ax.errorbar(x, y, yerr=e, color=VERMILION, marker="s", ms=4.5, capsize=1.5, elinewidth=0.8, ls="none" if window else "-", zorder=4)
+        x, y, e = series("rho_random", [0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1])
+        ax.errorbar(x, y, yerr=e, color=BLUE, marker="o", ms=4.5, capsize=1.5, elinewidth=0.8, zorder=5)
+        if not window:  # largest tolerance of the rho-set draw with iterations within 3% of exact ADAPT
+            grid_x, star, good = [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9], None, True
+            for xv in grid_x:
+                v = val(t, system, f"rho_random:{xv:g}", "steps_ratio")
+                if v <= 1.03 and good:
+                    star = xv
+                else:
+                    good = False
+            if star is not None:
+                ax.axvline(star, color=BLUE, lw=0.8, ls=(0, (2, 2)), zorder=1)
+                ax.text(star + (-0.03 if star > 0.6 else 0.03), (0.9 if star > 0.6 else 0.045), rf"$\rho^\ast={star:g}$", color=BLUE, fontsize=7.5, transform=ax.get_xaxis_transform(), va="top" if star > 0.6 else "bottom",
+                        ha="right" if star > 0.6 else "left")
+            ax.set_yscale("log")
+            ax.set_ylim(0.75, 4.0)
+            ax.yaxis.set_major_locator(FixedLocator([0.8, 1, 1.5, 2, 3]))
+            ax.yaxis.set_major_formatter(ScalarFormatter())
+            ax.yaxis.set_minor_formatter(NullFormatter())
+        else:
+            ax.set_ylim(0.82, 1.3)
+        ax.set_title(titles[system], fontsize=8.5, loc="left")
         ax.set_xlim(-0.04, 1.04)
         ax.set_xticks([0, 0.5, 1])
         ax.set_xticklabels(["0", "0.5", "1"])
         ax.tick_params(labelsize=8)
-    for ax in axes[1]:
-        ax.set_xlabel(r"tolerance $\rho$ or $\tau$")
-    axes[0, 0].set_ylabel("iterations / exact ADAPT")
-    axes[1, 0].set_ylabel("iterations / exact ADAPT")
-    axes[1, 2].set_ylabel("energy error at 40 iter.\n/ exact ADAPT", fontsize=8)
-    handles, labels = axes[0, 2].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=2, frameon=False, fontsize=8)
-    fig.tight_layout(rect=(0, 0.11, 1, 1), w_pad=0.6)
-    FIG.mkdir(parents=True, exist_ok=True)
+    for system in ("BeH2", "H2O eq", "H2O str") + tuple(WINDOWS):
+        axes[system].set_xlabel(r"tolerance $\rho$ or $\tau$")
+    for system in ("H4 1.0", "BeH2"):
+        axes[system].set_ylabel("iterations / exact ADAPT")
+    axes[WINDOWS[0]].set_ylabel("energy error at 40 iterations\n/ exact ADAPT", fontsize=8)
+    for system in ("H4 2.0", "LiH 3.0", "H2O eq", "H2O str"):
+        axes[system].tick_params(labelleft=True)
+    key = fig.add_subplot(grid[2, 2])
+    key.axis("off")
+    entries = [Line2D([], [], color=BLUE, marker="o", label=r"random in the $\rho$-set"),
+               Line2D([], [], color=VERMILION, marker="s", label=r"smallest $\Delta E$ in the $\rho$-set"),
+               Line2D([], [], color=GREEN, marker="^", label=r"random in the $\tau$-set"),
+               Line2D([], [], color=PINK, ls="--", label="largest one-parameter\nlowering"),
+               Line2D([], [], color="0.55", lw=3, alpha=0.5, label="within 3% of\nexact ADAPT")]
+    key.legend(handles=entries, loc="center left", frameon=False, fontsize=7.8, handlelength=2.0, borderaxespad=0, labelspacing=0.7)
     fig.savefig(FIG / "fig_dose.pdf")
     fig.savefig(FIG / "fig_dose.png", dpi=200)
     plt.close(fig)
@@ -400,9 +434,83 @@ def other_facts() -> None:
                   round(float(r["top_g_share_mean"]), 2)])
 
 
+def share_premium_figure() -> None:
+    """Figure of the cost shares: selection share against the optimizer threshold (Table 5), premium of certification in selection
+    shots and in total shots (Table 6), in one row of three panels."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.ticker import FixedLocator, NullFormatter, ScalarFormatter
+
+    plt.rcParams.update({"font.size": 8.5, "axes.linewidth": 0.8, "axes.spines.top": False, "axes.spines.right": False, "pdf.fonttype": 42})
+    colours = {"H4_square_eq_side1p0_HF": "#0072B2", "H4_square_stretch_side2p0_HF": "#56B4E9", "LiH_R1p6_HF": "#E69F00", "LiH_R3p0_HF": "#D55E00",
+               "H2O_eq_HF": "#009E73", "H2O_stretch_HF": "#CC79A7"}
+    names = {"H4_square_eq_side1p0_HF": "H$_4$ 1.0 Å", "H4_square_stretch_side2p0_HF": "H$_4$ 2.0 Å", "LiH_R1p6_HF": "LiH 1.6 Å", "LiH_R3p0_HF": "LiH 3.0 Å",
+             "H2O_eq_HF": "H$_2$O eq", "H2O_stretch_HF": "H$_2$O str"}
+    markers = {"H4_square_eq_side1p0_HF": "o", "H4_square_stretch_side2p0_HF": "o", "LiH_R1p6_HF": "s", "LiH_R3p0_HF": "s", "H2O_eq_HF": "^", "H2O_stretch_HF": "^"}
+    fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.9), gridspec_kw={"wspace": 0.42, "left": 0.1, "right": 0.985, "bottom": 0.2, "top": 0.88})
+    ax = axes[0]
+    x = [0, 1, 2]  # 1e-9, 1e-5, 1e-3
+    for case, pct in FIGDATA["share"].items():
+        ax.plot(x, pct, color=colours[case], marker=markers[case], ms=4.5)
+        ax.text(2.12, pct[2] * {"H2O_stretch_HF": 0.78, "LiH_R3p0_HF": 1.2}.get(case, 1.0), names[case], color=colours[case], fontsize=7.2, va="center")
+    ax.set_yscale("log")
+    ax.set_ylim(0.03, 30)
+    ax.yaxis.set_major_locator(FixedLocator([0.1, 1, 10]))
+    ax.yaxis.set_major_formatter(ScalarFormatter())
+    ax.yaxis.set_minor_formatter(NullFormatter())
+    ax.set_xticks(x)
+    ax.set_xticklabels([r"$10^{-9}$", r"$10^{-5}$", r"$10^{-3}$"])
+    ax.set_xlim(-0.2, 3.0)
+    ax.set_xlabel(r"optimizer threshold $\epsilon_{\mathrm{opt}}$")
+    ax.set_ylabel("selection / total cost (%)")
+    ax.set_title("(a) share of the selection", fontsize=8.5, loc="left")
+    rows = FIGDATA["premium"]
+    order = [r[0] for r in rows][::-1]
+    ypos = {c: i for i, c in enumerate(order)}
+    ax = axes[1]
+    for case, sel, totals, it in rows:
+        ax.plot([sel], [ypos[case]], color=colours[case], marker=markers[case], ms=6, ls="none")
+    ax.axvline(1, color="0.5", lw=0.8)
+    ax.set_xscale("log")
+    ax.set_xlim(0.25, 12)
+    ax.xaxis.set_major_locator(FixedLocator([0.3, 1, 3, 10]))
+    ax.xaxis.set_major_formatter(ScalarFormatter())
+    ax.xaxis.set_minor_formatter(NullFormatter())
+    ax.set_yticks(range(len(order)))
+    ax.set_yticklabels([names[c] for c in order])
+    ax.set_xlabel("certified / fixed budget")
+    ax.set_title("(b) selection shots", fontsize=8.5, loc="left")
+    ax.text(0.93, len(order) - 0.5, "certified cheaper", fontsize=7, color="0.35", ha="right")
+    ax.text(1.08, len(order) - 0.5, "fixed cheaper", fontsize=7, color="0.35", ha="left")
+    ax = axes[2]
+    offsets = {"9": -0.22, "5": 0.0, "3": 0.22}
+    shade = {"9": 0.75, "5": 0.45, "3": 0.0}
+    for case, sel, totals, it in rows:
+        for k in "953":
+            r, lo, hi = totals[k]
+            ax.errorbar([r], [ypos[case] + offsets[k]], xerr=[[r - lo], [hi - r]], color=colours[case], alpha=1 - 0.55 * shade[k], marker=markers[case],
+                        ms=4.2, ls="none", elinewidth=1.0, capsize=1.5)
+    ax.axvline(1, color="0.5", lw=0.8)
+    ax.set_xlim(0.3, 1.35)
+    ax.set_yticks(range(len(order)))
+    ax.set_yticklabels([])
+    ax.set_xlabel("certified / fixed budget")
+    ax.set_title("(c) total shots, 95% interval", fontsize=8.5, loc="left")
+    ax.set_ylim(-0.6, len(order) - 0.2)
+    axes[1].set_ylim(-0.6, len(order) - 0.2)
+    FIG.mkdir(parents=True, exist_ok=True)
+    fig.savefig(FIG / "fig_share_premium.pdf")
+    fig.savefig(FIG / "fig_share_premium.png", dpi=200)
+    plt.close(fig)
+    print("wrote", FIG / "fig_share_premium.pdf")
+
+
 def main() -> None:
     cost_tables()
     premium_table()
+    share_premium_figure()
     confidence_table()
     policy_facts_and_figure()
     other_facts()

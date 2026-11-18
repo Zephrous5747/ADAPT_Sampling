@@ -76,3 +76,13 @@ def test_worst_energy_choice_is_not_better_than_random(system):
 def test_same_seed_same_trajectory(system):
     a, b = run(system, "rho_random:0.2", 5), run(system, "rho_random:0.2", 5)
     assert a["selected"] == b["selected"] and a["evals_total"] == b["evals_total"]
+
+
+def test_rho_zero_reproduces_exact_adapt(system, exact):
+    """With rho = 0 the injected-error driver may only choose among exactly tied generators, so it follows exact ADAPT: same number of iterations,
+    same energy error after every iteration (up to the optimizer tolerance), for every random stream."""
+    for seed in range(3):
+        r = run(system, "rho_random:0", seed)
+        assert r["iterations"] == len(exact) - 1
+        assert r["final_error"] == pytest.approx(exact[-1].error, abs=1e-7)
+        assert r["energy_errors"] == pytest.approx([s.error for s in exact], abs=1e-7)

@@ -100,8 +100,17 @@ HF_TRUTH_CONFIGS = ["II-0 estimated", "II-0 oracle", "II-A oracle", "II-A data",
                     "II-A data, no guard", "II-A flat nu=100"]
 
 
-def setup(case: str, strategy: str):
+def setup(case: str, strategy: str, grouping: str = "weight", rho: float = 0.0):
     problem = load_problem(case)
+    if grouping == "vaware_hf":  # covariance-aware insertion with Hartree-Fock covariances, rows at the tolerance rho (oracle study)
+        from paper_a_oracle_ceiling import apply_vaware_hf
+
+        n = apply_vaware_hf(problem, rho, strategy)
+        print(f"{case}: covariance-aware grouping, {n} groups", flush=True)
+    elif grouping != "weight":
+        from part1_bridge import apply_grouping
+
+        apply_grouping(problem, grouping)
     library = build_context_library(problem, strategy)
     oracle = OracleMoments(library, problem.evaluator.state)
     prior = OracleMoments(library, hartree_fock_state(problem.n_qubits, problem.metadata["n_electrons"]))

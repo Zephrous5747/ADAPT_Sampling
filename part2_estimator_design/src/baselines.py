@@ -322,6 +322,7 @@ class IndependentConfig:
     delta: float = 0.05
     rho: float = 0.0
     start: str = "bound"  # or "oracle": max_i |g_i|
+    start_scale: float = 1.0  # the a priori first radius times this factor
     min_shots: int = 50  # fewer shots in a group: use the Popoviciu bound
     anytime: bool = False
     grouping: str = "fc"  # of each arm's own fragments: fully commuting, or qubit-wise commuting (Huang and Izmaylov)
@@ -343,6 +344,7 @@ class IndependentConfig:
         extras = [f"rule={self.rule}"]
         extras += [f"rho={self.rho:g}"] if self.rho > 0 else []
         extras += [f"start={self.start}"] if self.start != "bound" else []
+        extras += [f"start_scale={self.start_scale:g}"] if self.start_scale != 1.0 else []
         extras += ["anytime"] if self.anytime else []
         extras += ["grouping=qwc"] if self.grouping == "qwc" else []
         extras += [f"confidence={self.confidence}"] if self.confidence != "bonferroni" else []
@@ -381,9 +383,10 @@ class IndependentBAI:
             radius = float(truth.max())
             floor = radius * 1e-3
         else:
-            radius = float(self.bound)
-            floor = radius * 1e-6
+            radius = float(self.bound) * cfg.start_scale
+            floor = float(self.bound) * 1e-6
         m = np.zeros(ctx.n_contexts, dtype=np.int64)
+        circuit_batches = contexts_max_round = 0
         s1 = np.zeros(ctx.n_contexts)
         s2 = np.zeros(ctx.n_contexts)
         estimates = np.zeros(self.n_arms)
@@ -412,6 +415,8 @@ class IndependentBAI:
 
             added = target - m
             grew = np.flatnonzero(added > 0)
+            circuit_batches += int(grew.size)
+            contexts_max_round = max(contexts_max_round, int(grew.size))
             for start in range(0, grew.size, CHUNK):
                 part = grew[start:start + CHUNK]
                 counts = rng.multinomial(added[part], ctx.distributions[part])
@@ -449,6 +454,8 @@ class IndependentBAI:
             "best_eliminated": bool(best_eliminated),
             "stopped_rho": bool(stopped),
             "contexts_used": int((m > 0).sum()),
+            "circuit_batches": circuit_batches,
+            "contexts_max_round": contexts_max_round,
             "cz_per_shot_mean": float((m * ctx.cz).sum() / max(m.sum(), 1)),
             **{f"{k}_seconds": round(v, 3) for k, v in seconds.items()},
         }

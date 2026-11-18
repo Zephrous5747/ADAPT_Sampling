@@ -14,154 +14,50 @@ from pathlib import Path
 # --- headings -----------------------------------------------------------------------------------------------------------------------
 
 HEADINGS = {
-    "Q1: Does sharing help? Alone, only by a factor of 1--3": "Sharing alone",
-    "Q2: Does elimination beat static estimation? Usually, but not at wide gaps": "Elimination alone",
-    "Q3: Do sharing and elimination compound? Yes, wherever the pool is large": "Sharing and elimination together",
-    "Q4: What does estimator design add? Learned splitting is the main gain": "Learned splitting",
-    "Q5: Does redesign during elimination help? It narrows the field earlier": "Redesign during elimination",
-    "Q8: How does the method compare with published baselines? Fewer shots than the strongest, which depends on the pool": "Published strategies at shot level",
-    "Q9: Do the savings survive an a priori start, a run-wide guarantee and uncertainty? Yes, once the minimum number of shots is raised": "A priori start, run-wide intervals and the minimum number of shots",
-    "Q6: Does the saving persist along a full ADAPT trajectory? Yes": "Selection along measured trajectories",
-    "Q10: What does certification cost? Selection shots on small systems, nothing in total": "Certified selection against a fixed budget",
 }
 
 # --- paragraphs that the main text now states, dropped or shortened ------------------------------------------------------------------
 
 PARAGRAPH_REPLACE = {
     # the headline paragraph of the main text; what it does not state stays
-    "\\paragraph{One setting without exact input.}": (
-        "\\paragraph{Details of the headline setting.} Below the minimum of 400 shots, II-0, II-A, M1 seq and the reuse baseline replace a "
-        "held-out covariance by its bound, and M2 replaces a sample standard deviation by the Popoviciu bound; the default of every method "
-        "is 50 shots. Table~\\ref{M-tab:minshots} covers the 17 states of Table~\\ref{tab:apriori} and four ADAPT snapshots of H$_4$. The larger "
-        "minimum raises the cost of II-0 by up to $2.0$ and, on LiH at 1.6~\\AA\\ after four iterations, repairs M2 as well "
-        "($7.3\\times10^{8}$ against $1.7\\times10^{8}$ shots, $97\\%$ against $100\\%$ correct). Under unequal rules, with II-0 and the "
-        "baselines at their default of 50 shots, II-A with 400 shots is dearer on seven early states of H$_4$ and LiH, by up to $1.8$ times "
-        "against II-0 and $1.6$ times against the reuse baseline. A minimum of 400 shots makes every method safe on every state tested and "
-        "keeps II-A the cheapest when all methods use it; its price falls on the early states, where a selection is cheap."),
-    "\\paragraph{Takeaway.} The gain comes from learning": "",
-    "\\paragraph{Takeaway.} Against the strongest published baseline": "",
-    "\\paragraph{In total shots.} The premium above counts": (
-        "\\paragraph{In total shots.} Table~\\ref{M-tab:premiumtotal} gives the totals. The adequate fixed budgets lengthen the trajectories "
-        "by $4\\%$ (H$_2$O) to $17\\%$ (LiH at 1.6~\\AA), which the premium in selection shots does not see. At the looser tolerances the extra "
-        "selection shots of the certified method eat part of the gain from the shorter trajectories, because the selection is a larger share of "
-        "the total, on LiH at 1.6~\\AA\\ all of it (at most $+2\\%$, inside the interval). The intervals of the ratios are $\\pm8$--$40\\%$ at "
-        "$10^{-9}$, because of the path noise of the tight threshold (Table~\\ref{tab:find_gtol_paths}), and about $\\pm2$--$12\\%$ at $10^{-5}$ "
-        "and $10^{-3}$. The uncertified pilot budgets of the "
-        "confidence-level runs (12 runs per budget) behave in the same way: those that reach chemical accuracy in every run cost $1.2$ to "
-        "$1.6$ times the total of II-A at all three thresholds, and those that miss it in one run of twelve cost $1.4$ to $3.0$ times."),
-    "Two things limit what this comparison shows.": (
-        "\\paragraph{Selections within the tolerance.} At the adequate budgets, $83$--$84\\%$ of the fixed-budget selections were within "
-        "$\\rho=0.1$ of the best generator on H$_4$ at 1.0~\\AA, $90$--$92\\%$ at 2.0~\\AA, $76$--$84\\%$ on LiH at 1.6~\\AA, $87$--$89\\%$ "
-        "at 3.0~\\AA\\ and $88$--$95\\%$ on H$_2$O, against at least $98.7\\%$ for the certified II-0 and II-A."),
+    # moved to the evidence block C1 (si_parts/b3_baselines.tex)
 }
 
 # --- exact replacements -------------------------------------------------------------------------------------------------------------
 
 REPLACE = [
     # sharing alone
-    ("Sharing helps, but alone it is a modest saving (Table~\\ref{tab:q1}). Each product of $\\mathcal B_0$ enters about four gradients, and one "
-     "global grouping needs 3.5 to 6.1 times fewer distinct measurement settings than grouping every gradient separately. Measured against the "
-     "no-sharing baseline, however, the shared grouping lowers the planning cost by only $2.2$--$3.4$ on H$_4$, $1.9$ on LiH and $1.1$--$1.2$ "
-     "on H$_2$O, even when M1 is handed the exact gap. The diagonalizing",
-     "Table~\\ref{M-tab:systems} of the main text gives the structure behind the planning bounds. Sharing alone lowers the planning cost by "
-     "$2.2$--$3.4$ on H$_4$, $1.9$ on LiH and $1.1$--$1.2$ on H$_2$O, and one global grouping needs 3.5 to 6.1 times fewer distinct "
-     "measurement settings than grouping every gradient separately. The diagonalizing"),
-    ("this overlap is what the designs of Q4 exploit", "this overlap is what the learned designs exploit"),
     # elimination alone
-    ("In most systems BAI dominates grouping (Table~\\ref{tab:q23}). Elimination alone lowers the no-sharing cost by a factor of $1.3$ to $253$, "
-     "against $1.1$ to $3.4$ for sharing alone, and M2 beats M1 on seven of the nine states, by a factor of up to $222$ on stretched H$_2$O, "
-     "where M1 must resolve high-variance generators with vanishing gradients. M2 loses on the two H$_4$ CISD states. There the gap is wide "
-     "relative to the spread of the field, so elimination saves only a factor of $1.3$--$2.1$ while sharing saves $2.2$--$3.1$.",
-     "Table~\\ref{tab:q23} gives the absolute costs behind Table~\\ref{M-tab:planning}. M2 loses to M1 on the two H$_4$ CISD states because "
-     "the gap is wide relative to the spread of the field: elimination saves only a factor of $1.3$--$2.1$ there, while sharing saves "
-     "$2.2$--$3.1$."),
-    ("This is why the two are combined in Q3.", "This is why the two are combined."),
     # together
-    ("M3 is the cheapest of the three on every state when it eliminates on its actual precision (Table~\\ref{tab:q23}): $1.2$ to $265$ times "
-     "cheaper than M1 and $1.19$ to $3.42$ times cheaper than M2. On LiH and H$_2$O the two mechanisms compound (interaction $1.05$--$1.79$). "
-     "The shared allocation is sized by expensive losers, so it resolves the leader to $0.48$--$0.79$ of its target, and elimination then "
-     "fires earlier. On H$_4$ the leader binds and the two mechanisms substitute ($0.55$--$0.95$). The ordering",
-     "The ordering"),
-    (" These ratios are planning bounds against the static M1 and the independent M2 with exact variances. The comparison that matters, run "
-     "from sampled outcomes, is with the sequential M1, which uses the covariance of the shared estimates, and with independent BAI (Q8): "
-     "shared elimination with fixed estimators is $1.3$--$28$ times cheaper than the sequential M1 and $1.2$--$4.3$ times cheaper than "
-     "independent BAI on the nine fixed states, and the static M1 costs $1.1$--$5.8$ times the sequential one ($7.2$--$16$ along the "
-     "trajectories), so the factors above against static M1 overstate the gain over the best published strategy.",
-     " Against the sequential M1 and independent BAI, run from sampled outcomes (Sec.~\\ref{sec:si4}), the static M1 costs $1.1$--$5.8$ "
-     "times the sequential one on the fixed states and $7.2$--$16$ along the trajectories."),
     # learning
-    ("so Q4 measures what estimator design gains when the radii start right; Q9 repeats the comparison without exact input "
-     "(Table~\\ref{tab:minshots}).",
-     "so this subsection measures what estimator design gains when the radii start right; Sec.~\\ref{sec:q9} repeats the comparison without "
-     "exact input (Table~\\ref{M-tab:minshots})."),
-    ("$^d$From the 200-trial baseline study of Q8:", "$^d$From the 200-trial baseline study of Sec.~\\ref{sec:q8}:"),
     # baselines
-    ("Q1--Q7 compared the method with reference strategies that we defined. Q8 asks whether the saving survives against the strategies of the "
-     "published work, so that the answer does not depend on our choice of reference. Every baseline",
-     "Every baseline"),
-    (" If a published strategy were cheaper on some state, the saving of Q1--Q7 would be an artifact of our references; if the strongest "
-     "baseline changed with the state, the value of sharing and of elimination would depend on it. The systems are those of Q1--Q7 and the "
-     "stretched and ADAPT states of H$_2$O, which have the largest UCCSD pool, and the pools of the ADAPT literature test whether the saving "
-     "depends on the structure of the UCCSD gradients.",
-     " The systems are those of the planning and learning studies (Secs.~\\ref{sec:si2} and~\\ref{sec:si3}) and the stretched and ADAPT "
-     "states of H$_2$O, which have the largest UCCSD pool; the pools of the ADAPT literature test whether the saving depends on the "
-     "structure of the UCCSD gradients."),
-    ("against $4.137\\times10^{7}$ and $5.637\\times10^{9}$ in Q7.", "against $4.137\\times10^{7}$ and $5.637\\times10^{9}$ in the study of the total cost (Sec.~\\ref{sec:cost})."),
-    (" On the first four states sharing is worth more than elimination (II-0 against independent BAI: $2.4$ to $4.3$ times; against the "
-     "sequential M1: $1.3$ to $2.7$ times), and on the other five elimination is worth more ($4.6$ to $27.8$ times against $1.2$ to $1.8$). "
-     "This is the balance seen with exact variances in Q2: sharing wins",
-     " On the first four states sharing is worth more than elimination and on the other five elimination is worth more. This is the balance "
-     "seen with exact variances (Sec.~\\ref{sec:si2}): sharing wins"),
-    ("(the plug-in-sign failure of Q3)", "(the plug-in-sign failure of Table~\\ref{tab:sign})"),
-    ("fails when they are wrong (Q3).", "fails when they are wrong (Table~\\ref{tab:sign})."),
-    ("except one LiH trajectory per learned method (Q6), and all", "except one LiH trajectory per learned method (Sec.~\\ref{sec:si5}), and all"),
-    (" This is the side of the balance that the states of small gradient take above, and it is consistent with Q6, where the cost "
-     "concentrates at tied and small-gap steps. Independent BAI costs $1.1$ to $1.4$ times II-0, whereas the sequential M1 costs $3.2$, $2.4$ "
-     "and $4.1$ times II-0 on H$_4$ (two geometries) and LiH and $10.1$ to $10.3$ times on H$_2$O, and the static M1 $17$ to $68$ times on "
-     "H$_4$ and LiH (Q7) and $98$ and $121$ times on H$_2$O.",
-     " This is the side of the balance that the states of small gradient take above, and it is consistent with the selection along "
-     "trajectories (Sec.~\\ref{sec:si5}), where the cost concentrates at tied and small-gap iterations. The sequential M1 costs $10.1$ to "
-     "$10.3$ times II-0 on H$_2$O."),
     # minimum
-    ("Q1--Q8 start every selection from the exact largest gradient (to set the first radius) and use intervals that hold for each round, and "
-     "the comparisons of Q4 and Q8 use the pairwise elimination rule.",
-     "The studies above start every selection from the exact largest gradient (to set the first radius) and use intervals that hold for "
-     "each round, and the comparisons of Secs.~\\ref{sec:si3} and~\\ref{sec:si4} use the pairwise elimination rule."),
-    (" The last paragraph fixes one setting without exact input for the headline comparison.", ""),
-    ("(the nine of Q4 and Q8 and four ADAPT snapshots of H$_4$)", "(the nine of Secs.~\\ref{sec:si3} and~\\ref{sec:si4} and four ADAPT snapshots of H$_4$)"),
-    (" The last paragraph repeats every state of the table, and four ADAPT snapshots of H$_4$, with a minimum of 400 shots for every method.",
-     " Table~\\ref{M-tab:minshots} repeats every state of the table, and four ADAPT snapshots of H$_4$, with a minimum of 400 shots for every method."),
-    ("The per-round intervals of Q1--Q8 hold", "The per-round intervals of the studies above hold"),
-    ("so the range of Q8 holds on a second", "so the range of Sec.~\\ref{sec:si4} holds on a second"),
-    ("On the late states the minimum matters in the opposite direction (Q9): there", "On the late states the minimum matters in the opposite direction (Sec.~\\ref{sec:q9}): there"),
     # trajectories and certification
-    ("Yes. On H$_4$ the learned designs", "On H$_4$ the learned designs"),
-    ("this rise is the path noise of the tight threshold (Q12), not a property", "this rise is the path noise of the tight threshold (Table~\\ref{tab:find_gtol_paths}), not a property"),
-    ("Q7 used the model of the optimization cost of Sec.~\\ref{sec:resources}. We replaced it", "The main text uses the model of the optimization cost of Sec.~\\ref{M-sec:resources}. We replaced it"),
-    ("and the conclusion of Q7, that optimization", "and the conclusion of the main text, that optimization"),
-    ("Relative to the cheaper model of the looser thresholds of Q7 the gap is larger still.", "Relative to the cheaper model of the looser thresholds of the main text the gap is larger still."),
-    ("at $95\\%$ the 36 trajectories of Q8)", "at $95\\%$ the 36 trajectories of Table~\\ref{tab:q8traj})"),
     # paragraphs of the old Discussion
     ("(over the nine fixed states of Q8)", "(over the nine fixed states of Sec.~\\ref{sec:si4})"),
-    ("one look per round (Q3), not a run-wide guarantee", "one look per round (Sec.~\\ref{sec:si2}), not a run-wide guarantee"),
-    ("is what we measured in Q3, so", "is what we measured in Sec.~\\ref{sec:si2}, so"),
-    ("the last exact input (Q3), is not tested", "the last exact input, is not tested"),
-    ("The totals of Q7 and Q10 do not include it", "The totals of the main text do not include it"),
-    ("of the total (Q7). Hessian recycling", "of the total (Sec.~\\ref{sec:rq_total}). Hessian recycling"),
-    ("reached reliably (Q12).", "reached reliably (Table~\\ref{tab:sampledopt})."),
-    ("the adequate uncertified budgets of Q10 add", "the adequate uncertified budgets of Sec.~\\ref{sec:q10} add"),
-    ("the safer currency (Q11)", "the safer currency (Sec.~\\ref{sec:rq_traj})"),
-    ("the covariance prior of Q4 fails alone", "the covariance prior of Sec.~\\ref{sec:si3} fails alone"),
     # the scaling table is Table 1 of the main text
+    # round-1 review: one source for each number, and the cases that the text did not state
 ]
 
 # --- floats -------------------------------------------------------------------------------------------------------------------------
 
-DROP_FLOATS = {"tab:scaling", "tab:q1"}  # the structure of the systems is Table 1 of the main text
+# floats that are not in the SI: the structure of the systems is Table 1 of the main text; the others (Tier A of reports/si_trim_plan.md) carry no number
+# that the main text uses, and every one of them is regenerated by its script into reports/generated (listed in the script map of Sec. S7.3)
+DROP_FLOATS = {"tab:scaling", "tab:q1", "tab:q3", "tab:q6", "fig:trajectory", "fig:cost", "fig:cost_1e-5", "fig:fixedbudget", "tab:find_rho_evals",
+               "tab:apriori", "tab:headlineci",
+               # SI rebuild: merged into tab:learned_all (q4learned, q4more) and into tab:baselines (q8fixed)
+               "tab:q4learned", "tab:q4more", "tab:q8fixed", "tab:anytime", "tab:thresholds", "tab:q8eps",
+               # merged into tab:conf_all (block D5)
+               "tab:confidence"}
+
+# wording after the floats above are gone (applied last, on the final text; every entry must match once)
+LATE_REPLACE = [
+]
 
 # tables that the SI takes from a generator (scripts/paper_a_si_tables.py) instead of the numbers typed into the old draft
 GENERATED = {"tab:q23": "si_planning_costs", "tab:q3": "si_surrogate", "tab:sign": "si_sign", "tab:q4oracle": "si_ceilings",
-             "tab:q4learned": "si_learned_fixed", "tab:q4more": "si_learned_states", "tab:q5": "si_rounds", "tab:q6": "si_trajectory"}
+             "tab:q4learned": "si_learned_fixed", "tab:q4more": "si_learned_states", "tab:q5": "si_rounds", "tab:q6": "si_trajectory",
+             "tab:q7": ["tab_q7_cost", "tab_q7_baselines"], "tab:premiumtotal": "tab_premium_total", "tab:window": "tab_window"}
 GENERATED_DIR = Path(__file__).resolve().parents[2] / "reports" / "generated"
 
 CAPTIONS = {
@@ -305,13 +201,31 @@ CAPTIONS = {
                   "energies are measured with the fully commuting groups of $\\hat H$. Columns 4--5: every energy to 1~mHa. Columns 6--8: "
                   "every energy to the precision that resolves the energy lowerings $g^2/2h$ of the two best candidates ($h=1$~Ha assumed). "
                   "Ratios are to the mean cost of II-A."),
-    "tab:window": ("Fixed states of the 16-qubit cc-pVDZ window of H$_2$O.",
-                   "8 orbitals; a priori start, sign-aware rule, $\\rho=0.1$, $\\delta=0.05$; mean context-shots over the trials. Ratio: mean "
-                   "shots over those of II-A. Within $\\rho$: share of trials whose selection is within $\\rho$ of the best generator; exactly: "
-                   "share that selected the best."),
+    "tab:q7": ("Selection and modeled optimization of complete ADAPT runs at three optimizer thresholds.",
+               "Learned estimators at $1-\\delta=95\\%$, measured trajectories, STO-3G, UCCSD pool, $\\rho=0.1$; medians over the runs. $C_{\\mathrm{sel}}$: "
+               "context-shots of the selections; $C_{\\mathrm{opt}}$: modeled cost of the reoptimization ($\\eta=2$, Sec.~\\ref{M-sec:resources}) at the optimizer "
+               "threshold $\\epsilon_{\\mathrm{opt}}$ of the header; at $10^{-5}$ and $10^{-3}$ the recorded runs are replayed (Sec.~\\ref{M-sec:vqeopt}). "
+               "$C_{\\mathrm{sel}}/C_{\\mathrm{ADAPT}}$: share of the selection in the total, plotted in Fig.~\\ref{M-fig:sharepremium}a. Lower table: the other "
+               "certified methods on H$_2$O, their share of the selection and their total cost relative to II-A at the same threshold (36 runs per method)."),
+    "tab:premiumtotal": ("Premium of certification in selection shots and in total shots.",
+                         "Certified learned estimators ($1-\\delta=95\\%$, $\\rho=0.1$) over the cheapest adequate fixed budget (designed allocation: at least $95\\%$ of the "
+                         "trajectories reach chemical accuracy within one iteration of exact ADAPT), along complete ADAPT trajectories; plotted in Fig.~\\ref{M-fig:sharepremium}b, c. "
+                         "Budget: context-shots per selection of that fixed budget. Selection: ratio of the median selection shots. Total: selection plus modeled optimization "
+                         "($\\eta=2$), ratio of medians with the 95\\% bootstrap interval in brackets, at three optimizer thresholds (replays of the recorded runs at $10^{-5}$ and "
+                         "$10^{-3}$). Iterations: mean numbers of iterations of the fixed and of the certified runs; iterations only: their ratio, the part of the premium due to the "
+                         "longer trajectories alone. Runs (fixed / certified): 36 / 36 (H$_2$O), 96 / 48 (H$_4$), 90 / 30 (LiH at 1.6~\\AA), 60 / 60 (LiH at 3.0~\\AA)."),
+    "tab:window": ("Fixed states of the CAS(8e,8o) active space of H$_2$O in cc-pVDZ at the minimum of 400 and of 50 shots.",
+                   "16 qubits; a priori start, sign-aware rule, $\\rho=0.1$, $\\delta=0.05$; mean context-shots over 16 trials, the same random streams at both minimums. "
+                   "Ratio: mean shots over those of II-A at the same minimum. Within $\\rho$: share of trials whose selection is within $\\rho$ of the best generator; "
+                   "best: share that selected the best (not the criterion at $\\rho=0.1$ on a near-tie). Missed rounds: mean number per trial of rounds in which some interval missed its exact value. "
+                   "400 over 50: the ratio of the mean shots of the method at the two minimums."),
 }
 
 FLOAT = re.compile(r"\\begin\{(table\*?|figure\*?)\}.*?\\end\{\1\}\n?", re.S)
+
+
+# the sections S2 to S4 of the old structure were replaced by the evidence blocks A to C; the copied text that is still in the SI refers to them by the old labels
+OLD_SECTION_LABELS = {"sec:si2": "sec:ev_planning", "sec:si3": "sec:ev_learned", "sec:si4": "sec:ev_baselines"}
 
 
 def _balanced(text: str, start: int) -> int:
@@ -333,8 +247,17 @@ def _restyle(m: re.Match) -> str:
         return block
     title, note = CAPTIONS[name]
     if name in GENERATED:
-        body = (GENERATED_DIR / f"{GENERATED[name]}.tex").read_text(encoding="utf-8").replace("\r\n", "\n")
-        block = re.sub(r"\\begin\{tabular\}.*?\\end\{tabular\}", lambda _: f"% BEGIN INLINE {GENERATED[name]}\n{body}% END INLINE {GENERATED[name]}\n", block, count=1, flags=re.S)
+        names = iter(GENERATED[name] if isinstance(GENERATED[name], list) else [GENERATED[name]])
+
+        def inline(_m: re.Match) -> str:
+            g = next(names)
+            body = (GENERATED_DIR / f"{g}.tex").read_text(encoding="utf-8").replace("\r\n", "\n")
+            return f"% BEGIN INLINE {g}\n{body}% END INLINE {g}\n"
+
+        block = re.sub(r"\\begin\{tabular\}.*?\\end\{tabular\}", inline, block, count=len(GENERATED[name]) if isinstance(GENERATED[name], list) else 1, flags=re.S)
+        # a float whose source already carried the markers must not get a second pair
+        block = re.sub(r"(% BEGIN INLINE (\w+)\n)\1", r"\1", block)
+        block = re.sub(r"(% END INLINE (\w+)\n)\n*\1", r"\1", block)
     i = block.index("\\caption{") + len("\\caption{")
     block = block[: i] + title + block[_balanced(block, i) - 1:]
     end = block.rindex("\\end{" + m.group(1) + "}")
@@ -365,23 +288,72 @@ def iterations(text: str) -> str:
     return "\n".join(body)
 
 
-def apply(text: str) -> str:
+# --- notation: the cc-pVDZ "windows" of H2O are the active spaces CAS(8e,8o) (and CAS(8e,11o) for the 22-qubit structure case) -------------
+
+_NOT_IDENTIFIER = r"(?<![\w:\\])"  # a label, a file name or a macro that contains the word is left alone
+ACTIVE_SPACE_RULES = [
+    (r"eleven-orbital, 22-qubit window of H\$_2\$O in cc-pVDZ", r"CAS(8e,11o) active space of H$_2$O in cc-pVDZ (22 qubits)"),
+    (r"16-qubit cc-pVDZ windows of H\$_2\$O", r"CAS(8e,8o) active spaces of H$_2$O in cc-pVDZ"),
+    (r"16-qubit cc-pVDZ window of H\$_2\$O", r"CAS(8e,8o) active space of H$_2$O in cc-pVDZ"),
+    (r"16-qubit window of H\$_2\$O in the cc-pVDZ basis", r"CAS(8e,8o) active space of H$_2$O in the cc-pVDZ basis (16 qubits)"),
+    (r"cc-pVDZ window of H\$_2\$O", r"CAS(8e,8o) active space of H$_2$O in cc-pVDZ"),
+    (r"16-qubit equilibrium window", r"equilibrium CAS(8e,8o) active space"),
+    (r"22-qubit window", r"CAS(8e,11o) active space"),
+    (r"16-qubit window", r"CAS(8e,8o) active space"),
+    (r"H\$_2\$O,? cc-pVDZ window", r"H$_2$O CAS(8e,8o)"),
+    (r"cc-pVDZ windows", r"CAS(8e,8o) active spaces"),
+    (r"cc-pVDZ window", r"CAS(8e,8o) active space"),
+    (r"the window orbitals", r"the active orbitals"),
+    (r"\(windows 48\)", r"(CAS(8e,8o) 48)"),
+    (r"Window, fixed states", r"CAS(8e,8o), fixed states"),
+    (r"Windows of H\$_2\$O", r"Active spaces of H$_2$O"),
+    (_NOT_IDENTIFIER + r"\ba window(?![\w:])", r"an active space"),
+    (r"16-qubit CAS\(8e,8o\)", r"CAS(8e,8o)"),
+    (_NOT_IDENTIFIER + r"windows(?![\w:])", r"active spaces"),
+    (_NOT_IDENTIFIER + r"window(?![\w:])", r"active space"),
+]
+
+
+def active_space(text: str) -> str:
+    for pattern, new in ACTIVE_SPACE_RULES:
+        text = re.sub(pattern, lambda _m, new=new: new, text)
+    return re.sub(r"\ban (CAS\()", r"a \1", text)
+
+
+def apply(text: str, problems: list | None = None) -> str:
+    """Clean the copied text.  Every rule must match exactly once; the mismatches are collected and reported together (or returned in ``problems``)."""
+    found: list = [] if problems is None else problems
     for old, new in HEADINGS.items():
-        assert text.count("\\subsection{" + old + "}") == 1, f"heading not found: {old[:50]}"
+        if text.count("\\subsection{" + old + "}") != 1:
+            found.append(("HEADINGS", old[:70]))
+            continue
         text = text.replace("\\subsection{" + old + "}", "\\subsection{" + new + "}")
     for start, new in PARAGRAPH_REPLACE.items():
-        i = text.index(start) if text.count(start) == 1 else -1
-        assert i >= 0, f"paragraph not found once: {start[:50]}"
+        if text.count(start) != 1:
+            found.append(("PARAGRAPH_REPLACE", start[:70]))
+            continue
+        i = text.index(start)
         j = text.index("\n\n", i)
         text = text[:i] + new + text[j:]
         if not new:
             text = text[:i].rstrip("\n") + "\n" + text[i:].lstrip("\n")
-    for old, new in REPLACE:
-        assert text.count(old) == 1, (text.count(old), old[:70])
+    for k, (old, new) in enumerate(REPLACE):
+        if text.count(old) != 1:
+            found.append(("REPLACE", k, text.count(old), old[:70]))
+            continue
         text = text.replace(old, new)
     text = iterations(text)
     for gone in ("tab:scaling", "tab:q1"):
-        assert "\\ref{%s}" % gone in text, gone
         text = text.replace("\\ref{%s}" % gone, "\\ref{M-tab:systems}")  # the structure table is Table 1 of the main text
     text = FLOAT.sub(_restyle, text)
+    text = re.sub(r"% BEGIN INLINE (\w+)\n\s*% END INLINE \1\n", "", text)  # the blocks of the floats that were dropped
+    text = active_space(re.sub(r"\bdear\b", "expensive", re.sub(r"\bdearer\b", "more expensive", text)))
+    text = re.sub(r"\\ref\{(sec:si[234])\}", lambda m: "\\ref{%s}" % OLD_SECTION_LABELS[m.group(1)], text)
+    for k, (old, new) in enumerate(LATE_REPLACE):
+        if text.count(old) != 1:
+            found.append(("LATE_REPLACE", k, text.count(old), old[:70]))
+            continue
+        text = text.replace(old, new)
+    if problems is None and found:
+        raise AssertionError("cleaning rules that do not match exactly once:\n" + "\n".join(map(str, found)))
     return text

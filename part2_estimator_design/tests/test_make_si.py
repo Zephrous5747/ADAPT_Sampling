@@ -8,6 +8,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import paper_a_make_si as si  # noqa: E402
 import paper_a_si_refs as refs  # noqa: E402
+import paper_a_si_numbers as numbers  # noqa: E402
 
 pytestmark = pytest.mark.skipif(
     not (si.DRAFT.exists() and si.FULL.exists() and si.FINDINGS.exists()), reason="reports/ is not part of this checkout"
@@ -77,3 +78,35 @@ def test_no_paragraph_column_in_a_float():
 
 def test_generation_is_deterministic():
     assert si.build()[0] == si.build()[0]
+
+
+def test_every_si_float_is_cited_from_the_main_text_or_named_in_the_claim_ledger():
+    out, src, si_set, draft_labels = si.build()
+    ledger = si.read(si.REPORTS / "si_parts" / "b0_ledger.tex")
+    named = set(re.findall(r"\\ref\{((?:tab|fig):[^}]*)\}", ledger))
+    cited = set(refs.cited_labels(si.read(si.DRAFT)))
+    floats = {lab for lab in si_set if lab.startswith(("tab:", "fig:"))} - {"tab:ledger"}
+    assert not floats - named - cited, sorted(floats - named - cited)
+    assert not {lab for lab in named if lab not in floats | {"tab:ledger"} and lab not in draft_labels}, "the ledger names a table that no document defines"
+
+
+def test_the_generated_si_has_no_unresolved_float_placeholder():
+    out = si.build()[0]
+    assert not re.search(r"(?m)^%%FLOAT", out)
+
+
+@pytest.mark.skipif(not (si.REPORTS / "archive" / "supplement_v48_before_rebuild.tex").exists(), reason="the reference SI is not part of this checkout")
+def test_every_number_of_the_hand_written_evidence_blocks_has_a_source():
+    """The numbers of reports/si_parts/b*.tex occur in the SI before the rebuild, the main text, the archived draft or a generated table."""
+    assert numbers.main.__module__  # the script is importable
+    import io
+    import contextlib
+
+    buf = io.StringIO()
+    argv, sys.argv = sys.argv, ["paper_a_si_numbers.py"]
+    try:
+        with contextlib.redirect_stdout(buf):
+            status = numbers.main()
+    finally:
+        sys.argv = argv
+    assert status == 0, buf.getvalue()

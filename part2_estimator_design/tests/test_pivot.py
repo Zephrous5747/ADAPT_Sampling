@@ -164,3 +164,65 @@ def test_static_pivot_split_costs_more_than_universal_grouping_on_uccsd(uccsd):
     merged = planned(merged_fragment_problems(problem, structure, library, oracle), library.n_contexts)
     assert split > 2.0 * base
     assert merged < split
+
+
+def _paper_anchored_set(n):
+    """Weight-4 qubit-pool strings iY_0 X_j X_k X_l of Anastasiou et al. (anchor qubit 0) that preserve the parity of the particle number and of S_z:
+    an even number of even qubits (alpha spin orbitals) and an even number of odd qubits (beta) among the four."""
+    import itertools
+
+    out = []
+    for j, k, l in itertools.combinations(range(1, n), 3):
+        q = (0, j, k, l)
+        if sum(i % 2 == 0 for i in q) % 2 == 0 and sum(i % 2 == 1 for i in q) % 2 == 0:
+            s = ["I"] * n
+            s[0] = "Y"
+            for i in (j, k, l):
+                s[i] = "X"
+            out.append("".join(s))
+    return out
+
+
+def _gf2_rank(strings):
+    rows = []
+    for s in strings:
+        x = [c in "XY" for c in s]
+        z = [c in "YZ" for c in s]
+        rows.append(np.array(x + z, dtype=np.uint8))
+    rank = 0
+    for col in range(len(rows[0])):
+        pivot = next((i for i in range(rank, len(rows)) if rows[i][col]), None)
+        if pivot is None:
+            continue
+        rows[rank], rows[pivot] = rows[pivot], rows[rank]
+        for i in range(len(rows)):
+            if i != rank and rows[i][col]:
+                rows[i] ^= rows[rank]
+        rank += 1
+    return rank
+
+
+def _pauli_product_label(a, b):
+    out = []
+    for p, q in zip(a, b):
+        x = (p in "XY") ^ (q in "XY")
+        z = (p in "YZ") ^ (q in "YZ")
+        out.append("IXZY"[int(x) + 2 * int(z)])
+    return "".join(out)
+
+
+def test_published_pivot_example_is_reproduced_by_an_independent_calculation():
+    """Anastasiou et al., Sec. III.B-C and Table I.  (i) The anchored set {iY_0 X_j X_k X_l} has 1, 19 and 85 elements on 4, 8 and 12 qubits (H2, H4, H6: the
+    numbers given in their Sec. III.E).  (ii) For the 8-qubit pivot P = Y_1 Z_2 Z_3 Z_4 Z_5 Z_6 Y_7 all 19 operators fail to commute with P, the 19 gradient
+    observables P S commute with each other, and they generate a group of 6 independent Pauli strings (5 X-type generators and one more, as in their Table I).
+    (iii) Our ``anchor_classes`` puts the whole set into one class.  The check covers the algebra of the construction, not the diagonalizing circuits (ours are
+    synthesized generically) and not their shot counts (these depend on the state, which the paper does not specify)."""
+    assert [len(_paper_anchored_set(n)) for n in (4, 8, 12)] == [1, 19, 85]
+    strings = _paper_anchored_set(8)
+    pivot = "IYZZZZZY"
+    assert all(not commute(s, pivot) for s in strings)
+    products = [_pauli_product_label(pivot, s) for s in strings]
+    assert all(commute(a, b) for a in products for b in products)
+    assert _gf2_rank(products) == 6
+    classes = anchor_classes(strings)
+    assert classes is not None and len(set(classes.values())) == 1
