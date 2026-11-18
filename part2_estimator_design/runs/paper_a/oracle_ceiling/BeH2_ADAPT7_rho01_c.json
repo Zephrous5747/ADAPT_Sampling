@@ -1,0 +1,18 @@
+[
+  {
+    "rho": 0.1,
+    "z": 3.667328284224087,
+    "n_rows": 370,
+    "leader": 143,
+    "designs": {
+      "family": {
+        "shots": 471056.05725145584,
+        "contexts": 7420,
+        "n_eff": 162.62061318714436,
+        "spread": null,
+        "seconds": 21375.4
+      }
+    },
+    "case_id": "BeH2_ADAPT7"
+  }
+]

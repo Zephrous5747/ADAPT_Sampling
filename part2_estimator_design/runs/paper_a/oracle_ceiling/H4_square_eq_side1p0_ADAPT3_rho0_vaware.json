@@ -1,0 +1,46 @@
+[
+  {
+    "rho": 0.0,
+    "z": 3.101861833740095,
+    "n_rows": 42,
+    "leader": 19,
+    "designs": {
+      "weight": {
+        "shots": 6094.879476148677,
+        "contexts": 53,
+        "n_eff": 12.211687723948364,
+        "spread": 24,
+        "seconds": 7.3
+      },
+      "family": {
+        "shots": 4895.230794817593,
+        "contexts": 124,
+        "n_eff": 9.361054617920846,
+        "spread": null,
+        "seconds": 43.1
+      },
+      "vaware": {
+        "shots": 9102.579301928969,
+        "contexts": 47,
+        "n_eff": 11.468303707815927,
+        "spread": 9,
+        "seconds": 4.4
+      },
+      "vaware_hf": {
+        "shots": 4187.277780385936,
+        "contexts": 124,
+        "n_eff": 12.351610775745234,
+        "spread": 13,
+        "seconds": 19.3
+      },
+      "weight+vaware": {
+        "shots": 4734.845589285082,
+        "contexts": 100,
+        "n_eff": 9.693681654928632,
+        "spread": null,
+        "seconds": 20.6
+      }
+    },
+    "case_id": "H4_square_eq_side1p0_ADAPT3"
+  }
+]

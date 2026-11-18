@@ -1,0 +1,19 @@
+[
+  {
+    "rho": 0.0,
+    "designs": {},
+    "case_id": "H4_square_eq_side1p0_ADAPT5",
+    "regroup": {
+      "rho": 0.0,
+      "late_arms": [
+        11,
+        22
+      ],
+      "stage1_shots": 5036.361704927596,
+      "stage2_added_same_contexts": 169419.74180693732,
+      "stage2_added_regrouped": 144459.73627161025,
+      "all_at_once_regrouped_family": 148060.7456800586,
+      "extra_contexts": 9
+    }
+  }
+]

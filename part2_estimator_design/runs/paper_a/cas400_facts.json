@@ -1,0 +1,228 @@
+{
+ "eq CISD": {
+  "IIA_400_over_50": [
+   13.511,
+   10.496,
+   16.981
+  ],
+  "II-0_over_IIA_at_50": [
+   47.408,
+   26.932,
+   70.363
+  ],
+  "M1 seq_over_IIA_at_50": [
+   336.592,
+   167.395,
+   534.806
+  ],
+  "M2_over_IIA_at_50": [
+   50.91,
+   34.398,
+   72.462
+  ],
+  "cheapest_other_at_50": "II-0",
+  "cheapest_other_over_IIA_at_50": [
+   47.408,
+   26.932,
+   70.363
+  ],
+  "II-0_over_IIA_at_400": [
+   5.392,
+   4.359,
+   6.772
+  ],
+  "M1 seq_over_IIA_at_400": [
+   48.368,
+   38.753,
+   60.758
+  ],
+  "M2_over_IIA_at_400": [
+   6.724,
+   5.569,
+   8.342
+  ],
+  "cheapest_other_at_400": "II-0",
+  "cheapest_other_over_IIA_at_400": [
+   5.392,
+   4.359,
+   6.772
+  ],
+  "cheapest_other_at_50_over_IIA_at_400": [
+   3.509,
+   1.985,
+   5.291
+  ]
+ },
+ "eq ADAPT10": {
+  "IIA_400_over_50": [
+   1.112,
+   0.929,
+   1.335
+  ],
+  "II-0_over_IIA_at_50": [
+   3.999,
+   3.315,
+   4.87
+  ],
+  "M1 seq_over_IIA_at_50": [
+   16.584,
+   13.157,
+   20.81
+  ],
+  "M2_over_IIA_at_50": [
+   4.839,
+   4.179,
+   5.711
+  ],
+  "cheapest_other_at_50": "II-0",
+  "cheapest_other_over_IIA_at_50": [
+   3.999,
+   3.315,
+   4.87
+  ],
+  "II-0_over_IIA_at_400": [
+   3.808,
+   3.1,
+   4.684
+  ],
+  "M1 seq_over_IIA_at_400": [
+   12.444,
+   10.002,
+   15.271
+  ],
+  "M2_over_IIA_at_400": [
+   4.086,
+   3.525,
+   4.817
+  ],
+  "cheapest_other_at_400": "II-0",
+  "cheapest_other_over_IIA_at_400": [
+   3.808,
+   3.1,
+   4.684
+  ],
+  "cheapest_other_at_50_over_IIA_at_400": [
+   3.595,
+   2.996,
+   4.303
+  ]
+ },
+ "str CISD": {
+  "IIA_400_over_50": [
+   1.579,
+   1.454,
+   1.735
+  ],
+  "II-0_over_IIA_at_50": [
+   4.232,
+   3.639,
+   4.909
+  ],
+  "M1 seq_over_IIA_at_50": [
+   31.505,
+   24.092,
+   39.648
+  ],
+  "M2_over_IIA_at_50": [
+   13.313,
+   11.371,
+   15.504
+  ],
+  "cheapest_other_at_50": "II-0",
+  "cheapest_other_over_IIA_at_50": [
+   4.232,
+   3.639,
+   4.909
+  ],
+  "II-0_over_IIA_at_400": [
+   3.294,
+   2.897,
+   3.697
+  ],
+  "M1 seq_over_IIA_at_400": [
+   24.222,
+   18.374,
+   30.915
+  ],
+  "M2_over_IIA_at_400": [
+   8.347,
+   7.516,
+   9.231
+  ],
+  "cheapest_other_at_400": "II-0",
+  "cheapest_other_over_IIA_at_400": [
+   3.294,
+   2.897,
+   3.697
+  ],
+  "cheapest_other_at_50_over_IIA_at_400": [
+   2.68,
+   2.327,
+   3.051
+  ]
+ },
+ "str ADAPT10": {
+  "IIA_400_over_50": [
+   1.187,
+   1.022,
+   1.355
+  ],
+  "II-0_over_IIA_at_50": [
+   4.477,
+   3.951,
+   5.042
+  ],
+  "M1 seq_over_IIA_at_50": [
+   21.621,
+   18.131,
+   25.377
+  ],
+  "M2_over_IIA_at_50": [
+   3.196,
+   2.859,
+   3.558
+  ],
+  "cheapest_other_at_50": "M2",
+  "cheapest_other_over_IIA_at_50": [
+   3.196,
+   2.859,
+   3.558
+  ],
+  "II-0_over_IIA_at_400": [
+   3.473,
+   2.774,
+   4.23
+  ],
+  "M1 seq_over_IIA_at_400": [
+   19.856,
+   16.4,
+   23.76
+  ],
+  "M2_over_IIA_at_400": [
+   2.817,
+   2.482,
+   3.239
+  ],
+  "cheapest_other_at_400": "M2",
+  "cheapest_other_over_IIA_at_400": [
+   2.817,
+   2.482,
+   3.239
+  ],
+  "cheapest_other_at_50_over_IIA_at_400": [
+   2.692,
+   2.354,
+   3.111
+  ]
+ },
+ "selection_share_of_next_iteration": {
+  "eq ADAPT10 gtol 1e-5 n_min 50": 0.0183,
+  "eq ADAPT10 gtol 1e-5 n_min 400": 0.0212,
+  "str ADAPT10 gtol 1e-5 n_min 50": 0.0224,
+  "str ADAPT10 gtol 1e-5 n_min 400": 0.0273,
+  "eq ADAPT10 gtol 1e-9 n_min 50": 0.0033,
+  "eq ADAPT10 gtol 1e-9 n_min 400": 0.0038,
+  "str ADAPT10 gtol 1e-9 n_min 50": 0.0165,
+  "str ADAPT10 gtol 1e-9 n_min 400": 0.0202
+ }
+}

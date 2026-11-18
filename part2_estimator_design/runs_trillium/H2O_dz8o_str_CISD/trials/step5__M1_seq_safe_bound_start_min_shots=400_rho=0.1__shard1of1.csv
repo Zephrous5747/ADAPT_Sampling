@@ -1,0 +1,17 @@
+label,trial,n_trials,seed,selected,correct,shots,rounds,shortfall,miscovered_rounds,best_eliminated,stopped_rho,refits,contexts_used,cz_per_shot_mean,design_seconds,statistics_seconds,allocation_seconds
+"M1 seq, safe, bound start, min shots=400, rho=0.1",0,16,5,291,1,534570352.0,74,0.0,0,False,True,0,5412,39.774419876544144,0.001,2855.274,2973.401
+"M1 seq, safe, bound start, min shots=400, rho=0.1",1,16,5,291,1,1005883716.0,77,0.0,0,False,True,0,5412,39.77449801961005,0.0,2959.513,3211.772
+"M1 seq, safe, bound start, min shots=400, rho=0.1",2,16,5,291,1,534570367.0,74,0.0,0,False,True,0,5412,39.77437763212191,0.001,2848.031,2955.346
+"M1 seq, safe, bound start, min shots=400, rho=0.1",3,16,5,291,1,350741179.0,72,0.0,0,False,True,0,5412,39.774028546559684,0.0,2733.213,2777.58
+"M1 seq, safe, bound start, min shots=400, rho=0.1",4,16,5,291,1,350723428.0,72,0.0,0,False,True,0,5412,39.77473091988597,0.0,2758.534,2809.909
+"M1 seq, safe, bound start, min shots=400, rho=0.1",5,16,5,291,1,230114514.0,70,0.0,0,False,True,0,5412,39.774762247287015,0.0,2638.282,2599.205
+"M1 seq, safe, bound start, min shots=400, rho=0.1",6,16,5,291,1,122297972.0,67,0.0,0,False,True,0,5412,39.774416578224205,0.0,2542.643,2368.192
+"M1 seq, safe, bound start, min shots=400, rho=0.1",7,16,5,291,1,433001963.0,73,0.0,3,False,True,0,5412,39.77440227909544,0.0,2760.173,2885.076
+"M1 seq, safe, bound start, min shots=400, rho=0.1",8,16,5,291,1,284092139.0,71,0.0,1,False,True,0,5412,39.7744955730718,0.0,2705.762,2695.471
+"M1 seq, safe, bound start, min shots=400, rho=0.1",9,16,5,291,1,350734666.0,72,0.0,0,False,True,0,5412,39.77405527972533,0.0,2762.011,2792.94
+"M1 seq, safe, bound start, min shots=400, rho=0.1",10,16,5,291,1,230118169.0,70,0.0,0,False,True,0,5412,39.774601317986324,0.0,2601.744,2591.381
+"M1 seq, safe, bound start, min shots=400, rho=0.1",11,16,5,291,1,659966564.0,75,0.0,0,False,True,0,5412,39.77413048913187,0.0,2854.752,3027.084
+"M1 seq, safe, bound start, min shots=400, rho=0.1",12,16,5,291,1,284096436.0,71,0.0,0,False,True,0,5412,39.77405260726326,0.0,2712.368,2736.312
+"M1 seq, safe, bound start, min shots=400, rho=0.1",13,16,5,291,1,433009568.0,73,0.0,0,False,True,0,5412,39.7739371916142,0.0,2778.61,2861.782
+"M1 seq, safe, bound start, min shots=400, rho=0.1",14,16,5,291,1,814774297.0,76,0.0,3,False,True,0,5412,39.774253750176904,0.0,2888.569,3124.437
+"M1 seq, safe, bound start, min shots=400, rho=0.1",15,16,5,291,1,284095277.0,71,0.0,0,False,True,0,5412,39.77456692460255,0.0,2656.528,2686.411

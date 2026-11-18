@@ -1,0 +1,46 @@
+[
+  {
+    "rho": 0.0,
+    "z": 3.101861833740095,
+    "n_rows": 26,
+    "leader": 11,
+    "designs": {
+      "II-0": {
+        "shots": 22205.819937951044,
+        "contexts": 53,
+        "n_eff": 16.973195176431304,
+        "spread": 31,
+        "seconds": 0.1
+      },
+      "weight": {
+        "shots": 10178.647885670334,
+        "contexts": 53,
+        "n_eff": 15.825034994600086,
+        "spread": 31,
+        "seconds": 3.9
+      },
+      "mass": {
+        "shots": 15642.681000622659,
+        "contexts": 36,
+        "n_eff": 10.786438553684754,
+        "spread": 8,
+        "seconds": 1.9
+      },
+      "contrast": {
+        "shots": 17862.59893837549,
+        "contexts": 35,
+        "n_eff": 10.881914121277918,
+        "spread": 8,
+        "seconds": 4.4
+      },
+      "family": {
+        "shots": 8585.229361137275,
+        "contexts": 124,
+        "n_eff": 18.331111351685603,
+        "spread": null,
+        "seconds": 16.7
+      }
+    },
+    "case_id": "H4_square_eq_side1p0_CISD"
+  }
+]

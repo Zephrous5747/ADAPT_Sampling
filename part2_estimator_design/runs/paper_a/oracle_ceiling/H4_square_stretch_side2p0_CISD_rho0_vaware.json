@@ -1,0 +1,46 @@
+[
+  {
+    "rho": 0.0,
+    "z": 3.101861833740095,
+    "n_rows": 26,
+    "leader": 11,
+    "designs": {
+      "weight": {
+        "shots": 5622.979417493843,
+        "contexts": 53,
+        "n_eff": 21.277429160888765,
+        "spread": 50,
+        "seconds": 6.9
+      },
+      "family": {
+        "shots": 4131.20691171261,
+        "contexts": 117,
+        "n_eff": 22.464529778245673,
+        "spread": null,
+        "seconds": 13.1
+      },
+      "vaware": {
+        "shots": 8484.383243893632,
+        "contexts": 36,
+        "n_eff": 15.239811834906527,
+        "spread": 24,
+        "seconds": 1.9
+      },
+      "vaware_hf": {
+        "shots": 4512.888685726154,
+        "contexts": 118,
+        "n_eff": 27.647191663767106,
+        "spread": 72,
+        "seconds": 8.1
+      },
+      "weight+vaware": {
+        "shots": 4237.208677537498,
+        "contexts": 89,
+        "n_eff": 20.723255337066377,
+        "spread": null,
+        "seconds": 6.6
+      }
+    },
+    "case_id": "H4_square_stretch_side2p0_CISD"
+  }
+]

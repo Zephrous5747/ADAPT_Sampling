@@ -1,0 +1,46 @@
+[
+  {
+    "rho": 0.0,
+    "z": 3.4583582092622187,
+    "n_rows": 150,
+    "leader": 11,
+    "designs": {
+      "II-0": {
+        "shots": 38300738.89463698,
+        "contexts": 980,
+        "n_eff": 13.290024303632626,
+        "spread": 96,
+        "seconds": 2.1
+      },
+      "weight": {
+        "shots": 18900724.577540953,
+        "contexts": 980,
+        "n_eff": 27.55595101215733,
+        "spread": 96,
+        "seconds": 1051.4
+      },
+      "mass": {
+        "shots": 17386304.007835913,
+        "contexts": 933,
+        "n_eff": 11.188442994563493,
+        "spread": 16,
+        "seconds": 715.2
+      },
+      "contrast": {
+        "shots": 16061122.008442555,
+        "contexts": 971,
+        "n_eff": 17.304270930568112,
+        "spread": 19,
+        "seconds": 1153.3
+      },
+      "family": {
+        "shots": 14714354.292523455,
+        "contexts": 2884,
+        "n_eff": 46.29575329498334,
+        "spread": null,
+        "seconds": 3372.2
+      }
+    },
+    "case_id": "LiH_R3p0_ADAPT5"
+  }
+]

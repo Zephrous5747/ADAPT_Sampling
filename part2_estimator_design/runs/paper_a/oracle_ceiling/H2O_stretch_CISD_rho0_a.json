@@ -1,0 +1,25 @@
+[
+  {
+    "rho": 0.0,
+    "z": 3.5698814209232768,
+    "n_rows": 140,
+    "leader": 125,
+    "designs": {
+      "II-0": {
+        "shots": 39960048.5329981,
+        "contexts": 2356,
+        "n_eff": 209.23685077809375,
+        "spread": 174,
+        "seconds": 7.1
+      },
+      "weight": {
+        "shots": 9995163.580356611,
+        "contexts": 2356,
+        "n_eff": 111.34251354273222,
+        "spread": 174,
+        "seconds": 1592.6
+      }
+    },
+    "case_id": "H2O_stretch_CISD"
+  }
+]

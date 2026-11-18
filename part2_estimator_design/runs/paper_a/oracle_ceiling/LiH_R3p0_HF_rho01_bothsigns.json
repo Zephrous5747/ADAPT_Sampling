@@ -1,0 +1,32 @@
+[
+  {
+    "rho": 0.1,
+    "z": 3.4583582092622187,
+    "n_rows": 183,
+    "leader": 91,
+    "designs": {
+      "weight": {
+        "shots": 21070.744197493048,
+        "contexts": 980,
+        "n_eff": 84.14375231677721,
+        "spread": 191,
+        "seconds": 1475.2
+      },
+      "contrast": {
+        "shots": 17067.922830626758,
+        "contexts": 957,
+        "n_eff": 42.90453371542345,
+        "spread": 20,
+        "seconds": 640.1
+      },
+      "family": {
+        "shots": 15229.627130113986,
+        "contexts": 2899,
+        "n_eff": 153.29965590189144,
+        "spread": null,
+        "seconds": 5598.2
+      }
+    },
+    "case_id": "LiH_R3p0_HF"
+  }
+]

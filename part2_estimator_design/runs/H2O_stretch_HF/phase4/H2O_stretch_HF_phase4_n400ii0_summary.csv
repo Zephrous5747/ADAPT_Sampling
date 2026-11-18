@@ -1,0 +1,2 @@
+case_id,method,label,trajectories,exact_adapt_iterations,exact_adapt_final_error,reached_rate,iterations_mean,iterations_max,final_error_median,final_error_p90,shots_median,shots_mean,shots_p90,selections,exact_best_rate,rho_good_rate,mean_shortfall,seconds
+H2O_stretch_HF,"II-0 safe, min shots=400",II-0/estimated radii/rule=safe/rho=0.1/start=bound/radius_min_shots=400/min_fold_shots=400,36,18,0.0014253260834777848,1.0,18.0,18,0.0014255724353589017,0.0014738446905369074,8478478184.0,8419744601.472222,9422865571.5,648,0.9182098765432098,1.0,0.0016263886508736793,12612.4

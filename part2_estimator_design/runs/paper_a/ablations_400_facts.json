@@ -1,0 +1,20 @@
+{
+ "crossfit": {
+  "cells": 10,
+  "ratio_min": 0.929,
+  "ratio_max": 1.12,
+  "ratio_median": 0.984
+ },
+ "gamma": {
+  "cells": 54,
+  "ratio_min": 0.808,
+  "ratio_max": 1.327,
+  "ratio_median": 1.0925
+ },
+ "reuse": {
+  "cells": 4,
+  "ratio_min": 0.769,
+  "ratio_max": 0.94,
+  "ratio_median": 0.855
+ }
+}

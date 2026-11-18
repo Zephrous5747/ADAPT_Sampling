@@ -1,0 +1,46 @@
+[
+  {
+    "rho": 0.1,
+    "z": 3.4583582092622187,
+    "n_rows": 150,
+    "leader": 82,
+    "designs": {
+      "weight": {
+        "shots": 487742.29828707164,
+        "contexts": 980,
+        "n_eff": 98.11676796940863,
+        "spread": 168,
+        "seconds": 1509.2
+      },
+      "family": {
+        "shots": 365524.006564755,
+        "contexts": 2902,
+        "n_eff": 155.59342910839572,
+        "spread": null,
+        "seconds": 5417.7
+      },
+      "vaware": {
+        "shots": 362790.5641489788,
+        "contexts": 1191,
+        "n_eff": 41.12488372568345,
+        "spread": 31,
+        "seconds": 1928.4
+      },
+      "vaware_hf": {
+        "shots": 349991.9595256033,
+        "contexts": 1676,
+        "n_eff": 34.80470145966096,
+        "spread": 31,
+        "seconds": 5231.8
+      },
+      "weight+vaware": {
+        "shots": 353598.3344490498,
+        "contexts": 2171,
+        "n_eff": 88.59960295455325,
+        "spread": null,
+        "seconds": 4245.1
+      }
+    },
+    "case_id": "LiH_R1p6_ADAPT2"
+  }
+]

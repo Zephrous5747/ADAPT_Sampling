@@ -1,0 +1,17 @@
+label,trial,n_trials,seed,selected,correct,shots,rounds,shortfall,miscovered_rounds,best_eliminated,stopped_rho,contexts_used,cz_per_shot_mean,allocation_seconds,statistics_seconds
+"M2 safe, bound start, min shots=400, rho=0.1",0,16,5,309,1,89795602.0,73,0.0,0,False,True,65318,16.43799676291496,3.378,0.282
+"M2 safe, bound start, min shots=400, rho=0.1",1,16,5,158,0,81418911.0,75,0.038319155964576024,0,False,True,65318,16.505601763698362,3.305,0.326
+"M2 safe, bound start, min shots=400, rho=0.1",2,16,5,309,1,98986727.0,74,0.0,0,False,True,65318,16.421616182945417,3.296,0.206
+"M2 safe, bound start, min shots=400, rho=0.1",3,16,5,330,0,94342462.0,77,0.0576227743818003,1,False,True,65318,16.55481168172185,3.212,0.285
+"M2 safe, bound start, min shots=400, rho=0.1",4,16,5,309,1,117080033.0,78,0.0,1,False,True,65318,16.512239435395443,3.31,0.276
+"M2 safe, bound start, min shots=400, rho=0.1",5,16,5,309,1,110290631.0,77,0.0,0,False,True,65318,16.44863567785735,3.363,0.288
+"M2 safe, bound start, min shots=400, rho=0.1",6,16,5,328,0,105142603.0,78,0.05597081457852737,0,False,True,65318,16.513991811673144,3.258,0.265
+"M2 safe, bound start, min shots=400, rho=0.1",7,16,5,309,1,105926319.0,75,0.0,0,False,True,65318,16.418116700534075,3.419,0.263
+"M2 safe, bound start, min shots=400, rho=0.1",8,16,5,158,0,122725154.0,77,0.038319155964576024,0,False,True,65318,16.376354826167095,3.599,0.327
+"M2 safe, bound start, min shots=400, rho=0.1",9,16,5,309,1,106412926.0,77,0.0,0,False,True,65318,16.487419968134322,3.398,0.302
+"M2 safe, bound start, min shots=400, rho=0.1",10,16,5,309,1,116223841.0,77,0.0,0,False,True,65318,16.340426117908116,3.55,0.328
+"M2 safe, bound start, min shots=400, rho=0.1",11,16,5,309,1,84254739.0,74,0.0,0,False,True,65318,16.481234046668877,3.372,0.297
+"M2 safe, bound start, min shots=400, rho=0.1",12,16,5,309,1,88004115.0,73,0.0,0,False,True,65318,16.50598695299646,3.482,0.28
+"M2 safe, bound start, min shots=400, rho=0.1",13,16,5,309,1,132398768.0,78,0.0,1,False,True,65318,16.43487758133822,3.574,0.328
+"M2 safe, bound start, min shots=400, rho=0.1",14,16,5,309,1,91608494.0,76,0.0,1,False,True,65318,16.497282664640245,3.334,0.287
+"M2 safe, bound start, min shots=400, rho=0.1",15,16,5,98,0,116319945.0,78,0.037889988937675034,0,False,True,65318,16.402030460038475,3.395,0.289

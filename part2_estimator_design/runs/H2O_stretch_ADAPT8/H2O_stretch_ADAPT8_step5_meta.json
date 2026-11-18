@@ -30,7 +30,10 @@
     "M1 seq, safe, bound start, min shots=400": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=400/min_fold_shots=400/no-elimination",
     "M2 safe, bound start, min shots=400": "M2 independent/rule=safe",
     "M2 marginal, bound start, min shots=400": "M2 independent/rule=marginal",
-    "Ikh reuse, FC, safe, bound start, min shots=400": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=400/min_fold_shots=400/no-elimination/fc/reuse"
+    "Ikh reuse, FC, safe, bound start, min shots=400": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=400/min_fold_shots=400/no-elimination/fc/reuse",
+    "CPB split, true state tau=100": "II-A/prior=oracle/nu=100/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50/update=moments/radii-from=design",
+    "CPD split, true state static": "II-A/prior=oracle/nu=inf/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=400/update=moments",
+    "CPD split, true state tau=100": "II-A/prior=oracle/nu=100/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=400/update=moments"
   },
   "reuse_libraries": {
     "fc": {

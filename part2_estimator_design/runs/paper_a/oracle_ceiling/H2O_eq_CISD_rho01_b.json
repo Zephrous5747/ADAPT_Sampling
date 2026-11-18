@@ -1,0 +1,25 @@
+[
+  {
+    "rho": 0.1,
+    "z": 3.5698814209232768,
+    "n_rows": 140,
+    "leader": 101,
+    "designs": {
+      "mass": {
+        "shots": 1195910387.9441628,
+        "contexts": 2447,
+        "n_eff": 36.7005338773341,
+        "spread": 22,
+        "seconds": 4147.2
+      },
+      "contrast": {
+        "shots": 1123910155.9213047,
+        "contexts": 2389,
+        "n_eff": 30.711323016037532,
+        "spread": 17,
+        "seconds": 2217.9
+      }
+    },
+    "case_id": "H2O_eq_CISD"
+  }
+]

@@ -1,0 +1,19 @@
+[
+  {
+    "rho": 0.1,
+    "designs": {},
+    "case_id": "H4_square_stretch_side2p0_ADAPT2",
+    "regroup": {
+      "rho": 0.1,
+      "late_arms": [
+        18,
+        19
+      ],
+      "stage1_shots": 238.0149133500822,
+      "stage2_added_same_contexts": 3285.796868925416,
+      "stage2_added_regrouped": 2616.604221514103,
+      "all_at_once_regrouped_family": 2818.821407496471,
+      "extra_contexts": 10
+    }
+  }
+]

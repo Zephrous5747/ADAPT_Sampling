@@ -1,0 +1,19 @@
+[
+  {
+    "rho": 0.1,
+    "designs": {},
+    "case_id": "LiH_R1p6_ADAPT3",
+    "regroup": {
+      "rho": 0.1,
+      "late_arms": [
+        76,
+        88
+      ],
+      "stage1_shots": 6699206.792263016,
+      "stage2_added_same_contexts": 2086893.8432699442,
+      "stage2_added_regrouped": 1255130.2599184886,
+      "all_at_once_regrouped_family": 7566223.971635761,
+      "extra_contexts": 110
+    }
+  }
+]

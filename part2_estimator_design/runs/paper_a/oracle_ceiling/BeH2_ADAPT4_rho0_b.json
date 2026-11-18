@@ -1,0 +1,25 @@
+[
+  {
+    "rho": 0.0,
+    "z": 3.667328284224087,
+    "n_rows": 370,
+    "leader": 140,
+    "designs": {
+      "mass": {
+        "shots": 1747717.407679693,
+        "contexts": 2538,
+        "n_eff": 54.41912551769108,
+        "spread": 36,
+        "seconds": 4288.1
+      },
+      "contrast": {
+        "shots": 1121448.1683559283,
+        "contexts": 2460,
+        "n_eff": 36.24222345908387,
+        "spread": 38,
+        "seconds": 4620.7
+      }
+    },
+    "case_id": "BeH2_ADAPT4"
+  }
+]

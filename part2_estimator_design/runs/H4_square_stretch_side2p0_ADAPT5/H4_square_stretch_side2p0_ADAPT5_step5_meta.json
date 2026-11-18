@@ -7,7 +7,16 @@
     "II-A data, safe, bound start, min shots=400, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=400/min_fold_shots=400",
     "II-0, safe, bound start, min shots=400, diagnose": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=400/min_fold_shots=400",
     "M1 seq, safe, bound start, min shots=400": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=400/min_fold_shots=400/no-elimination",
-    "M2 safe, bound start, min shots=400": "M2 independent/rule=safe"
+    "M2 safe, bound start, min shots=400": "M2 independent/rule=safe",
+    "II-0, safe, bound start, min shots=50, diagnose": "II-0/estimated radii/rule=safe/start=bound/radius_min_shots=50",
+    "II-A data, safe, bound start, min shots=50, diagnose": "II-A/prior=none/nu=0/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50",
+    "CPB alloc, sparse tau=100": "II-0/estimated radii/prior=sparse/nu=100/rule=safe/start=bound/radius_min_shots=50/update=moments/eps=0.1/radii-from=design",
+    "CPB split, sparse tau=100": "II-A/prior=sparse/nu=100/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50/update=moments/eps=0.1/radii-from=design",
+    "CPB split, sparse tau=1000": "II-A/prior=sparse/nu=1000/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50/update=moments/eps=0.1/radii-from=design",
+    "CPB split, HF tau=100": "II-A/prior=hf/nu=100/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50/update=moments/eps=0.1/radii-from=design",
+    "CPB split, HF nu=100 shrink": "II-A/prior=hf/nu=100/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50",
+    "CPB alloc, true state tau=100": "II-0/estimated radii/prior=oracle/nu=100/rule=safe/start=bound/radius_min_shots=50/update=moments/radii-from=design",
+    "CPB split, true state tau=100": "II-A/prior=oracle/nu=100/estimated radii/guard=on/rule=safe/start=bound/radius_min_shots=50/update=moments/radii-from=design"
   },
   "trials": 100,
   "seed": 5,
@@ -26,5 +35,13 @@
     },
     "git_commit": null,
     "part2_tree_dirty": null
+  },
+  "classical_prior": {
+    "m": 5,
+    "K": 6,
+    "sector_dimension": 36,
+    "true_determinants": 8,
+    "overlap": 0.9976574600476986,
+    "true_weight_outside": 0.0023425399523010902
   }
 }

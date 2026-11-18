@@ -1,0 +1,69 @@
+{
+ "p95_ratio_range": [
+  1.1880665667198642,
+  7.416366215204491
+ ],
+ "p95_ratio_median": 2.074553487736699,
+ "p95_over_mean_iia_range": [
+  1.079210266193716,
+  2.371387732931696
+ ],
+ "states_p95_ratio_below_one": [],
+ "states_p95_ratio_above_one": [
+  "H4_square_eq_side1p0_CISD",
+  "H4_square_stretch_side2p0_CISD",
+  "LiH_R3p0_HF",
+  "LiH_R3p0_ADAPT3",
+  "LiH_R3p0_ADAPT5",
+  "H2O_eq_CISD",
+  "H2O_stretch_CISD",
+  "H2O_eq_ADAPT11",
+  "H2O_stretch_ADAPT8",
+  "LiH_R1p6_HF",
+  "LiH_R1p6_ADAPT2",
+  "LiH_R1p6_ADAPT3",
+  "LiH_R1p6_ADAPT4",
+  "BeH2_ADAPT2",
+  "BeH2_ADAPT4",
+  "BeH2_ADAPT7",
+  "BeH2_ADAPT9",
+  "H4_square_eq_side1p0_ADAPT3",
+  "H4_square_eq_side1p0_ADAPT5",
+  "H4_square_stretch_side2p0_ADAPT2",
+  "H4_square_stretch_side2p0_ADAPT5"
+ ],
+ "predictors": {
+  "relative_gap": {
+   "spearman": -0.2324675324675325,
+   "p": 0.31055989862791317,
+   "loso_median_abs_log_error": 0.21029538562225536,
+   "loso_factor": 1.2340425245442959
+  },
+  "competitors": {
+   "spearman": 0.38169821512057656,
+   "p": 0.08774847626291496,
+   "loso_median_abs_log_error": 0.30122201196678045,
+   "loso_factor": 1.3515093594840175
+  },
+  "K": {
+   "spearman": 0.5797249294998905,
+   "p": 0.005878302243598948,
+   "loso_median_abs_log_error": 0.22013901711588346,
+   "loso_factor": 1.2462499686218835
+  },
+  "qubits": {
+   "spearman": 0.5959187583452445,
+   "p": 0.004361796502505659
+  },
+  "spread_of_log_ratio": 0.21643449038149543
+ },
+ "systems": [
+  "BeH2",
+  "H2O_eq",
+  "H2O_stretch",
+  "H4_square_eq",
+  "H4_square_stretch",
+  "LiH_R1p6",
+  "LiH_R3p0"
+ ]
+}

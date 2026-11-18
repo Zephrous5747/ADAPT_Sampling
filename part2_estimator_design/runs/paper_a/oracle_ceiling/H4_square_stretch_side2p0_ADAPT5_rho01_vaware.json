@@ -1,0 +1,46 @@
+[
+  {
+    "rho": 0.1,
+    "z": 3.101861833740095,
+    "n_rows": 42,
+    "leader": 19,
+    "designs": {
+      "weight": {
+        "shots": 10576.712411487071,
+        "contexts": 53,
+        "n_eff": 21.938096512657825,
+        "spread": 49,
+        "seconds": 5.5
+      },
+      "family": {
+        "shots": 6551.4535801394595,
+        "contexts": 124,
+        "n_eff": 21.11203485036307,
+        "spread": null,
+        "seconds": 18.1
+      },
+      "vaware": {
+        "shots": 12203.068229128767,
+        "contexts": 46,
+        "n_eff": 17.082623825951263,
+        "spread": 26,
+        "seconds": 9.4
+      },
+      "vaware_hf": {
+        "shots": 8666.18628664653,
+        "contexts": 120,
+        "n_eff": 28.566338286331185,
+        "spread": 73,
+        "seconds": 17.6
+      },
+      "weight+vaware": {
+        "shots": 8779.754925231315,
+        "contexts": 99,
+        "n_eff": 23.46368143010487,
+        "spread": null,
+        "seconds": 15.2
+      }
+    },
+    "case_id": "H4_square_stretch_side2p0_ADAPT5"
+  }
+]

@@ -1,0 +1,711 @@
+{"state": "LiH_r30_m3", "rep": 0, "source": null, "value": null, "v": 0.006215604297875185, "routes": {"cvxpy": 59, "exact": 33}, "seconds": 134.1}
+{"state": "LiH_r30_m3", "rep": 1, "source": null, "value": null, "v": 0.006009939780222081, "routes": {"cvxpy": 60, "exact": 32}, "seconds": 135.6}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 32.0, "v": 0.005267620343888511, "routes": {"cvxpy": 57, "exact": 35}, "seconds": 143.3}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 128.0, "v": 0.005918592439562307, "routes": {"cvxpy": 57, "exact": 35}, "seconds": 144.8}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 128.0, "v": 0.005187455099424682, "routes": {"cvxpy": 55, "exact": 37}, "seconds": 146.6}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 13.132860719611879, "v": 0.006130645264376947, "routes": {"cvxpy": 62, "exact": 30}, "seconds": 148.6}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 8.0, "v": 0.005544943424222644, "routes": {"cvxpy": 61, "exact": 31}, "seconds": 148.9}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 32.0, "v": 0.006081977712078683, "routes": {"cvxpy": 60, "exact": 32}, "seconds": 149.2}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 4.031245035869818, "v": 0.0056690048007473366, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 150.7}
+{"state": "LiH_r16_m1", "rep": 2, "source": null, "value": null, "v": 0.0038669192912600464, "routes": {"cvxpy": 64, "exact": 28}, "seconds": 152.3}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 7.640889153329901, "v": 0.005554260571220186, "routes": {"cvxpy": 61, "exact": 31}, "seconds": 152.3}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 4.339995491976189, "v": 0.005661667487017682, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 152.5}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 8.0, "v": 0.0061583933008860945, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 153.3}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 128.0, "v": 0.0035161364257456336, "routes": {"cvxpy": 59, "exact": 33}, "seconds": 154.7}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 4.8314433608642116, "v": 0.005644369686364162, "routes": {"cvxpy": 63, "exact": 29}, "seconds": 154.9}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 5.1724395095341675, "v": 0.006175530235977659, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 155.1}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 3.0848488996658134, "v": 0.005689471905929781, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 155.4}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 7.780151533646702, "v": 0.006159793374116, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 155.7}
+{"state": "LiH_r16_m1", "rep": 1, "source": null, "value": null, "v": 0.0038297300197297855, "routes": {"cvxpy": 64, "exact": 28}, "seconds": 156.9}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 0.9973781587760288, "v": 0.005841031714977104, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 157.0}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 6.580259051901855, "v": 0.006165832345803509, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 157.1}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 10.041937932994575, "v": 0.006146865128631497, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 157.1}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 0.9973277845040966, "v": 0.005841053895051579, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 157.9}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 128.0, "v": 0.0034260269911144995, "routes": {"cvxpy": 58, "exact": 34}, "seconds": 158.3}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 0.9696969696969722, "v": 0.0058533163372435845, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 158.1}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 128.0, "v": 0.00342579194022287, "routes": {"cvxpy": 57, "exact": 35}, "seconds": 158.9}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 1.10019549054538, "v": 0.005797065616797248, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 159.1}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 32.0, "v": 0.0034607259782102992, "routes": {"cvxpy": 61, "exact": 31}, "seconds": 159.4}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 4.069677751982501, "v": 0.006186779400626533, "routes": {"cvxpy": 66, "exact": 26}, "seconds": 159.1}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 128.0, "v": 0.0034969365824236436, "routes": {"cvxpy": 61, "exact": 31}, "seconds": 159.7}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 1.021250973197016, "v": 0.005830591399232543, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 159.6}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 1.1293158388253115, "v": 0.0057850268538193325, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 159.7}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 0.888888888888891, "v": 0.005890324132888254, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 159.8}
+{"state": "LiH_r16_m1", "rep": 0, "source": null, "value": null, "v": 0.0037272521547948613, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 160.3}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 6.480363937945296, "v": 0.005587999411022072, "routes": {"cvxpy": 62, "exact": 30}, "seconds": 160.0}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 0.9922480620155065, "v": 0.005843293807514909, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 160.7}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 0.9696969696969697, "v": 0.00585331633724142, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 160.7}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 32.0, "v": 0.003467238478602769, "routes": {"cvxpy": 62, "exact": 30}, "seconds": 161.1}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 128.0, "v": 0.003427029229279601, "routes": {"cvxpy": 58, "exact": 34}, "seconds": 161.4}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 32.0, "v": 0.00352736437453181, "routes": {"cvxpy": 64, "exact": 28}, "seconds": 161.4}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 0.9922480620155039, "v": 0.0058432938075151045, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 161.6}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 0.8888888888888888, "v": 0.005890324132892848, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 161.6}
+{"state": "LiH_r30_m3", "rep": 0, "source": "CLASSICAL", "value": 0.9120935764128342, "v": 0.005879517779649902, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 162.3}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 128.0, "v": 0.003498451498164601, "routes": {"cvxpy": 60, "exact": 32}, "seconds": 162.4}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 0.9696969696969743, "v": 0.0062993396306257445, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 162.9}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 1.4104123835433666, "v": 0.006266390143679629, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 162.9}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 0.9922480620155086, "v": 0.006297626316377597, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 164.3}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 1.4586296326906367, "v": 0.006263137996231806, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 164.3}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 32.0, "v": 0.003459237515118112, "routes": {"cvxpy": 62, "exact": 30}, "seconds": 165.1}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 1.1066903719244638, "v": 0.006288950432704424, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 164.7}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 0.9922480753218236, "v": 0.006297626315369637, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 165.2}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 32.0, "v": 0.0035122675326201397, "routes": {"cvxpy": 64, "exact": 28}, "seconds": 165.5}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 0.9922480620155086, "v": 0.005840335535638681, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 165.4}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 14.620003338229454, "v": 0.003541928677893796, "routes": {"cvxpy": 66, "exact": 26}, "seconds": 165.8}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 10.888864879813696, "v": 0.0035576467353752982, "routes": {"cvxpy": 66, "exact": 26}, "seconds": 165.9}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 0.8888888888888927, "v": 0.006305684635653006, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 165.7}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 1.2456984586462796, "v": 0.006278128623247828, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 166.0}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 0.9696969824053298, "v": 0.006299339629649297, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 166.1}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 0.9138656836531976, "v": 0.005846642791503887, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 166.1}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 0.9696969696969697, "v": 0.005842136488860727, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 166.4}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 1.136160157244463, "v": 0.006286572438503045, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 166.7}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 1.0026619647933683, "v": 0.006296842964442909, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 166.9}
+{"state": "LiH_r30_m3", "rep": 0, "source": "PREVIOUS", "value": 0.8888888995674414, "v": 0.006305684634792036, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 166.9}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 0.9922480620155039, "v": 0.0058403355356380655, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 167.6}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 14.613103117484073, "v": 0.0035367495518031557, "routes": {"cvxpy": 67, "exact": 25}, "seconds": 168.1}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 0.8888888888888927, "v": 0.005848684537207605, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 167.9}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 14.693958329122442, "v": 0.0035661919853616, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 169.1}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 8.680538874416595, "v": 0.003570691873462361, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 169.5}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 8.0, "v": 0.003605884722896152, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 169.4}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 7.211455815797442, "v": 0.0035468366091684273, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 169.7}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 8.725579370320391, "v": 0.0035999881693525846, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 169.5}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 0.8888888888888888, "v": 0.005848684537208898, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 169.4}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 0.9696969696969743, "v": 0.005842136488865104, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 169.4}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 10.929835964803067, "v": 0.003584920027325038, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 170.0}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 3.334992261618892, "v": 0.0035615179397485456, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 170.6}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 32.0, "v": 0.0035232909946110464, "routes": {"cvxpy": 66, "exact": 26}, "seconds": 170.8}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 7.213044112896061, "v": 0.0035818446076359904, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 170.7}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 4.85192825281927, "v": 0.0035737631045418667, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 170.8}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 8.681988901361297, "v": 0.0035465667023418233, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 170.7}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 8.0, "v": 0.003575570899721299, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 170.8}
+{"state": "H4_a1_m1", "rep": 0, "source": null, "value": null, "v": 0.01463283867430848, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 5.38737270425316, "v": 0.0035739043222118593, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 171.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 0.8888888888888888, "v": 0.014632711339148272, "routes": {"cvxpy": 1, "exact": 25}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 0.889876759492786, "v": 0.014632711132884182, "routes": {"cvxpy": 1, "exact": 25}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9089814703442795, "v": 0.014632707147833272, "routes": {"cvxpy": 1, "exact": 25}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9696969696969697, "v": 0.014632694532860988, "routes": {"cvxpy": 1, "exact": 25}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9708727361481017, "v": 0.01463269428931285, "routes": {"cvxpy": 1, "exact": 25}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9922480620155039, "v": 0.014632689866533276, "routes": {"cvxpy": 1, "exact": 25}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9934791858865676, "v": 0.014632689612083586, "routes": {"cvxpy": 1, "exact": 25}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9936580403304331, "v": 0.014632689575120364, "routes": {"cvxpy": 1, "exact": 25}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 2.682511089502401, "v": 0.01463236739868531, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 1.0173509853243141, "v": 0.014632684684316253, "routes": {"cvxpy": 1, "exact": 25}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 2.1434617280555566, "v": 0.014632464691666658, "routes": {"cvxpy": 1, "exact": 25}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 2.8624790203348094, "v": 0.01463233598046757, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 3.0195900085763054, "v": 0.014632308971838972, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 4.211931111924261, "v": 0.014632115947533438, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 7.244115896375979, "v": 0.0036126936848853053, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 171.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 4.673262166102001, "v": 0.014632046519914087, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 6.632302754140622, "v": 0.014631779977139084, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 8.678238659141437, "v": 0.003534335566606316, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 171.2}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 8.0, "v": 0.014631617377109067, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 29.77103618853962, "v": 0.014630308341073168, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 32.0, "v": 0.014630242451104385, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 17.535493635361682, "v": 0.01463083565613796, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "CLASSICAL", "value": 128.0, "v": 0.014629449437863835, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 0.8888888888899464, "v": 0.014633418546396848, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 0.8897392074576844, "v": 0.014633418430716137, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 0.9696969696982283, "v": 0.014633407614070587, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 0.9707090070793211, "v": 0.014633407477933772, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 0.9922480620168217, "v": 0.014633404585092475, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 0.9933077439669067, "v": 0.014633404442993492, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 1.0594322092983512, "v": 0.01463339561719655, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 5.476802196444532, "v": 0.0035807916841613945, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 171.2}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 1.2096076782364296, "v": 0.014633375870092145, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 1.176260481896399, "v": 0.014633380219810116, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 2.8130734151125463, "v": 0.014633188005700242, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 2.115638340356667, "v": 0.014633264888560467, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 2.639075454161504, "v": 0.014633206549974319, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 6.607330767464898, "v": 0.014632865773160378, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 7.544898573011433, "v": 0.014632804741912947, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 4.419110441796625, "v": 0.014633034315593027, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 8.0, "v": 0.014632777128354021, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 9.165702352742374, "v": 0.014632711704582713, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 17.362001224588933, "v": 0.014632396855520913, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 29.274392922184003, "v": 0.014632159940174068, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 32.0, "v": 0.014632123273520198, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 0, "source": "PREVIOUS", "value": 128.0, "v": 0.014631701574777334, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": null, "value": null, "v": 0.014634766277815556, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 0.8888888888888888, "v": 0.014635230474905071, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9085846784578919, "v": 0.014635224769307526, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 0.889842453109312, "v": 0.01463523019844274, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9696969696969697, "v": 0.014635207128674868, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9708319006087971, "v": 0.014635206801960617, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9922480620155039, "v": 0.01463520064294635, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9934364265651149, "v": 0.01463520030152612, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9931838977436039, "v": 0.014635200374075332, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 1.0168539677544735, "v": 0.014635193580844485, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 2.136814058331352, "v": 0.01463488740829688, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 7.214045282399365, "v": 0.0035602337252265363, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 171.5}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 2.6721075187858343, "v": 0.014634750839908358, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 2.850635767229601, "v": 0.014634706585450241, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 3.0107955283295924, "v": 0.014634667414108163, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 4.194839714760145, "v": 0.0146343924154162, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 6.626398247489352, "v": 0.0146338972431522, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 4.652231048281335, "v": 0.014634292579785135, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 17.494278590763873, "v": 0.014632409238798166, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 29.652433092769055, "v": 0.014631477956357327, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 32.0, "v": 0.014631347396715374, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 128.0, "v": 0.014629691251961091, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 1, "source": "CLASSICAL", "value": 8.0, "v": 0.014633651873850363, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 0.8888888888897725, "v": 0.014635658036298899, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 4.303509645744982, "v": 0.0035985632028484715, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 171.7}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 0.8897017858022896, "v": 0.014635657721608112, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 0.9706644646402851, "v": 0.014635626555788227, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 0.9696969696980212, "v": 0.014635626926162035, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 0.9922480620166049, "v": 0.014635618306046093, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 0.9932611034823087, "v": 0.01463561791944118, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 1.0571650805258477, "v": 0.014635593640487846, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 1.1734664305454017, "v": 0.014635549996440738, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 2.6263866972010135, "v": 0.014635058043218586, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 2.107476038045466, "v": 0.01463522314578355, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 2.7986608942969062, "v": 0.01463500558547997, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 4.4068193094041295, "v": 0.014634565502793523, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 1.2066531564614764, "v": 0.014635537669132514, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 6.59987384743134, "v": 0.014634081959649058, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 32.0, "v": 0.014631999313123943, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 29.12857699307156, "v": 0.014632101318665186, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 8.0, "v": 0.014633826896951203, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 7.509140391276257, "v": 0.014633912252330999, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 128.0, "v": 0.014631074820854571, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 9.112984443733568, "v": 0.014633647821168161, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": null, "value": null, "v": 0.01463990195165054, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 1, "source": "PREVIOUS", "value": 17.310607523359874, "v": 0.014632749457930583, "routes": {"cvxpy": 2, "exact": 24}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 0.8888888888888888, "v": 0.01463946234928798, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 0.8897696691142848, "v": 0.014639461744967793, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 0.907722202149035, "v": 0.014639449439232196, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 0.9696969696969697, "v": 0.01463940713087603, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 0.9921534230940986, "v": 0.01463939186636162, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 0.9922480620155039, "v": 0.014639391802105745, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 0.9707452653872066, "v": 0.014639406417532015, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 0.9933457101933685, "v": 0.01463939105689365, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 1.0157738169113955, "v": 0.014639375848283048, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 4.302588006316422, "v": 0.00358176155702991, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 172.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 2.122081689526973, "v": 0.01463866663443775, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 2.649109123752703, "v": 0.014638355021252096, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 2.99126251246233, "v": 0.014638161025249674, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 2.8244766269298798, "v": 0.014638254797985247, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 4.157018899839172, "v": 0.014637545098548439, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 4.605758556931177, "v": 0.0146373251118217, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 8.0, "v": 0.014635914078910935, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 6.613174817800812, "v": 0.014636441632017631, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 32.0, "v": 0.014631721484183234, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 29.38946168006851, "v": 0.014631944769409934, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 128.0, "v": 0.014629638632849388, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "CLASSICAL", "value": 17.40241106186317, "v": 0.014633498260076526, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 0.8888888888902708, "v": 0.014639875595537715, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 0.8897980754884807, "v": 0.014639875097817018, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 0.9696969696986143, "v": 0.01463983155238723, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 0.9707790775096599, "v": 0.014639830965253774, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 0.9922480620172259, "v": 0.01463981933095827, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 0.993381115068289, "v": 0.014639818717704966, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 1.1804996749931507, "v": 0.014639718478049497, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 1.0628699023986274, "v": 0.014639781252854348, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 1.2140911003696775, "v": 0.01463970069876051, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 2.1279383934517697, "v": 0.014639240824847657, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 2.658242399088106, "v": 0.014638993550089257, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 4.437533752194322, "v": 0.014638254166333808, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 2.83486151822787, "v": 0.014638914145172304, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 6.61845461977636, "v": 0.014637503301208546, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 7.598761176979793, "v": 0.0146372107916057, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 8.0, "v": 0.014637098004048084, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 9.245314360538371, "v": 0.014636771093144773, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 29.49402435895387, "v": 0.014634050773015016, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 17.439019611594833, "v": 0.014635245114374307, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 32.0, "v": 0.014633884457026246, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a1_m1", "rep": 2, "source": "PREVIOUS", "value": 128.0, "v": 0.014632115759807557, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 4.314192821523328, "v": 0.0036481088192266706, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 172.1}
+{"state": "H4_a2_m3", "rep": 0, "source": null, "value": null, "v": 0.0015325523454032795, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 0.9696969696969712, "v": 0.001532549166795282, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 0.8888888888888902, "v": 0.0015325526501156032, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 0.9059740204249553, "v": 0.0015325519110535122, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 0.993986324396362, "v": 0.0015325481258187483, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 0.9922480620155054, "v": 0.0015325482002237162, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 0.9900652786412456, "v": 0.0015325482936761885, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 1.0135851728582583, "v": 0.0015325472878876208, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 1.0961305882535393, "v": 0.0015325437784323673, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 2.949748540756334, "v": 0.0015324725816448688, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 1.1250333251400373, "v": 0.0015325425570947345, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 4.0065306909138725, "v": 0.0015324376318709082, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 4.077273326134007, "v": 0.0015324354188661357, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 4.50806936455067, "v": 0.0015324222616141206, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 7.211550746804827, "v": 0.0035289060439324797, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 172.4}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 7.146013767194186, "v": 0.001532367041927632, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 6.416734962369517, "v": 0.0015323782919039488, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 8.0, "v": 0.0015323543442703818, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 21.650571364616045, "v": 0.0015322046000678725, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 7.552585035499846, "v": 0.0015323609341551122, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 32.0, "v": 0.0015321351289383199, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 43.95477362851588, "v": 0.0015320811855742186, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "CLASSICAL", "value": 128.0, "v": 0.0015319572722164944, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 0.8888889559907576, "v": 0.001532536549642352, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 0.9025814194515145, "v": 0.0015325357315581951, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 8.0, "v": 0.003523946356586339, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 172.5}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 0.9922481456297315, "v": 0.0015325304118538924, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 0.9860150640903157, "v": 0.0015325307795485265, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 1.3096958360436726, "v": 0.0015325120901365497, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 1.0093406520845527, "v": 0.001532529405151498, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 1.4930140502392732, "v": 0.0015325018608108466, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 3.9080920615744192, "v": 0.0015324670530943202, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 2.860171897232584, "v": 0.0015324753222763583, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 1.5471528213358778, "v": 0.0015324988873943236, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 0.9696970495537396, "v": 0.0015325317436407605, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 5.358502213022057, "v": 0.0015324555456563225, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 4.302151536603058, "v": 0.001532463926455252, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 14.402619798762196, "v": 0.001532389643448077, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 10.767819542527066, "v": 0.001532414420976309, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 8.0, "v": 0.0015324349419880484, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 21.265226152656847, "v": 0.00153234979191187, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 32.0, "v": 0.0015323026518379987, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 42.39510491140746, "v": 0.0015322695698369029, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 128.0, "v": 0.0015321642499571103, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 0.88888888888889, "v": 0.0015326598991839717, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": null, "value": null, "v": 0.0015326652291869363, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 0, "source": "PREVIOUS", "value": 7.103527506030208, "v": 0.0015324418475122705, "routes": {"exact": 26}, "seconds": 0.1}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 0.9056410778255259, "v": 0.0015326588622099084, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 0.969696969696971, "v": 0.0015326549164857604, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 0.9896676746600451, "v": 0.0015326536925790541, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 0.9927404345887211, "v": 0.0015326535045272246, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 0.9922480620155052, "v": 0.0015326535346555476, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 1.0131684575848157, "v": 0.001532652256115584, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 1.094615676018561, "v": 0.0015326473091858707, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 1.1234375274700352, "v": 0.0015326455702216765, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 2.9415219442080818, "v": 0.0015325470029158104, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 3.9971834708464193, "v": 0.0015324984682508402, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 4.061572332792124, "v": 0.001532495686293082, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 4.488883031008123, "v": 0.0015324777063960738, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 6.392792730289622, "v": 0.001532406732343168, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 7.519438286927006, "v": 0.0015323707523302674, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 7.14222119796897, "v": 0.0015323823569313871, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 8.0, "v": 0.0015323565699478414, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 21.615795578328527, "v": 0.0015321247370203453, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 32.0, "v": 0.0015320508495782902, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 128.0, "v": 0.0015319291828047865, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "CLASSICAL", "value": 43.811676049181465, "v": 0.0015320052556194047, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 0.8888889778055791, "v": 0.001532651935460633, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 0.9035962865722542, "v": 0.0015326509123145971, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 0.9696970755151805, "v": 0.0015326463408559241, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 0.9872263555280074, "v": 0.0015326451359097858, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 1.0106099679223575, "v": 0.0015326435333123613, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 0.9922481728127222, "v": 0.0015326447912801223, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 1.5074530919278275, "v": 0.0015326107276222058, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 1.5626634476902477, "v": 0.001532607223779199, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 1.3207936151505826, "v": 0.0015326227793120745, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 2.888409157549386, "v": 0.0015325306665771733, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 3.9610025310184467, "v": 0.0015324779352611582, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 4.366357700632611, "v": 0.0015324598231875063, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 5.388310272047594, "v": 0.0015324180027937071, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 7.117208721551645, "v": 0.0015323578546146152, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 8.0, "v": 0.0015323313985626539, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 10.888864879813696, "v": 0.0015322602514291947, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 14.620003338229454, "v": 0.0015321935359636884, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 21.388306103010915, "v": 0.0015321153418752368, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 32.0, "v": 0.0015320481940625567, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 42.88712583527227, "v": 0.0015320109781787195, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": null, "value": null, "v": 0.0015321877933301403, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 1, "source": "PREVIOUS", "value": 128.0, "v": 0.0015319422342344484, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 0.8888888888888927, "v": 0.001532185679235233, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 0.9082578340786965, "v": 0.0015321853624581268, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 0.9696969696969743, "v": 0.0015321843613873534, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 0.9922480620155086, "v": 0.0015321839953747068, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 0.9927933672089014, "v": 0.0015321839865336613, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 1.0164446045894886, "v": 0.0015321836035046563, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 1.0023170051378432, "v": 0.0015321838321986387, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 1.1357172442300372, "v": 0.0015321816846002331, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 3.003461958611235, "v": 0.001532154180520771, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 1.1062701332813432, "v": 0.0015321821563954224, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 4.634744700206319, "v": 0.0015321335440105265, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 4.0672287723996075, "v": 0.0015321404054235309, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 4.180617480418234, "v": 0.001532139008625525, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 6.5738589054607255, "v": 0.0015321123390135258, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 7.170259572038725, "v": 0.001532106439276282, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 7.77120606655788, "v": 0.0015321007591153448, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 21.874674973038786, "v": 0.001532016613550143, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 8.0, "v": 0.001532098662982598, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 44.88841084918074, "v": 0.0015319641483952197, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 128.0, "v": 0.0015319238212741996, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "CLASSICAL", "value": 32.0, "v": 0.0015319867595826372, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 0.9044158720322013, "v": 0.001532183174860612, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 0.9696971006708486, "v": 0.001532181969635143, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 0.8888889989433275, "v": 0.0015321834628601774, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 0.9882047529768846, "v": 0.0015321816295956016, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 0.9922481991520264, "v": 0.0015321815554022707, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 1.011635287333656, "v": 0.0015321812001479558, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 1.3294619282068354, "v": 0.001532175487507141, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 1.5187550912100256, "v": 0.0015321721821926352, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 1.5748118128943454, "v": 0.0015321712168793536, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 2.9102627040221036, "v": 0.001532149909378301, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 4.002215759486005, "v": 0.0015321346256064155, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 5.411138872495175, "v": 0.0015321172791579487, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": null, "value": null, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 0.9983134353522809, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 0.8937533588627589, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 1.3373731717504336, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 1.5290883323349356, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 4.416491162592878, "v": 0.0015321292664525828, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 0.9754889725247164, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 1.585924714610057, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 2.514162347947614, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 5.431637357167012, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 3.5643090088722826, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 6.9104566082369505, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 7.763939275229676, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 8.0, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 11.067266622171452, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 7.127612240607141, "v": 0.0015320991412535296, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 3.2895084336066818, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 14.943428521250539, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 19.62391240316912, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 28.53018596008044, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 86.10968737994513, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 36.336234793261845, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 128.0, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": null, "value": null, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 0.8952542903282202, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 0.9772772582966867, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 1.000186465007019, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 0, "source": "CLASSICAL", "value": 32.0, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 1.3737285416585732, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 1.5767999579083984, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 1.6373087477003587, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 2.594048801260787, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 3.4276184431682943, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 3.7270285645613965, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 5.521951791215301, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 6.959699479180479, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 7.775950979457376, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 11.448801446188783, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 8.0, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 8.0, "v": 0.0015320909833828771, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 15.647520789376717, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 20.026288523728237, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 28.693059466628483, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 32.0, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 37.74031385950639, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 128.0, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 0.8950806625203519, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": null, "value": null, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 0.9770703612323027, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 0.9999697552155009, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 1.3698136879692042, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 1.5716443014087516, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 1.6317505057124342, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 1, "source": "CLASSICAL", "value": 87.61067821529554, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 2.585543196692519, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 3.4127838206975323, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 3.7094957014691143, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 5.512519369291065, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 6.954604566164242, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 8.0, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 7.774714832175176, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 15.572016630137268, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 11.408328713405485, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 19.98416155152991, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 28.67623539027025, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 32.0, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 37.59097838637485, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 87.45401428158675, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_eq_m0", "rep": 2, "source": "CLASSICAL", "value": 128.0, "v": 0.009701446228994375, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": null, "value": null, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9618210736900664, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 1.0571445663650871, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 1.084002712716812, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 2.458194602161656, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 1.9977919679297635, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 2.6084793653429723, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 3.736992788515474, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 5.75225574994397, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 6.493436793493713, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 7.431120096471605, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 6.648611546800909, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 7.884090225045237, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 8.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 16.597055015472847, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 27.163466163911192, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 24.498266153607467, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 30.222696182778925, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 10.982496316347163, "v": 0.0015320674078844404, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 32.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 57.53172136071824, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 103.62461928595815, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "CLASSICAL", "value": 128.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 0.9191771933846777, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 1.0058545594033208, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 2.0432413992686427, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 2.52736867888557, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 2.686504308037735, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 3.2142691740113234, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 4.600605092510249, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 5.156627080127713, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 6.539003100926483, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 7.257506995794554, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 7.888376052284029, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 8.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 1.0301398131825206, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 16.89802603797601, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 22.707474987623105, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 27.979063959013754, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 30.285772645755735, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 32.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 48.541658485891794, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 128.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": null, "value": null, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 0, "source": "PREVIOUS", "value": 104.36992385496872, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9681245011553209, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 1.064764288222517, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 1.0920159984727058, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 2.0351531534743703, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 2.6725390435939285, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 2.5150050765196537, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 5.891262409704941, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 3.7951685914550617, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 6.531051347121614, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 6.835017440580837, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 7.447473129544112, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 7.887632426397403, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 16.845026028749245, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 8.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 24.676898877229444, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 27.83406060978836, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 30.274814416615595, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 32.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 14.789293969717397, "v": 0.0015320446179866553, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 104.23989804297477, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 58.52665977044982, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "CLASSICAL", "value": 128.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 0.9213487259437398, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 1.008455527380244, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 2.0680625437882725, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 1.0328680626977935, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 2.729578948010062, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 4.673914312303081, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 3.2498825218057505, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 5.248904899849776, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 6.562996111140385, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 7.27111913396916, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 7.890608930656006, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 8.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 17.05918906133686, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 22.841265907432785, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 2.565455216354797, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 28.42367938387704, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 30.31871209612606, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 32.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 49.157174200537675, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 104.76215922062708, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 1, "source": "PREVIOUS", "value": 128.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 5.47446879542118, "v": 0.0035656246084439505, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 172.8}
+{"state": "H2_str_m1", "rep": 2, "source": null, "value": null, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 2.010445774841449, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 2.4773807415074365, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 1.0866813214446895, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 1.0596919286627329, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 0.9639292948882369, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 2.63009346573501, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 3.7568006595025794, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 6.506342083917588, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 6.7115697690206835, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 7.4367450358906835, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 7.8853101280046065, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 8.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 16.681626841383412, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 24.559506220519722, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 27.390737773913227, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 30.240630257052906, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 32.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 57.87060144109011, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 103.83575650634165, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 128.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 1.0041006612130632, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 0.9177123279078462, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 1.0283002781477601, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 2.0259359801935823, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 2.5009440257826343, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 2.656666881213879, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 3.189288186720264, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 4.549599045028769, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 5.092632724219153, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 6.521907966032512, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 7.24777589186785, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 7.886775129817873, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 8.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 16.784334946616546, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 22.61248299685921, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 27.668744537193724, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "CLASSICAL", "value": 5.799322349591247, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 30.26218838742405, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 48.109625922356116, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 32.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 104.09036764494454, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H2_str_m1", "rep": 2, "source": "PREVIOUS", "value": 128.0, "v": 0.002127930588868261, "routes": {"exact": 3}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 21.482535939539332, "v": 0.0015320171528437315, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 32.0, "v": 0.0015319916965674891, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 43.26768050544905, "v": 0.0015319761889008964, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "H4_a2_m3", "rep": 2, "source": "PREVIOUS", "value": 128.0, "v": 0.0015319465940851248, "routes": {"exact": 26}, "seconds": 0.0}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 8.0, "v": 0.0035525870769666707, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 172.7}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 3.335826312576317, "v": 0.0036167579570900743, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 173.0}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 8.0, "v": 0.00353983489490959, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 173.2}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 5.474554331829445, "v": 0.003541514753401058, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 173.5}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 4.3021206945190285, "v": 0.003582411922124192, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 173.6}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 4.853761044502053, "v": 0.003589745216733798, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 173.5}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 10.885036759554858, "v": 0.0035450049615117774, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 173.8}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 5.388310272047594, "v": 0.0035998256131229336, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 173.8}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 4.302621798745741, "v": 0.003551716927882726, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 174.1}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 5.398323929913335, "v": 0.0036329927307720165, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 174.4}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 4.851995441329165, "v": 0.0035467289771860286, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 174.9}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 8.0, "v": 0.0035578984587946523, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 175.2}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 7.2101431286728825, "v": 0.0035622358777359737, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 175.2}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 8.676337745306475, "v": 0.0035545013149325295, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 175.3}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 1.0399031289228455, "v": 0.003657203131117548, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 175.7}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 4.303153342512082, "v": 0.003613780302058964, "routes": {"cvxpy": 69, "exact": 23}, "seconds": 175.9}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 1.5621695652176137, "v": 0.0036120454963946996, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 176.1}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 3.334960518778715, "v": 0.003598158425702968, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 176.4}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 8.678376135030604, "v": 0.003520041170616249, "routes": {"cvxpy": 68, "exact": 24}, "seconds": 176.7}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 1.5069934864779941, "v": 0.0036127899727559603, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 176.7}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 0.8888888888888888, "v": 0.00359465345075096, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 176.8}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 1.0399058929567842, "v": 0.003592133146975076, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 176.9}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 1.0387651494371177, "v": 0.0036572433012662855, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 177.0}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 1.1827479238054466, "v": 0.0035898185392625194, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 177.2}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 1.150845727063918, "v": 0.003590329629932835, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 177.5}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 0.888888888889071, "v": 0.0036216856877663356, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 177.5}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9922480620155039, "v": 0.003658898647111223, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 177.6}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 0.8888888888888888, "v": 0.0036874758446643757, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 177.9}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9922480620157326, "v": 0.003658898647113936, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 178.0}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 1.182740493874395, "v": 0.0036523014051007795, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 178.1}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 0.9696970745878926, "v": 0.003620448531355675, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 178.3}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 0.8888888888890724, "v": 0.00366267231962522, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 178.3}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 1.0151608871362883, "v": 0.00365808003068941, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 178.4}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9696969696971881, "v": 0.003659710593357627, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 178.4}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9922480620157326, "v": 0.003592920352781625, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 178.5}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 1.1508386925403724, "v": 0.0036533622800802947, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 178.4}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9696969696969697, "v": 0.0036597105933731276, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 178.5}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 1.1826377671452626, "v": 0.0036173225275761027, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 178.6}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 1.1829432077581885, "v": 0.0036762051021151797, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 178.6}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 0.8888888888888888, "v": 0.003662672319631626, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 178.7}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 0.9696969696971864, "v": 0.003620448532764007, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 178.8}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 0.9922480620157358, "v": 0.0036833879574186155, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 178.8}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 1.0151635212063794, "v": 0.003592540999353873, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 179.1}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 1.1510306175027982, "v": 0.0036773736744103, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 178.9}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 1.150741432497823, "v": 0.003617784573387099, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.1}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 1.5626634476902477, "v": 0.003669326583221595, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 179.0}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 0.992248171841803, "v": 0.003620110131793018, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.2}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9922480620155039, "v": 0.003592920352809999, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 179.3}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 1.0389215110863037, "v": 0.0036815879832210454, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.1}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 1.3245776622891707, "v": 0.003711110396153025, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.0}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 0.9922480620155039, "v": 0.0036833879573665656, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.1}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 1.0407420839137187, "v": 0.0037195201838608857, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.1}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 0.8888889770263997, "v": 0.003621685686260711, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.3}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 0.9922480620157773, "v": 0.003721021542729673, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.1}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 1.038685909547679, "v": 0.003619418186276967, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.4}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 0.9922480620157308, "v": 0.003620110133675119, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.5}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 0.927002460982407, "v": 0.0036859518042278347, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.3}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9696969696971881, "v": 0.0035932951149119634, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 179.5}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 1.3207936151505826, "v": 0.0036764661020275468, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 179.5}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 1.0388610489617056, "v": 0.003685481010181199, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 179.6}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 1.0152327679539674, "v": 0.0036824980451893104, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.5}
+{"state": "LiH_r16_m1", "rep": 0, "source": "PREVIOUS", "value": 1.3204407702268792, "v": 0.0036153620872815284, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.7}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 1.0387708805671272, "v": 0.003592151811220241, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 179.8}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9269447268724265, "v": 0.0035940108471429217, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 179.8}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 0.9696969696971912, "v": 0.00368426775686211, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 179.6}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 1.1828648210885782, "v": 0.0036807922890568206, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 179.7}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 0.9922481728127222, "v": 0.0036870304705445374, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 179.8}
+{"state": "LiH_r16_m1", "rep": 1, "source": "CLASSICAL", "value": 0.9269425307168899, "v": 0.0036612673435743636, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 180.0}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 0.9696970755151805, "v": 0.0036877905527691805, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 180.1}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 1.5679630762910455, "v": 0.0037043678729573202, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 179.9}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 1.5074530919278275, "v": 0.0036709095823335555, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 180.1}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 0.8888888888890724, "v": 0.0035946534507744466, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 180.3}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 0.888888888889075, "v": 0.0036874758446644763, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 180.3}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 1.1532657252447314, "v": 0.0037161150593166643, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 180.3}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 0.888888888889074, "v": 0.003690547488264398, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 180.5}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 0.9922480620157346, "v": 0.003687030474103453, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 180.6}
+{"state": "LiH_r16_m1", "rep": 0, "source": "CLASSICAL", "value": 0.9696969696969697, "v": 0.0035932951149168484, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 180.8}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 1.5123842634265954, "v": 0.003705872207349595, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 180.6}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 0.9696969696969697, "v": 0.003684267757006414, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 181.2}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 0.8888888888891083, "v": 0.0037242827979084158, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 181.6}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 1.1509564029710522, "v": 0.0036818222103041777, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 181.9}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 0.8888889865492765, "v": 0.003724282794888237, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 181.8}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 1.1853040984654897, "v": 0.00371516308179224, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 181.9}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 0.8888889778055791, "v": 0.0036905474851046814, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 182.0}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 0.9696970859209032, "v": 0.003721725528175764, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 182.0}
+{"state": "LiH_r16_m1", "rep": 1, "source": "PREVIOUS", "value": 0.96969696969719, "v": 0.0036877905562580056, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 182.2}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 0.9922481837080598, "v": 0.0037210215389926835, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 182.3}
+{"state": "LiH_r16_m1", "rep": 2, "source": "CLASSICAL", "value": 1.0399785564335167, "v": 0.0036815475386729668, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 182.5}
+{"state": "LiH_r16_m1", "rep": 2, "source": "PREVIOUS", "value": 0.9696969696972308, "v": 0.003721725531779864, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 183.3}
+{"state": "LiH_r30_m3", "rep": 2, "source": null, "value": null, "v": 0.007625890198022349, "routes": {"cvxpy": 59, "exact": 33}, "seconds": 104.5}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 32.0, "v": 0.005258245505325607, "routes": {"cvxpy": 56, "exact": 36}, "seconds": 112.6}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 128.0, "v": 0.005188513321186831, "routes": {"cvxpy": 55, "exact": 37}, "seconds": 111.9}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 1.0026209234586831, "v": 0.005839510209930116, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 132.4}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 0.9994975435889755, "v": 0.005839758514613602, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 135.1}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 8.0, "v": 0.005513993978953595, "routes": {"cvxpy": 61, "exact": 31}, "seconds": 116.7}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 4.408770415143782, "v": 0.005639835801965107, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 120.5}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 4.069386643981751, "v": 0.005656859191257367, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 121.4}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 3.119437544198404, "v": 0.005706998073059216, "routes": {"cvxpy": 66, "exact": 26}, "seconds": 121.9}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 7.779087679999834, "v": 0.0055191842610380765, "routes": {"cvxpy": 62, "exact": 30}, "seconds": 118.3}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 4.916829103098255, "v": 0.0056163771816482265, "routes": {"cvxpy": 64, "exact": 28}, "seconds": 120.6}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 6.57949802341015, "v": 0.005552515285221824, "routes": {"cvxpy": 63, "exact": 29}, "seconds": 120.4}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 1.0234731426197023, "v": 0.005837859725330934, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 129.3}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 128.0, "v": 0.005963108806087804, "routes": {"cvxpy": 57, "exact": 35}, "seconds": 113.3}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 32.0, "v": 0.006051938643215412, "routes": {"cvxpy": 59, "exact": 33}, "seconds": 113.4}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 1.1066403727523337, "v": 0.005831361401309071, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 129.8}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 128.0, "v": 0.005200261525642041, "routes": {"cvxpy": 55, "exact": 37}, "seconds": 109.9}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 32.0, "v": 0.005378930733556036, "routes": {"cvxpy": 57, "exact": 35}, "seconds": 110.4}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 13.131446663833689, "v": 0.006117674019237715, "routes": {"cvxpy": 64, "exact": 28}, "seconds": 116.5}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 5.1722201446787635, "v": 0.006140274407900127, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 117.8}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 6.579650055311054, "v": 0.006139713477613564, "routes": {"cvxpy": 64, "exact": 28}, "seconds": 117.9}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 6.592750092856613, "v": 0.006064822241930011, "routes": {"cvxpy": 62, "exact": 30}, "seconds": 111.7}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 8.0, "v": 0.006139046070298284, "routes": {"cvxpy": 64, "exact": 28}, "seconds": 117.9}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 4.069444801154602, "v": 0.006141837969749644, "routes": {"cvxpy": 67, "exact": 25}, "seconds": 118.8}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 10.041111145430907, "v": 0.0061327683113793115, "routes": {"cvxpy": 64, "exact": 28}, "seconds": 118.3}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 7.779300204188477, "v": 0.006139575149307865, "routes": {"cvxpy": 64, "exact": 28}, "seconds": 118.7}
+{"state": "LiH_r30_m3", "rep": 1, "source": "CLASSICAL", "value": 1.1361074598505136, "v": 0.005829091109069902, "routes": {"cvxpy": 70, "exact": 22}, "seconds": 131.8}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 8.0, "v": 0.005986255820104529, "routes": {"cvxpy": 61, "exact": 31}, "seconds": 113.1}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 128.0, "v": 0.00546002973718053, "routes": {"cvxpy": 57, "exact": 35}, "seconds": 108.2}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 7.797619370023383, "v": 0.005996527124099624, "routes": {"cvxpy": 61, "exact": 31}, "seconds": 113.4}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 3.1240449853581316, "v": 0.006405090004478528, "routes": {"cvxpy": 67, "exact": 25}, "seconds": 114.4}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 4.417979307256685, "v": 0.006229867439533145, "routes": {"cvxpy": 66, "exact": 26}, "seconds": 114.7}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 4.074452146150017, "v": 0.006270834587673034, "routes": {"cvxpy": 66, "exact": 26}, "seconds": 116.3}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 13.14715694199885, "v": 0.005921597032089359, "routes": {"cvxpy": 62, "exact": 30}, "seconds": 111.4}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 4.928285477398921, "v": 0.0061845534335077616, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 117.4}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 0.8888888995434089, "v": 0.00615464337948565, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 128.1}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 1.1361179866152062, "v": 0.0061530580729801596, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 125.4}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 0.9922480752918772, "v": 0.006153969617589334, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 126.3}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 10.050294471700136, "v": 0.006020235131787024, "routes": {"cvxpy": 63, "exact": 29}, "seconds": 113.4}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 0.9696969696969743, "v": 0.006154113905162948, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 128.3}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 8.0, "v": 0.006097029417087688, "routes": {"cvxpy": 63, "exact": 29}, "seconds": 114.1}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 0.9696969823767291, "v": 0.006154113905122313, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 128.5}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 6.5864152700056, "v": 0.0061519507205323905, "routes": {"cvxpy": 63, "exact": 29}, "seconds": 114.8}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 4.0720316793988225, "v": 0.006255140438492944, "routes": {"cvxpy": 67, "exact": 25}, "seconds": 114.9}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 1.4103221297506805, "v": 0.006151411319187842, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 126.4}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 0.9696969696969697, "v": 0.006928483660580637, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 123.2}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 0.9696969696969747, "v": 0.006928483660582117, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 123.2}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 0.9922480620155086, "v": 0.0061539696175304205, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 128.3}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 0.8888888888888927, "v": 0.006154643379572026, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 130.0}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 32.0, "v": 0.005644835334165068, "routes": {"cvxpy": 62, "exact": 30}, "seconds": 114.4}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 1.4585331026807893, "v": 0.006151155599230534, "routes": {"cvxpy": 71, "exact": 21}, "seconds": 126.4}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 0.9141082890985474, "v": 0.006948639418956968, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 123.8}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 0.8888888888888888, "v": 0.006959489090974513, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 124.9}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 0.9922480620155091, "v": 0.006921262348289076, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 124.0}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 0.8888888888888931, "v": 0.00695948909099008, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 125.5}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 7.788759057249208, "v": 0.006104969797493277, "routes": {"cvxpy": 63, "exact": 29}, "seconds": 117.0}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 0.9997877520506098, "v": 0.0069188690288990206, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 124.2}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 1.2456280538354543, "v": 0.006152377426759837, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 128.6}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 0.9922480620155039, "v": 0.006921262348291222, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 125.0}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 1.1066503605332678, "v": 0.006153240846506885, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 129.6}
+{"state": "LiH_r30_m3", "rep": 1, "source": "PREVIOUS", "value": 1.0026291218594903, "v": 0.006153903476869069, "routes": {"cvxpy": 72, "exact": 20}, "seconds": 129.6}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 1.0237774430279145, "v": 0.006910087814178738, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 124.5}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 1.0033364729773657, "v": 0.00691774458339132, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 124.9}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 5.174655699524054, "v": 0.006208183611578859, "routes": {"cvxpy": 65, "exact": 27}, "seconds": 118.4}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 1.1075121616715262, "v": 0.00687879685528901, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 123.8}
+{"state": "LiH_r30_m3", "rep": 2, "source": "CLASSICAL", "value": 1.1370263133153695, "v": 0.00686811822706167, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 126.1}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 1.4113250831209025, "v": 0.006571321706137615, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 121.7}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 1.246410374491361, "v": 0.00661959049659517, "routes": {"cvxpy": 74, "exact": 18}, "seconds": 123.8}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 0.9696969696969747, "v": 0.006722135741622866, "routes": {"cvxpy": 75, "exact": 17}, "seconds": 126.6}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 1.459605824808923, "v": 0.00655787417573974, "routes": {"cvxpy": 73, "exact": 19}, "seconds": 124.3}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 1.1070951242505547, "v": 0.006668950492542979, "routes": {"cvxpy": 75, "exact": 17}, "seconds": 126.0}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 0.8888888888888931, "v": 0.006758927909070529, "routes": {"cvxpy": 75, "exact": 17}, "seconds": 128.2}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 1.1365867568312331, "v": 0.0066579318735577285, "routes": {"cvxpy": 75, "exact": 17}, "seconds": 126.7}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 0.992248075628018, "v": 0.006713031167544871, "routes": {"cvxpy": 75, "exact": 17}, "seconds": 127.8}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 0.9922480620155091, "v": 0.0067130311729729, "routes": {"cvxpy": 75, "exact": 17}, "seconds": 128.0}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 0.8888888998131678, "v": 0.006758927903818103, "routes": {"cvxpy": 75, "exact": 17}, "seconds": 128.9}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 1.002994188975571, "v": 0.006708772661280208, "routes": {"cvxpy": 75, "exact": 17}, "seconds": 127.4}
+{"state": "LiH_r30_m3", "rep": 2, "source": "PREVIOUS", "value": 0.9696969826977644, "v": 0.006722135736312233, "routes": {"cvxpy": 75, "exact": 17}, "seconds": 128.6}

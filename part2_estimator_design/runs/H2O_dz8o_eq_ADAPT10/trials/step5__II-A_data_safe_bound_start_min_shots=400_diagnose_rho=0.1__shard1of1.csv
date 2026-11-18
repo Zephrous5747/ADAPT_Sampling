@@ -1,0 +1,17 @@
+label,trial,n_trials,seed,selected,correct,shots,rounds,shortfall,miscovered_rounds,best_eliminated,stopped_rho,refits,contexts_used,cz_per_shot_mean,design_seconds,statistics_seconds,allocation_seconds,miss_first_round,miss_rounds,miss_arms,miss_zero_sd,miss_max_ztrue,miss_min_sdratio,miss_min_shots,miss_best_arm
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",0,16,5,91,1,68564730.0,77,0.0,0,False,True,18,5408,45.99935755599125,4608.509,1994.084,1752.666,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",1,16,5,91,1,80857187.0,78,0.0,0,False,True,18,5408,46.008579831005,4495.809,1995.298,1707.272,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",2,16,5,91,1,37685992.0,74,0.0,0,False,True,17,5408,45.841197254406886,3723.752,1892.681,1690.394,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",3,16,5,91,1,40045677.0,74,0.0,0,False,True,17,5408,45.86991557166083,4212.621,1900.097,1730.466,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",4,16,5,91,1,27691056.0,72,0.0,0,False,True,16,5408,45.586262762965774,3698.791,1837.246,1714.68,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",5,16,5,91,1,64866542.0,77,0.0,0,False,True,18,5408,46.047119931258244,3976.642,1939.357,1701.121,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",6,16,5,299,0,54561525.0,76,0.04006853490299789,0,False,True,17,5408,45.99671292178875,3926.848,1935.212,1706.7,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",7,16,5,91,1,69756167.0,77,0.0,0,False,True,18,5408,45.987827384494906,4347.044,1938.437,1734.535,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",8,16,5,91,1,65860898.0,77,0.0,0,False,True,17,5408,46.08391950562229,2977.341,1856.594,1572.55,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",9,16,5,91,1,66785821.0,77,0.0,0,False,True,18,5408,46.04015428664117,3919.048,1991.196,1855.983,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",10,16,5,91,1,78381161.0,78,0.0,0,False,True,18,5408,46.052942504896045,4020.462,1941.485,1709.557,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",11,16,5,91,1,53508837.0,76,0.0,0,False,True,17,5408,46.00117477791566,3636.73,1916.91,1673.861,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",12,16,5,91,1,47081473.0,75,0.0,0,False,True,17,5408,45.96898168415419,4109.684,1992.681,1754.933,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",13,16,5,91,1,67007173.0,77,0.0,0,False,True,18,5408,46.12720257576006,4576.71,2001.252,1845.062,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",14,16,5,91,1,67988754.0,77,0.0,0,False,True,18,5408,46.03569122622839,4421.362,2022.883,1765.202,0,0,0,0,0.0,-1.0,-1,0
+"II-A data, safe, bound start, min shots=400, diagnose, rho=0.1",15,16,5,91,1,79402831.0,78,0.0,0,False,True,18,5408,46.12696524636508,4475.726,2017.711,1801.112,0,0,0,0,0.0,-1.0,-1,0

@@ -1,0 +1,25 @@
+[
+  {
+    "rho": 0.1,
+    "z": 3.5698814209232768,
+    "n_rows": 232,
+    "leader": 67,
+    "designs": {
+      "II-0": {
+        "shots": 75306171.86874531,
+        "contexts": 2356,
+        "n_eff": 182.98169493112604,
+        "spread": 181,
+        "seconds": 10.4
+      },
+      "weight": {
+        "shots": 19915598.992656395,
+        "contexts": 2356,
+        "n_eff": 104.35527497834263,
+        "spread": 181,
+        "seconds": 5247.7
+      }
+    },
+    "case_id": "H2O_stretch_ADAPT8"
+  }
+]

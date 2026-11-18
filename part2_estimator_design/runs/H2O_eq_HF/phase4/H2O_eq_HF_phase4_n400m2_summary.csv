@@ -1,0 +1,2 @@
+case_id,method,label,trajectories,exact_adapt_iterations,exact_adapt_final_error,reached_rate,iterations_mean,iterations_max,final_error_median,final_error_p90,shots_median,shots_mean,shots_p90,selections,exact_best_rate,rho_good_rate,mean_shortfall,seconds
+H2O_eq_HF,"M2 safe, min shots=400",M2 independent/rule=safe/rho=0.1,36,17,0.0015366858598042654,1.0,17.0,17,0.0015366858599179523,0.001536694934280547,2822818306.0,2829112964.1944447,3207212029.5,612,0.8954248366013072,1.0,0.0010025814454454375,2384.5

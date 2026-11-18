@@ -1,0 +1,18 @@
+[
+  {
+    "rho": 0.1,
+    "z": 3.5698814209232768,
+    "n_rows": 232,
+    "leader": 67,
+    "designs": {
+      "family": {
+        "shots": 11730025.559945216,
+        "contexts": 7277,
+        "n_eff": 89.85745247185544,
+        "spread": null,
+        "seconds": 22628.8
+      }
+    },
+    "case_id": "H2O_eq_ADAPT11"
+  }
+]
