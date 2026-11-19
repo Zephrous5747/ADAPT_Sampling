@@ -53,7 +53,8 @@ def test_sparse_state_is_exact_when_nothing_is_truncated_and_obeys_the_cap():
     full = hf.astype(complex)
     for o, t in zip(ops, params):
         full = expm_multiply(t * gens[o], full)
-    assert np.allclose(sparse_state(gens, ops, params, hf, keep=n), full)
+    # no determinant dropped: the replay equals the exact exponentials to 1e-12 (stated in the paper's code checks)
+    assert np.allclose(sparse_state(gens, ops, params, hf, keep=n), full, atol=1e-12, rtol=0.0)
     c = sparse_state(gens, ops, params, hf)  # K = m + 1 = 5
     assert np.count_nonzero(c) <= 5 and np.linalg.norm(c) == pytest.approx(1.0)
     assert sparse_state(gens, [], [], hf)[0] == 1.0  # m = 0: the HF determinant
