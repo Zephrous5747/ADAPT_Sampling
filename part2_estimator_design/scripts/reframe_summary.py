@@ -286,6 +286,27 @@ def growth() -> None:
     (GEN / "gs_growth_body.tex").write_text("\n".join(tex) + "\n\\bottomrule\n", newline="\n")  # the rule is in the file (booktabs)
 
 
+def to_stalled_target(x: dict) -> dict:
+    """Where exact-gradient ADAPT itself stalls above chemical accuracy (square H4 at 2.0 A: 3.22 mHa), the trajectory is cut at the first iteration
+    that reaches the energy of exact ADAPT within 0.1 mHa; the later selections face vanishing gradients and run to the cap, which says nothing about
+    the method.  Where exact ADAPT reaches 1.6 mHa the record is returned unchanged (the runner stopped there)."""
+    exact = x.get("exact_energy_errors")
+    if not exact or exact[-1] <= 1.6e-3:  # older records carry no exact path: their systems reach chemical accuracy
+        return x
+    target = exact[-1] + 1e-4
+    k = next((j for j, e in enumerate(x["energy_errors"]) if e <= target), None)
+    if k is None:
+        return x
+    y = dict(x)
+    y["selections"] = x["selections"][:k]
+    y["iterations"] = k
+    y["total_shots"] = float(sum(sel["shots"] for sel in y["selections"]))
+    y["reached"] = True
+    y["final_error"] = x["energy_errors"][k]
+    y["exact_adapt_iterations"] = next(j for j, e in enumerate(exact) if e <= target)
+    return y
+
+
 def traj() -> None:
     recs: dict = defaultdict(dict)  # (system, setting) -> arm -> trajectories
     for folder in ("runs/reframe_traj", "runs/reframe_traj_lih", "runs/reframe_traj_fix", "runs/reframe_traj_h4"):
@@ -295,7 +316,7 @@ def traj() -> None:
             if method == "FC_FULL":
                 fixed = folder != "runs/reframe_traj" or setting in ("strict", "risk020") or all(r.get("full_dominance") for r in rows)
                 arm = "SG_FULL" if fixed else "SG_FULL_oldrule"
-            recs[(system, setting)][arm] = rows
+            recs[(system, setting)][arm] = [to_stalled_target(x) for x in rows]
     tex, rows_csv = [], []
     names = {"strict": "(0, 0.05)", "risk020": "(0, 0.20)", "rho005": "(0.05, 0.05)", "rho010": "(0.10, 0.05)", "rho020": "(0.20, 0.05)"}
     for system in sorted({s for s, _ in recs}):
@@ -351,14 +372,14 @@ def leaderout() -> None:
     """T25: leader-out certificate (L_k >= (1 - rho) max over the other survivors of U_i) against the default Eq. (11), rho 0.1, same seeds
     (runs/reframe_v5_lo against runs/reframe_v2 `__rho010__nr`); ratios are over the same trials, with a 95% interval from resampling trials."""
     gaps = load_gaps()
-    base, new_runs = load("runs/reframe_v2"), load("runs/reframe_v5_lo")
+    cells, new_runs = matrix_cells(), load("runs/reframe_v5_lo")  # baselines: the matrix cells (the active-space cells are merged from several folders)
     label = {"FC_SE": "SG_SE", "FC_SE_CS_DATA": "SG_SE_CS"}
     rows, tex = [], []
     for key in sorted(new_runs, key=lambda k: (k.split("__")[1] != "FC_SE_CS_DATA", gaps.get(k.split("__")[0], 9))):
         state, method = key.split("__")[0], key.split("__")[1]
         new = {r["trial"]: r for r in new_runs[key]}
-        old = {r["trial"]: r for r in base[f"{state}__{method}__rho010__nr"]}
-        strict = {r["trial"]: r for r in base[f"{state}__{method}__strict__nr"]}
+        old = {r["trial"]: r for r in cells[(state, "rho010")][label[method]]}
+        strict = {r["trial"]: r for r in cells[(state, "strict")][label[method]]}
         trials = sorted(set(new) & set(old))
         a = np.array([new[i]["selection_shots"] for i in trials], float)
         o = np.array([old[i]["selection_shots"] for i in trials], float)
