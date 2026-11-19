@@ -303,8 +303,19 @@ def policy_facts_and_figure() -> None:
                 r = r.iloc[0]
                 xs.append(x)
                 ys.append(float(r[col]))
-                es.append(0.0 if window or not np.isfinite(r.steps_se) else 1.96 * float(r.steps_se) / float(r.exact_steps))
+                es.append(window_half_width(system, x, r) if window else (0.0 if not np.isfinite(r.steps_se) else 1.96 * float(r.steps_se) / float(r.exact_steps)))
             return xs, ys, es
+
+        def window_half_width(system, x, r):
+            """95% half-width of the ratio of the mean energy error after the exact number of iterations to that of exact ADAPT (200 draws)."""
+            folder = RUNS / "energy_policies" / (system.replace(" ", "_") + "_HF")
+            path = folder / f"policy_rho_random_{x:g}.jsonl"
+            if not path.exists():
+                return 0.0
+            rows = [json.loads(line) for line in open(path) if line.strip()]
+            k = int(r.exact_steps)
+            vals = np.array([1e3 * row["energy_errors"][min(k, len(row["energy_errors"]) - 1)] for row in rows], float)
+            return 1.96 * float(vals.std(ddof=1)) / np.sqrt(len(vals)) / float(r.exact_err_exact_steps_mHa)
 
         ax.axhspan(0.97, 1.03, color="0.88", zorder=0)
         ax.axhline(1.0, color="0.55", lw=0.7, zorder=1)
@@ -317,6 +328,10 @@ def policy_facts_and_figure() -> None:
         ax.errorbar(x, y, yerr=e, color=VERMILION, marker="s", ms=4.5, capsize=1.5, elinewidth=0.8, ls="none" if window else "-", zorder=4)
         x, y, e = series("rho_random", [0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1])
         ax.errorbar(x, y, yerr=e, color=BLUE, marker="o", ms=4.5, capsize=1.5, elinewidth=0.8, zorder=5)
+        for xv, yv in zip(x, y):  # open marker: some trajectories ended (stall or iteration limit) without reaching chemical accuracy
+            r = t[(t.system == system) & (t.policy == f"rho_random:{xv:g}")]
+            if not r.empty and float(r.reached_pct.iloc[0]) < 100.0:
+                ax.plot([xv], [yv], marker="o", ms=4.5, mfc="white", mec=BLUE, mew=1.0, ls="none", zorder=6)
         if not window:  # largest tolerance of the rho-set draw with iterations within 3% of exact ADAPT
             grid_x, star, good = [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9], None, True
             for xv in grid_x:
@@ -354,7 +369,8 @@ def policy_facts_and_figure() -> None:
                Line2D([], [], color=VERMILION, marker="s", label=r"smallest $\Delta E$ in the $\rho$-set"),
                Line2D([], [], color=GREEN, marker="^", label=r"random in the $\tau$-set"),
                Line2D([], [], color=PINK, ls="--", label="largest one-parameter\nlowering"),
-               Line2D([], [], color="0.55", lw=3, alpha=0.5, label="within 3% of\nexact ADAPT")]
+               Line2D([], [], color="0.55", lw=3, alpha=0.5, label="within 3% of\nexact ADAPT"),
+               Line2D([], [], color=BLUE, marker="o", mfc="white", ls="none", label="open: not all trajectories\nreached 1.6 mHa")]
     key.legend(handles=entries, loc="center", ncol=3, frameon=False, fontsize=7.6, handlelength=2.0, borderaxespad=0, columnspacing=1.6, labelspacing=0.6)
     fig.savefig(FIG / "fig_dose.pdf")
     fig.savefig(FIG / "fig_dose.png", dpi=200)

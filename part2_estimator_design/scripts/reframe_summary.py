@@ -257,7 +257,7 @@ def cost() -> None:
 def growth() -> None:
     base, fine = matrix_cells(), defaultdict(dict)
     # v4: two H4 and two LiH states; v7: BeH2 ADAPT 4 and 7, water ADAPT 11 and 8 (same protocol, factor 1.25)
-    for folder in ("runs/reframe_v4_growth", "runs/reframe_v7_growth"):
+    for folder in ("runs/reframe_v4_growth", "runs/reframe_v7_growth", "runs/reframe_v8_growth"):
         for key, rows in load(folder).items():
             state, method, setting, _ = key.split("__")
             arm = {"FC_FULL": "SG_FULL", "FC_SE": "SG_SE", "FC_SE_CS_DATA": "SG_SE_CS"}.get(method)
@@ -288,7 +288,7 @@ def growth() -> None:
 
 def traj() -> None:
     recs: dict = defaultdict(dict)  # (system, setting) -> arm -> trajectories
-    for folder in ("runs/reframe_traj", "runs/reframe_traj_lih", "runs/reframe_traj_fix"):
+    for folder in ("runs/reframe_traj", "runs/reframe_traj_lih", "runs/reframe_traj_fix", "runs/reframe_traj_h4"):
         for key, rows in load(folder).items():
             system, method, setting = key.split("__")
             arm = {"FC_SE": "SG_SE", "FC_SE_CS": "SG_SE_CS+P", "FC_SE_CS_DATA": "SG_SE_CS"}.get(method)
@@ -328,7 +328,9 @@ def traj() -> None:
                                        sci(total.mean()), cell, f"{100 * cap:.0f}", f"{100 * best:.0f}", f"{100 * tie_share:.0f}" if tie_steps else "--"]) + r" \\")
                 rows_csv.append([system, setting, arm, n, sum(bool(x["reached"]) for x in r), f"{its.mean():.2f}", r[0]["exact_adapt_iterations"], f"{total.mean():.4g}",
                                  *(f"{v:.3f}" if v != "" else "" for v in rr), f"{cap:.3f}", f"{best:.3f}", f"{good:.3f}", f"{tie_share:.3f}",
-                                 f"{1e3 * min(x['final_error'] for x in r):.4f}", f"{1e3 * max(x['final_error'] for x in r):.4f}"])
+                                 f"{1e3 * min(x['final_error'] for x in r):.4f}", f"{1e3 * max(x['final_error'] for x in r):.4f}",
+                                 f"{total.std(ddof=1) if n > 1 else 0.0:.4g}",
+                                 f"{np.mean([x['total_shots'] - sum(x['selections'][k]['shots'] for k in tie_steps if k < len(x['selections'])) for x in r]):.4g}" if tie_steps else ""])
                 FACTS[f"traj.{system}.{setting}.{arm}"] = {"n": n, "reached": sum(bool(x["reached"]) for x in r), "iterations": round(float(its.mean()), 2),
                                                             "mean_total_shots": float(f"{total.mean():.4g}"), "ratio_to_SG_SE_CS": [round(v, 2) for v in rr] if rr[0] != "" else None,
                                                             "capped_selections_pct": round(100 * cap, 1), "exact_best_pct": round(100 * best, 1), "rho_good_pct": round(100 * good, 1),
@@ -339,7 +341,8 @@ def traj() -> None:
     with open(OUT / "t24_traj.csv", "w", newline="") as h:
         w = csv.writer(h)
         w.writerow(["system", "setting", "arm", "n", "reached", "mean_iterations", "exact_adapt_iterations", "mean_total_shots", "ratio_to_SG_SE_CS", "lo", "hi",
-                    "capped_selection_share", "exact_best_share", "rho_good_share", "share_of_shots_at_cap_steps", "final_error_min_mHa", "final_error_max_mHa"])
+                    "capped_selection_share", "exact_best_share", "rho_good_share", "share_of_shots_at_cap_steps", "final_error_min_mHa", "final_error_max_mHa",
+                    "sd_total_shots", "mean_total_shots_untied_steps"])
         w.writerows(rows_csv)
     (GEN / "gs_traj_body.tex").write_text("\n".join(tex[:-1]) + "\n", newline="\n")
 
@@ -479,6 +482,48 @@ def rho_delta() -> None:
         print(f"[rho_delta] {r[1]:18s} {r[0]:14s} gap {100 * r[2]:5.1f}%  default d0.2/d0.05 {r[8]:.2f} [{r[9]:.2f}, {r[10]:.2f}]  leader-out {r[13]:.2f} [{r[14]:.2f}, {r[15]:.2f}]  lo(d0.2)/strict {r[17]:.2f}")
 
 
+def calibration() -> None:
+    """JCTC round 4: observed error rate of exact identification (rho 0) at inflated confidence budgets delta = 0.2, 0.5, 0.9 (runs/reframe_v9_cal),
+    pooled over the states of a system family.  A selection is wrong when it is certified and not an exact maximizer; an interval miss is a trial
+    in which any computed block or history interval did not contain the exact gradient."""
+    from scipy.stats import beta
+
+    data = load("runs/reframe_v9_cal")
+    if not data:
+        print("[calibration] runs/reframe_v9_cal not synced")
+        return
+    label = {"FC_SE": "SG_SE", "FC_SE_CS_DATA": "SG_SE_CS"}
+    delta_of = {"cal020": 0.2, "cal050": 0.5, "cal090": 0.9}
+    pooled: dict = defaultdict(lambda: defaultdict(int))
+    for key, rows in data.items():
+        state, method, setting = key.split("__")[:3]
+        family = "H4" if state.startswith("H4") else "LiH"
+        cell = pooled[(delta_of[setting], label[method], family)]
+        for r in rows:
+            cell["trials"] += 1
+            cell["certified"] += r["status"] == "certified"
+            cell["wrong"] += r["status"] == "certified" and not r["rho_good"]
+            cell["miss"] += (r["block_failures"] + r["history_failures"]) > 0
+            cell["eliminated"] += bool(r.get("maximizer_eliminated"))
+            cell["unresolved"] += r["status"] != "certified"
+    tex, rows_csv = [], []
+    for (delta, arm, family), c in sorted(pooled.items(), key=lambda kv: (kv[0][0], kv[0][2], kv[0][1] != "SG_SE_CS")):
+        n = c["trials"]
+        upper = lambda k: float(beta.ppf(0.975, k + 1, n - k)) if k < n else 1.0
+        tex.append(" & ".join([f"{delta:g}", family, TEX[arm], str(n), str(c["certified"]), f"{c['wrong']} ({100 * c['wrong'] / n:.2f}\\%)", f"{100 * upper(c['wrong']):.2f}",
+                               f"{c['miss']} ({100 * c['miss'] / n:.2f}\\%)", f"{100 * upper(c['miss']):.2f}", str(c["eliminated"])]) + r" \\")
+        rows_csv.append([delta, family, arm, n, c["certified"], c["wrong"], f"{upper(c['wrong']):.4f}", c["miss"], f"{upper(c['miss']):.4f}", c["eliminated"], c["unresolved"]])
+        FACTS[f"calibration.{delta:g}.{family}.{arm}"] = {"trials": n, "certified": c["certified"], "wrong": c["wrong"], "wrong_upper95": round(upper(c["wrong"]), 4),
+                                                         "miss_trials": c["miss"], "miss_upper95": round(upper(c["miss"]), 4), "maximizer_eliminated": c["eliminated"]}
+        print(f"[calibration] delta {delta:g} {family:4s} {arm:9s} n={n} certified {c['certified']} wrong {c['wrong']} (upper {100 * upper(c['wrong']):.2f}%) interval-miss trials {c['miss']} "
+              f"(upper {100 * upper(c['miss']):.2f}%) maximizer eliminated {c['eliminated']}")
+    (GEN / "gs_calib_body.tex").write_text(chr(10).join(tex) + chr(10) + chr(92) + "bottomrule" + chr(10), newline=chr(10))
+    with open(OUT / "t27_calibration.csv", "w", newline="") as h:
+        w = csv.writer(h)
+        w.writerow(["delta", "family", "arm", "trials", "certified", "wrong", "wrong_upper95", "miss_trials", "miss_upper95", "maximizer_eliminated", "not_certified"])
+        w.writerows(rows_csv)
+
+
 def grouping() -> None:
     base = load("runs/reframe_v2")
     fam: dict = defaultdict(dict)
@@ -517,9 +562,9 @@ def grouping() -> None:
 
 
 if __name__ == "__main__":
-    parts = sys.argv[1:] or ["matrix", "cost", "growth", "traj", "grouping", "leaderout", "leaderout_traj", "rho_delta"]
+    parts = sys.argv[1:] or ["matrix", "cost", "growth", "traj", "grouping", "leaderout", "leaderout_traj", "rho_delta", "calibration"]
     for p in parts:
-        {"matrix": matrix, "cost": cost, "growth": growth, "traj": traj, "grouping": grouping, "leaderout": leaderout, "leaderout_traj": leaderout_traj, "rho_delta": rho_delta}[p]()
+        {"matrix": matrix, "cost": cost, "growth": growth, "traj": traj, "grouping": grouping, "leaderout": leaderout, "leaderout_traj": leaderout_traj, "rho_delta": rho_delta, "calibration": calibration}[p]()
     facts_file = GEN / "gs_facts.json"
     old = json.loads(facts_file.read_text()) if facts_file.exists() else {}
     old.update(FACTS)

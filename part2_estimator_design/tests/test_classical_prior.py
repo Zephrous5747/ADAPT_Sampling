@@ -60,6 +60,38 @@ def test_sparse_state_is_exact_when_nothing_is_truncated_and_obeys_the_cap():
     assert sparse_state(gens, [], [], hf)[0] == 1.0  # m = 0: the HF determinant
 
 
+def _reference_truncated_state(generators, ops, params, hf, keep):
+    """Independent reference: dense matrix exponentials, then an explicit sort by (-|amplitude|, index) after every rotation."""
+    v = np.asarray(hf, dtype=float).astype(complex)
+    for op, t in zip(ops, params):
+        v = expm_multiply(float(t) * generators[op].toarray(), v)
+        order = sorted(range(v.size), key=lambda k: (-abs(v[k]), k))
+        kept = set(order[:keep])
+        v = np.array([x if k in kept else 0.0 for k, x in enumerate(v)], dtype=complex)
+        v = v / np.linalg.norm(v)
+    return v
+
+
+@pytest.mark.parametrize("seed", range(6))
+@pytest.mark.parametrize("keep", [None, 2, 3, 5])
+def test_truncated_sparse_state_matches_an_independent_dense_reference(seed, keep):
+    """Amplitudes that reach the same determinant are merged before truncation, the largest ones are kept (ties by index), the state is
+    renormalized and phases are retained; checked at K = 2, 3, 5 and at the default K = m + 1 against a dense propagator with an explicit sort."""
+    rng = np.random.default_rng(1000 + seed)
+    n = 10
+    gens = [_excitation(n, int(i), int(j)) for i, j in (rng.choice(n, size=2, replace=False) for _ in range(8))]
+    hf = np.zeros(n)
+    hf[0] = 1.0
+    m = 5
+    ops = [int(o) for o in rng.integers(0, len(gens), size=m)]
+    params = rng.uniform(-1.2, 1.2, size=m)
+    got = sparse_state(gens, ops, params, hf, keep=keep)
+    expected = _reference_truncated_state(gens, ops, params, hf, m + 1 if keep is None else keep)
+    assert np.allclose(got, expected, atol=1e-12, rtol=0.0)
+    assert np.count_nonzero(got) <= (m + 1 if keep is None else keep)
+    assert np.linalg.norm(got) == pytest.approx(1.0)
+
+
 def test_saved_adapt_state_gives_a_close_sparse_state_and_reproduces_the_trajectory():
     full, info = sparse_state_for_case("H4_square_eq_side1p0_ADAPT3")  # also checks that the pool rebuilds the saved state
     assert info["m"] == 3 and info["K"] <= 4

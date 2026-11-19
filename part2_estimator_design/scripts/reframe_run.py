@@ -53,8 +53,10 @@ def stage_of(state_id: str, protocol: dict) -> str:
     return "fixed_" + next(s for s in protocol["fixed_states"] if s["id"] == state_id)["group"]
 
 
-SETTINGS = {"strict": 0.0, "rho005": 0.05, "rho010": 0.1, "rho020": 0.2, "rho010risk020": 0.1}  # setting id -> rho
-DELTAS = {"rho010risk020": 0.2}  # setting id -> delta where it differs from the default 0.05 (T26: rho 0.1 together with delta 0.2)
+SETTINGS = {"strict": 0.0, "rho005": 0.05, "rho010": 0.1, "rho020": 0.2, "rho010risk020": 0.1,
+            "cal020": 0.0, "cal050": 0.0, "cal090": 0.0}  # setting id -> rho
+DELTAS = {"rho010risk020": 0.2,  # setting id -> delta where it differs from the default 0.05 (T26: rho 0.1 together with delta 0.2)
+          "cal020": 0.2, "cal050": 0.5, "cal090": 0.9}  # coverage calibration (JCTC round 4): exact identification at inflated delta, to see the observed error rate
 
 
 def task_list(protocol: dict, digest: str, state_id: str, method: str, trials: int, start: int, schedule: str = "literal",

@@ -215,8 +215,9 @@ for ax, (method, name) in zip(axes, panels):
     for it in (2, 6, 9):  # iterations in which two symmetry-equivalent generators have equal gradients
         ax.axvspan(it - 0.35, it + 0.35, color="#eeeeee", zorder=0)
     for setting, color, label in RHO:
-        per = np.array([[sel["shots"] for sel in t["selections"]] for t in traj[(method, setting)]], float).mean(axis=0)
-        ax.plot(np.arange(1, len(per) + 1), per, marker="o", ms=3.2, lw=1.0, color=color, label=label)
+        arr = np.array([[sel["shots"] for sel in t["selections"]] for t in traj[(method, setting)]], float)
+        per, half = arr.mean(axis=0), 1.96 * arr.std(axis=0, ddof=1) / np.sqrt(len(arr))  # 95% interval of the mean over the trajectories
+        ax.errorbar(np.arange(1, len(per) + 1), per, yerr=half, marker="o", ms=3.2, lw=1.0, elinewidth=0.6, capsize=1.0, color=color, label=label)
     ax.set_yscale("log")
     ax.set_xlabel("ADAPT iteration")
     ax.set_title(name, loc="left")
@@ -239,9 +240,10 @@ for arm, color, marker, off, name in (("SG_SE_CS", "black", "o", -0.2, "SG-SE-CS
         for xi, (sys_, setting) in zip(xs, slots):
             row = tj[(tj.system == system) & (tj.setting == setting) & (tj.arm == arm)] if sys_ == system else tj.iloc[0:0]
             if len(row):
-                pts.append((xi + off, float(row.mean_total_shots.iloc[0])))
+                pts.append((xi + off, float(row.mean_total_shots.iloc[0]), 1.96 * float(row.sd_total_shots.iloc[0]) / np.sqrt(float(row.n.iloc[0]))))
         if pts:
-            ax.plot(*zip(*pts), linestyle="-", lw=0.5, alpha=0.6, marker=marker, ms=3.0, color=color, label=name if first else None)
+            px, py, pe = zip(*pts)
+            ax.errorbar(px, py, yerr=pe, linestyle="-", lw=0.5, elinewidth=0.6, capsize=1.0, alpha=0.6, marker=marker, ms=3.0, color=color, label=name if first else None)
             first = False
 ax.set_yscale("log")
 ax.set_ylim(3e8, 6e11)

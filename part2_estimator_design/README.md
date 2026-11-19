@@ -173,6 +173,7 @@ PySCF 2.14.0 and OpenFermion 1.8.1.
 cd part2_estimator_design
 python scripts/build_problems.py                      # all nine cases, checked against Part I
 python -m pytest tests -q                             # 159 tests (conftest pins BLAS to one thread, see DEVLOG 2026-10-18)
+python scripts/check_context_moments.py LiH_R1p6_ADAPT3 BeH2_ADAPT4 H2O_eq_ADAPT11 H2O_dz8o_eq_ADAPT10   # every context of production libraries against the state-vector evaluator (Linux/WSL)
 python scripts/step0_validate.py --low-shot 0.001     # sampler gate
 python scripts/step1_online_baseline.py --trials 250  # II-0 baseline, H4 + LiH
 python scripts/step2_overlap_census.py                # overlap census, all nine cases
@@ -389,6 +390,10 @@ pool and context hashes):
 | `reframe_traj`, `reframe_traj_lih`, `reframe_traj_fix`, `reframe_traj_cas`, `reframe_traj_cas_fix` | measured trajectories |
 | `reframe_v5_lo`, `reframe_traj_lo` | leader-out certificate (fixed states and trajectories) |
 | `reframe_v6_delta` | rho = 0.1 together with delta = 0.2 |
+| `reframe_v5_lo` | leader-out certificate on the fixed states (rf6: seven small states; rl1, rl5a, rl5b: the other twelve STO-3G and both active-space states) |
+| `reframe_v8_growth` | checkpoint spacing 1.25 on the nine STO-3G states not in v4 and v7 |
+| `reframe_v9_cal` | exact identification at inflated delta (0.2, 0.5, 0.9; settings `cal020`, `cal050`, `cal090`): observed error rate against the nominal budget |
+| `reframe_traj_h4` | measured trajectories on square H4 at 1.0 and 2.0 A |
 | `state_gaps_cas` | gaps of the active-space states |
 | `energy_policies`, `energy_policies_gtol1e-5_cl` | injected-error runs (exact gradients, exact optimization) at optimizer gradient threshold 1e-9 and 1e-5; `reframe_paper_results.py` reads both `report/policies_all.csv` |
 
