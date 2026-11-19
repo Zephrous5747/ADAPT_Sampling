@@ -328,7 +328,7 @@ def policy_facts_and_figure() -> None:
         ax.errorbar(x, y, yerr=e, color=VERMILION, marker="s", ms=4.5, capsize=1.5, elinewidth=0.8, ls="none" if window else "-", zorder=4)
         x, y, e = series("rho_random", [0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1])
         ax.errorbar(x, y, yerr=e, color=BLUE, marker="o", ms=4.5, capsize=1.5, elinewidth=0.8, zorder=5)
-        for xv, yv in zip(x, y):  # open marker: some trajectories ended (stall or iteration limit) without reaching chemical accuracy
+        for xv, yv in zip(x, y):  # open marker: some trajectories ended (stall or iteration limit) without reaching the target: 1.6 mE_h, or where exact ADAPT ends above it (H4 2.0 A; the 40-iteration windows) the energy of exact ADAPT within 0.1 mE_h
             r = t[(t.system == system) & (t.policy == f"rho_random:{xv:g}")]
             if not r.empty and float(r.reached_pct.iloc[0]) < 100.0:
                 ax.plot([xv], [yv], marker="o", ms=4.5, mfc="white", mec=BLUE, mew=1.0, ls="none", zorder=6)
@@ -370,7 +370,7 @@ def policy_facts_and_figure() -> None:
                Line2D([], [], color=GREEN, marker="^", label=r"random in the $\tau$-set"),
                Line2D([], [], color=PINK, ls="--", label="largest one-parameter\nlowering"),
                Line2D([], [], color="0.55", lw=3, alpha=0.5, label="within 3% of\nexact ADAPT"),
-               Line2D([], [], color=BLUE, marker="o", mfc="white", ls="none", label="open: not all trajectories\nreached 1.6 mHa")]
+               Line2D([], [], color=BLUE, marker="o", mfc="white", ls="none", label="open: not all trajectories\nreached their target")]
     key.legend(handles=entries, loc="center", ncol=3, frameon=False, fontsize=7.6, handlelength=2.0, borderaxespad=0, columnspacing=1.6, labelspacing=0.6)
     fig.savefig(FIG / "fig_dose.pdf")
     fig.savefig(FIG / "fig_dose.png", dpi=200)

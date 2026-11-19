@@ -8,7 +8,11 @@ Source: ``reports/reframed/generator_selection_paper`` (manuscript Secs. "Optimi
 ``FC_SE``      the same measurement library and reconstruction with successive elimination;
 ``FC_SE_CS``   the same library and elimination with coefficient splitting and the growing classical covariance prior;
 ``FC_SE_CS_DATA``  *diagnostic, not in the protocol*: as ``FC_SE_CS`` but the design covariance is the measured one (plus the
-               same regularizer), so that the effect of the prior is separated from the effect of splitting.
+               same regularizer), so that the effect of the prior is separated from the effect of splitting;
+``FC_SE_ORACLE``, ``FC_SE_CS_ORACLE``  *bounds, not methods* (JCTC round 5): ``FC_SE`` and ``FC_SE_CS_DATA`` with the design covariance
+               replaced by the exact covariance of the true state (plus the same regularizer) in every block, from the first one.  Same
+               intervals, certificate, floors and checkpoints, so that the difference to the data-only arms is the cost of learning the
+               covariance from outcomes.  The exact moments never enter an interval.
 
 What is implemented, and where the code deviates from the text (``DEVIATIONS``):
 
@@ -42,7 +46,8 @@ T_MULT = 8.0
 MAX_ROUNDS = 30
 CONFLICT_TOLERANCE = 1e-12
 TIE_TOLERANCE = 1e-10
-METHODS = ("FC_FULL", "FC_SE", "FC_SE_CS", "FC_SE_CS_DATA")
+METHODS = ("FC_FULL", "FC_SE", "FC_SE_CS", "FC_SE_CS_DATA", "FC_SE_ORACLE", "FC_SE_CS_ORACLE")
+ORACLE_METHODS = ("FC_SE_ORACLE", "FC_SE_CS_ORACLE")  # JCTC round 5: designs with the exact covariance of the true state (a bound, not a method)
 
 DEVIATIONS = (
     "joint design program solved by the saddle-form solver of design.py (validated against independent solvers in "
@@ -89,15 +94,19 @@ class Counts:
 class DesignCovariance:
     """Sigma-tilde of one context for the design and the plan (never the covariance of the true state)."""
 
-    def __init__(self, library, counts: Counts, prior, nu: float = NU, lam: float = LAMBDA) -> None:
+    def __init__(self, library, counts: Counts, prior, nu: float = NU, lam: float = LAMBDA, exact: bool = False) -> None:
         self.library = library
         self.counts = counts
         self.prior = prior  # OracleMoments of the classical state, or None: measured covariance only
         self.nu = nu
         self.lam = lam
+        self.exact = exact  # ``prior`` holds the moments of the true state and is used alone (the oracle bound)
 
     def __call__(self, alpha: int, paulis: np.ndarray) -> np.ndarray:
         k = len(paulis)
+        if self.exact:
+            sigma = self.prior.covariance(alpha, paulis)
+            return 0.5 * (sigma + sigma.T) + self.lam * np.eye(k)
         n = int(self.counts.n[alpha])
         context = self.library.contexts[alpha]
         if self.prior is None and n < 2:
@@ -187,6 +196,7 @@ class ReframeSelector:
         self.n_contexts = library.n_contexts
         self.dist = distributions
         self.prior = prior
+        self.truth_moments = None  # OracleMoments of the true state, set by the runner for the *_ORACLE methods only
         self.cap = float(cap)
         self.truth = np.asarray(problem.gradients, dtype=float)
         self.split_coords = split_coords
@@ -238,7 +248,7 @@ class ReframeSelector:
         fixed_cost = rounded_total(fixed_plan)
         stats["plan_seconds"] += time.perf_counter() - clock
         designs, plan, cost, choice = self._fixed_designs(requested), fixed_plan, fixed_cost, "fixed"
-        if method in ("FC_SE_CS", "FC_SE_CS_DATA"):
+        if method in ("FC_SE_CS", "FC_SE_CS_DATA", "FC_SE_CS_ORACLE"):
             clock = time.perf_counter()
             problems = self._split_problems()
             for i in requested:
@@ -311,7 +321,12 @@ class ReframeSelector:
         full = method == "FC_FULL"
         sparse_prior = self.prior if method in ("FC_SE_CS",) else None
         counts = Counts(self.n_contexts)  # all blocks (design covariance, historical bound)
-        covariance = DesignCovariance(self.library, counts, sparse_prior)
+        if method in ORACLE_METHODS:
+            if self.truth_moments is None:
+                raise ValueError(f"{method} needs the moments of the true state (selector.truth_moments)")
+            covariance = DesignCovariance(self.library, counts, self.truth_moments, exact=True)
+        else:
+            covariance = DesignCovariance(self.library, counts, sparse_prior)
         M = len(self.candidates)
         A = self.n_contexts
         truth_abs = np.abs(self.truth)

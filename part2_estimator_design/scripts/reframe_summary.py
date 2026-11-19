@@ -244,7 +244,7 @@ def cost() -> None:
                     wall.append(np.mean([x["wall_seconds"] for x in d[arm]]))
                     mem.append(max(x["peak_memory_bytes"] for x in d[arm]) / 1e9)
             if wall:
-                span = f"{min(wall):,.0f}" if round(min(wall)) == round(max(wall)) else f"{min(wall):,.0f} to {max(wall):,.0f}"
+                span = "$<$1" if max(wall) < 0.5 else f"{min(wall):,.0f}" if round(min(wall)) == round(max(wall)) else f"{min(wall):,.0f} to {max(wall):,.0f}"
                 line += [span.replace(",", "{,}"), f"{max(mem):.1f}"]
                 FACTS[f"cost.{system}.{arm}"] = {"wall_s_min": round(min(wall)), "wall_s_max": round(max(wall)), "peak_GB": round(max(mem), 1)}
             else:
@@ -545,6 +545,72 @@ def calibration() -> None:
         w.writerows(rows_csv)
 
 
+def oracle() -> None:
+    """JCTC round 5: bounds with the exact covariance of the true state (runs/reframe_v10_oracle: FC_SE_ORACLE and FC_SE_CS_ORACLE, same
+    intervals, certificate, floors and checkpoints as the matrix) against the data-only arms of the matrix.  'Learning' ratios: mean shots of the
+    data-only arm over those of its oracle (above one: knowing the covariance would save that factor).  'Gain': SG-SE over SG-SE-CS with measured
+    covariances (realized) and with the exact covariance (oracle).  The oracle arms are bounds on what a better covariance estimate could give to
+    this design program, not lower bounds on the shots of any procedure."""
+    data = load("runs/reframe_v10_oracle")
+    if not data:
+        print("[oracle] runs/reframe_v10_oracle not synced")
+        return
+    cells = matrix_cells()
+    orc: dict = defaultdict(dict)
+    for key, rows in data.items():
+        state, method, setting, _ = key.split("__")
+        orc[(state, setting)][{"FC_SE_ORACLE": "SG_SE_O", "FC_SE_CS_ORACLE": "SG_SE_CS_O"}[method]] = rows
+    tex, rows_csv = [], []
+    summary: dict = defaultdict(lambda: defaultdict(list))  # setting -> quantity -> [values]
+    for setting in ("strict", "rho010"):
+        states = sorted({st for st, t in orc if t == setting and not st.endswith("CISD")}, key=state_key)
+        block = 0
+        for state in states:
+            d, o = cells.get((state, setting), {}), orc[(state, setting)]
+            if not all(k in d for k in ("SG_SE", "SG_SE_CS")) or not all(k in o for k in ("SG_SE_O", "SG_SE_CS_O")):
+                continue
+            se, cs, se_o, cs_o = (shots(d["SG_SE"]), shots(d["SG_SE_CS"]), shots(o["SG_SE_O"]), shots(o["SG_SE_CS_O"]))
+            ok = all(certified(r) >= 0.95 * len(r) for r in (d["SG_SE"], d["SG_SE_CS"], o["SG_SE_O"], o["SG_SE_CS_O"]))
+            learn_cs, learn_se = ratio(cs, cs_o), ratio(se, se_o)
+            gain, gain_o = ratio(se, cs), ratio(se_o, cs_o)
+            frac = float(np.log(gain[0]) / np.log(gain_o[0])) if gain_o[0] > 1.0 and ok else float("nan")
+            flag = "" if ok else r"$^\dagger$"
+            line = [state_label(state), "0" if setting == "strict" else "0.1",
+                    f"{sci(cs.mean())} ({certified(d['SG_SE_CS'])}/{len(cs)})", f"{sci(cs_o.mean())} ({certified(o['SG_SE_CS_O'])}/{len(cs_o)})",
+                    f"{learn_cs[0]:.2f}{flag} [{learn_cs[1]:.2f}, {learn_cs[2]:.2f}]", f"{learn_se[0]:.2f}{flag} [{learn_se[1]:.2f}, {learn_se[2]:.2f}]",
+                    f"{gain[0]:.2f}{flag} [{gain[1]:.2f}, {gain[2]:.2f}]", f"{gain_o[0]:.2f}{flag} [{gain_o[1]:.2f}, {gain_o[2]:.2f}]"]
+            tex.append(" & ".join(line) + r" \\")
+            rows_csv.append([state, setting, len(cs), len(cs_o), len(se), len(se_o), f"{cs.mean():.4g}", f"{cs_o.mean():.4g}", f"{se.mean():.4g}", f"{se_o.mean():.4g}",
+                             *(f"{v:.3f}" for v in (*learn_cs, *learn_se, *gain, *gain_o)), "" if np.isnan(frac) else f"{frac:.3f}", "" if ok else "budget",
+                             f"{np.mean([x['wall_seconds'] for x in o['SG_SE_CS_O']]):.0f}"])
+            block += 1
+            if ok:
+                summary[setting]["learn_cs"].append(learn_cs[0])
+                summary[setting]["learn_se"].append(learn_se[0])
+                summary[setting]["gain"].append(gain[0])
+                summary[setting]["gain_oracle"].append(gain_o[0])
+                summary[setting]["cs_o_over_se_o"].append(1.0 / gain_o[0])
+                if not np.isnan(frac):
+                    summary[setting]["fraction"].append(frac)
+        if block and setting == "strict":
+            tex.append(r"\midrule")
+    for setting, q in summary.items():
+        line = {k: summarize(v) for k, v in q.items()}
+        FACTS[f"oracle.{setting}"] = line
+        gain, gain_o = np.array(q["gain"]), np.array(q["gain_oracle"])
+        print(f"[oracle] {setting}: {len(gain)} states | learning cost CS median {np.median(q['learn_cs']):.2f} ({min(q['learn_cs']):.2f}-{max(q['learn_cs']):.2f}), SE median "
+              f"{np.median(q['learn_se']):.2f} ({min(q['learn_se']):.2f}-{max(q['learn_se']):.2f}) | gain realized median {np.median(gain):.2f}, oracle {np.median(gain_o):.2f} "
+              f"| realized/oracle median {np.median(gain / gain_o):.2f} | share of log gain median {np.median(q['fraction']) if q['fraction'] else float('nan'):.2f}")
+    (GEN / "gs_oracle_body.tex").write_text(chr(10).join(tex) + chr(10) + chr(92) + "bottomrule" + chr(10), newline=chr(10))
+    OUT.mkdir(parents=True, exist_ok=True)
+    with open(OUT / "t28_oracle.csv", "w", newline="") as h:
+        w = csv.writer(h)
+        w.writerow(["state", "setting", "n_cs", "n_cs_oracle", "n_se", "n_se_oracle", "mean_cs", "mean_cs_oracle", "mean_se", "mean_se_oracle",
+                    "learn_cs", "learn_cs_lo", "learn_cs_hi", "learn_se", "learn_se_lo", "learn_se_hi", "gain", "gain_lo", "gain_hi",
+                    "gain_oracle", "gain_oracle_lo", "gain_oracle_hi", "log_gain_fraction", "flag", "oracle_cs_wall_s"])
+        w.writerows(rows_csv)
+
+
 def grouping() -> None:
     base = load("runs/reframe_v2")
     fam: dict = defaultdict(dict)
@@ -583,9 +649,9 @@ def grouping() -> None:
 
 
 if __name__ == "__main__":
-    parts = sys.argv[1:] or ["matrix", "cost", "growth", "traj", "grouping", "leaderout", "leaderout_traj", "rho_delta", "calibration"]
+    parts = sys.argv[1:] or ["matrix", "cost", "growth", "traj", "grouping", "leaderout", "leaderout_traj", "rho_delta", "calibration", "oracle"]
     for p in parts:
-        {"matrix": matrix, "cost": cost, "growth": growth, "traj": traj, "grouping": grouping, "leaderout": leaderout, "leaderout_traj": leaderout_traj, "rho_delta": rho_delta, "calibration": calibration}[p]()
+        {"matrix": matrix, "cost": cost, "growth": growth, "traj": traj, "grouping": grouping, "leaderout": leaderout, "leaderout_traj": leaderout_traj, "rho_delta": rho_delta, "calibration": calibration, "oracle": oracle}[p]()
     facts_file = GEN / "gs_facts.json"
     old = json.loads(facts_file.read_text()) if facts_file.exists() else {}
     old.update(FACTS)

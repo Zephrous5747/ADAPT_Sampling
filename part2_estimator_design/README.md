@@ -174,6 +174,7 @@ cd part2_estimator_design
 python scripts/build_problems.py                      # all nine cases, checked against Part I
 python -m pytest tests -q                             # 159 tests (conftest pins BLAS to one thread, see DEVLOG 2026-10-18)
 python scripts/check_context_moments.py LiH_R1p6_ADAPT3 BeH2_ADAPT4 H2O_eq_ADAPT11 H2O_dz8o_eq_ADAPT10   # every context of production libraries against the state-vector evaluator (Linux/WSL)
+python scripts/check_symmetries.py H4_square_eq_side1p0_HF LiH_R3p0_HF   # pool commutes with N and S_z; full-space recomputation of energies and all gradients along exact ADAPT; <S^2> (Linux/WSL)
 python scripts/step0_validate.py --low-shot 0.001     # sampler gate
 python scripts/step1_online_baseline.py --trials 250  # II-0 baseline, H4 + LiH
 python scripts/step2_overlap_census.py                # overlap census, all nine cases

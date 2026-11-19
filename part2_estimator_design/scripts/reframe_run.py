@@ -28,7 +28,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import part1_bridge  # noqa: E402,F401
-from reframe import METHODS, ReframeSelector  # noqa: E402
+from reframe import METHODS, ORACLE_METHODS, ReframeSelector  # noqa: E402
 
 PROTOCOL = ROOT / "reframe" / "protocol.json"
 SYSTEM_TO_CASE = {
@@ -132,7 +132,7 @@ def individual_setup(problem):
     return {"library": library, "oracle": oracle, "base": base, "coords": coords}
 
 
-def build(case: str, cap: float, selector_class=ReframeSelector, grouping: str = "fc", need_prior: bool = True):
+def build(case: str, cap: float, selector_class=ReframeSelector, grouping: str = "fc", need_prior: bool = True, need_oracle: bool = False):
     """``grouping``: the measurement contexts.  ``fc`` (default): the shared fully commuting library of GS-1.0.  ``qwc``: qubit-wise commuting
     contexts (blocks of one qubit, no entangling gates).  ``pivot`` / ``pivot_merged``: the pivot contexts of Anastasiou et al. (every product read
     from all pivots that produce it, or from one pivot chosen by greedy set cover); SG_SE reads the gradients as the published scheme does and
@@ -193,6 +193,10 @@ def build(case: str, cap: float, selector_class=ReframeSelector, grouping: str =
         for alpha in range(library.n_contexts):
             hf_prior.group_means(alpha)
     selector = selector_class(problem, library, dist, base, coords, prior, cap=cap)
+    if need_oracle:  # JCTC round 5: the *_ORACLE bounds design with the exact covariance of the true state
+        for alpha in range(library.n_contexts):
+            oracle.group_means(alpha)  # primed here so that forked workers do not recompute them
+        selector.truth_moments = oracle
     terms = hamiltonian_terms(problem, case)
     selector.hamiltonian_terms = terms
     selector.state_energy = float(problem.state_energy)
@@ -222,7 +226,7 @@ def _one(task: dict) -> dict:
         system_id=task["system_id"], state_id=task["state_id"], method=task["method"], pool_id="UCCSD",
         rho=task["rho"], delta=task["delta"], seed=task["seed"], stage=task["stage"], trial=task["trial"],
         schedule=task.get("schedule", "literal"), status=result["status"], selection_shots=int(result["selection_shots"]), block_shots=[int(b) for b in result["block_shots"]],
-        selected_index=result["selected_index"], used_exact_moments_for_design=False, evidence_directory=_CONTEXT["out"],
+        selected_index=result["selected_index"], used_exact_moments_for_design=task["method"] in ORACLE_METHODS, evidence_directory=_CONTEXT["out"],
         wall_seconds=round(time.perf_counter() - started, 3), peak_memory_bytes=int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) * 1024,
         **_CONTEXT["hashes"],
     )
@@ -280,7 +284,8 @@ def main() -> None:
         stage = stage_of(state_id, protocol)
         cap = args.cap if args.cap is not None else protocol["caps"]["selection_active_space" if stage == "fixed_active_space" else "selection_sto3g"]
         started = time.perf_counter()
-        selector, hashes, info = build(case, cap, grouping=args.grouping, need_prior="FC_SE_CS" in args.methods)
+        selector, hashes, info = build(case, cap, grouping=args.grouping, need_prior="FC_SE_CS" in args.methods,
+                                       need_oracle=any(m in ORACLE_METHODS for m in args.methods))
         print(f"{state_id} ({case}): {selector.n_arms} candidates ({len(selector.candidates)} non-constant), {selector.n_contexts} contexts, "
               f"prior {info.get('K', info.get('prior'))} ({time.perf_counter() - started:.0f}s)", flush=True)
         _SELECTOR = selector
