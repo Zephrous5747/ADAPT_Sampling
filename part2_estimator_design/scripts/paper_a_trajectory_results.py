@@ -328,13 +328,16 @@ def policy_facts_and_figure() -> None:
         ax.errorbar(x, y, yerr=e, color=VERMILION, marker="s", ms=4.5, capsize=1.5, elinewidth=0.8, ls="none" if window else "-", zorder=4)
         x, y, e = series("rho_random", [0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1])
         ax.errorbar(x, y, yerr=e, color=BLUE, marker="o", ms=4.5, capsize=1.5, elinewidth=0.8, zorder=5)
+        shares = []
         for xv, yv in zip(x, y):  # open marker: some trajectories ended (stall or iteration limit) without reaching the target: 1.6 mE_h, or where exact ADAPT ends above it (H4 2.0 A; the 40-iteration windows) the energy of exact ADAPT within 0.1 mE_h
             r = t[(t.system == system) & (t.policy == f"rho_random:{xv:g}")]
             if not r.empty and float(r.reached_pct.iloc[0]) < 100.0:
                 ax.plot([xv], [yv], marker="o", ms=4.5, mfc="white", mec=BLUE, mew=1.0, ls="none", zorder=6)
-                if window:  # the share of the 200 trajectories that reached the target is written next to the open marker (a reviewer misread the open circles at rho 0.1 as filled)
-                    off, ha, va = ((-4, 4), "right", "bottom") if system == WINDOWS[0] else ((0, -5), "center", "top") if xv < 0.4 else ((-5, 0), "right", "center")
-                    ax.annotate(f"{float(r.reached_pct.iloc[0]):g}%", (xv, yv), xytext=off, textcoords="offset points", fontsize=6.5, color=BLUE, ha=ha, va=va, zorder=7)
+                if window:
+                    shares.append((xv, float(r.reached_pct.iloc[0])))
+        if window and shares:  # the share of the 200 trajectories that reached the target is written in the panel (a reviewer misread the open circles at rho 0.1 as filled)
+            ax.text(0.97, 0.96, "reached the target:\n" + "\n".join(rf"$\rho={xv:g}$: {pct:g}%" for xv, pct in shares), transform=ax.transAxes, ha="right", va="top",
+                    fontsize=6.5, color=BLUE, linespacing=1.2)
         if not window:  # largest tolerance of the rho-set draw with iterations within 3% of exact ADAPT
             grid_x, star, good = [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9], None, True
             for xv in grid_x:
