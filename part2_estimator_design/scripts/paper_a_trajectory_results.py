@@ -332,6 +332,9 @@ def policy_facts_and_figure() -> None:
             r = t[(t.system == system) & (t.policy == f"rho_random:{xv:g}")]
             if not r.empty and float(r.reached_pct.iloc[0]) < 100.0:
                 ax.plot([xv], [yv], marker="o", ms=4.5, mfc="white", mec=BLUE, mew=1.0, ls="none", zorder=6)
+                if window:  # the share of the 200 trajectories that reached the target is written next to the open marker (a reviewer misread the open circles at rho 0.1 as filled)
+                    off, ha, va = ((-4, 4), "right", "bottom") if system == WINDOWS[0] else ((0, -5), "center", "top") if xv < 0.4 else ((-5, 0), "right", "center")
+                    ax.annotate(f"{float(r.reached_pct.iloc[0]):g}%", (xv, yv), xytext=off, textcoords="offset points", fontsize=6.5, color=BLUE, ha=ha, va=va, zorder=7)
         if not window:  # largest tolerance of the rho-set draw with iterations within 3% of exact ADAPT
             grid_x, star, good = [0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 0.9], None, True
             for xv in grid_x:
@@ -370,7 +373,7 @@ def policy_facts_and_figure() -> None:
                Line2D([], [], color=GREEN, marker="^", label=r"random in the $\tau$-set"),
                Line2D([], [], color=PINK, ls="--", label="largest one-parameter\nlowering"),
                Line2D([], [], color="0.55", lw=3, alpha=0.5, label="within 3% of\nexact ADAPT"),
-               Line2D([], [], color=BLUE, marker="o", mfc="white", ls="none", label="open: not all trajectories\nreached their target")]
+               Line2D([], [], color=BLUE, marker="o", mfc="white", ls="none", label="open: not all trajectories\nreached their target (share in h, i)")]
     key.legend(handles=entries, loc="center", ncol=3, frameon=False, fontsize=7.6, handlelength=2.0, borderaxespad=0, columnspacing=1.6, labelspacing=0.6)
     fig.savefig(FIG / "fig_dose.pdf")
     fig.savefig(FIG / "fig_dose.png", dpi=200)

@@ -389,7 +389,8 @@ pool and context hashes):
 | `reframe_v4`, `reframe_v4_ig`, `reframe_v4_growth`, `reframe_v7_growth` | full pool with the dominance rule, individual grouping, checkpoint spacing 1.25 (v4: two H4 and two LiH states; v7: two BeH2 and two water states, SG-SE and SG-SE-CS only) |
 | `reframe_v2_grp` | qubit-wise and pivot contexts |
 | `reframe_traj`, `reframe_traj_lih`, `reframe_traj_fix`, `reframe_traj_cas`, `reframe_traj_cas_fix` | measured trajectories |
-| `reframe_v5_lo`, `reframe_traj_lo` | leader-out certificate (fixed states and trajectories) |
+| `reframe_v5_lo`, `reframe_traj_lo`, `reframe_traj_h4_lo` | leader-out certificate (fixed states; trajectories of BeH2 and LiH; trajectories of square H4 at 1.0 and 2.0 A, run on the cluster in one job paired with the stored `reframe_traj_h4` records, 30 trajectories per series) |
+| `reframe_v10_oracle` | bounds with the exact covariance of the true state (`FC_SE_ORACLE`, `FC_SE_CS_ORACLE`; 17 STO-3G states at rho 0 and 0.1, 100 trials, and the two active-space states at rho 0, 30 trials). Records are marked `used_exact_moments_for_design = true`: they are bounds on the design program, not methods, so `reframe/validate_records.py` must not be run on them |
 | `reframe_v6_delta` | rho = 0.1 together with delta = 0.2 |
 | `reframe_v5_lo` | leader-out certificate on the fixed states (rf6: seven small states; rl1, rl5a, rl5b: the other twelve STO-3G and both active-space states) |
 | `reframe_v8_growth` | checkpoint spacing 1.25 on the nine STO-3G states not in v4 and v7 |
@@ -403,7 +404,7 @@ Regenerate the numbers of the paper from the stored records (no cluster access n
 
 ```bash
 cd part2_estimator_design
-python scripts/reframe_summary.py            # matrix, cost, growth, trajectories, grouping, leader-out, rho and delta
+python scripts/reframe_summary.py            # matrix, cost, growth, trajectories, grouping, leader-out, rho and delta, calibration, exact-covariance bounds (`oracle`)
 python scripts/reframe_paper_results.py      # figures and the injected-error facts
 ```
 

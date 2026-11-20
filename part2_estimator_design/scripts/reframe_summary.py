@@ -413,8 +413,9 @@ def leaderout_traj() -> None:
     """T25b: measured trajectories under the leader-out certificate (runs/reframe_traj_lo) against the default rule at the same setting
     (runs/reframe_traj, reframe_traj_lih, reframe_traj_fix), same seeds, paired by trial."""
     lo = load("runs/reframe_traj_lo")
+    lo.update(load("runs/reframe_traj_h4_lo"))  # square H4, run later on the cluster (rt7), paired with the stored default records of runs/reframe_traj_h4
     base: dict = {}
-    for folder in ("runs/reframe_traj", "runs/reframe_traj_lih", "runs/reframe_traj_fix"):
+    for folder in ("runs/reframe_traj", "runs/reframe_traj_lih", "runs/reframe_traj_fix", "runs/reframe_traj_h4"):
         base.update(load(folder))
     label = {"FC_SE": "SG_SE", "FC_SE_CS_DATA": "SG_SE_CS"}
     names = {"rho005": "0.05", "rho010": "0.10", "rho020": "0.20"}
@@ -422,8 +423,8 @@ def leaderout_traj() -> None:
     order = sorted(lo, key=lambda k: (k.split("__")[0], k.split("__")[1] != "FC_SE_CS_DATA", k.split("__")[2]))
     for key in order:
         system, method, setting = key.split("__")
-        new = {r["trial"]: r for r in lo[key]}
-        old = {r["trial"]: r for r in base[key]}
+        new = {r["trial"]: to_stalled_target(r) for r in lo[key]}  # H4 at 2.0 A is cut at the stalled energy of exact ADAPT, as in traj()
+        old = {r["trial"]: to_stalled_target(r) for r in base[key]}
         trials = sorted(set(new) & set(old))
         a = np.array([new[i]["total_shots"] for i in trials], float)
         o = np.array([old[i]["total_shots"] for i in trials], float)
@@ -434,7 +435,10 @@ def leaderout_traj() -> None:
         sel_old = [s for i in trials for s in old[i]["selections"]]
         same = sum([s["selected"] for s in new[i]["selections"]] == [s["selected"] for s in old[i]["selections"]] for i in trials)
         dfinal = max(abs(new[i]["final_error"] - old[i]["final_error"]) for i in trials) * 1e3
-        dtraj = [1e3 * float(np.max(np.abs(np.array(new[i]["energy_errors"]) - np.array(old[i]["energy_errors"])))) for i in trials]  # largest gap along each trajectory
+        def path(x):  # energy errors up to the end of the (possibly cut) trajectory
+            return np.array(x["energy_errors"][: x["iterations"] + 1], float)
+
+        dtraj = [1e3 * float(np.max(np.abs(path(new[i])[: min(len(path(new[i])), len(path(old[i])))] - path(old[i])[: min(len(path(new[i])), len(path(old[i])))]))) for i in trials]  # largest gap along each trajectory
         n_diff = sum(d > 1e-3 for d in dtraj)  # trials whose energy trajectory differs by more than 1 microHa somewhere
         never_more = float(np.mean(a <= o))
         rows.append((system, setting, label[method], len(trials), reached, a.mean(), o.mean(), a.mean() / o.mean(), lo_ci, hi_ci, never_more,
@@ -575,11 +579,14 @@ def oracle() -> None:
             gain, gain_o = ratio(se, cs), ratio(se_o, cs_o)
             frac = float(np.log(gain[0]) / np.log(gain_o[0])) if gain_o[0] > 1.0 and ok else float("nan")
             flag = "" if ok else r"$^\dagger$"
-            line = [state_label(state), "0" if setting == "strict" else "0.1",
-                    f"{sci(cs.mean())} ({certified(d['SG_SE_CS'])}/{len(cs)})", f"{sci(cs_o.mean())} ({certified(o['SG_SE_CS_O'])}/{len(cs_o)})",
+            full = all(certified(r) == len(r) for r in (d["SG_SE"], d["SG_SE_CS"], o["SG_SE_O"], o["SG_SE_CS_O"]))  # every trial of the four arms certified: counts are left out of the cells
+            count = (lambda r: "") if full else (lambda r: f" ({certified(r)}/{len(r)})")
+            line = [state_label(state),
+                    f"{sci(cs.mean())}{count(d['SG_SE_CS'])}", f"{sci(cs_o.mean())}{count(o['SG_SE_CS_O'])}",
                     f"{learn_cs[0]:.2f}{flag} [{learn_cs[1]:.2f}, {learn_cs[2]:.2f}]", f"{learn_se[0]:.2f}{flag} [{learn_se[1]:.2f}, {learn_se[2]:.2f}]",
                     f"{gain[0]:.2f}{flag} [{gain[1]:.2f}, {gain[2]:.2f}]", f"{gain_o[0]:.2f}{flag} [{gain_o[1]:.2f}, {gain_o[2]:.2f}]"]
-            tex.append(" & ".join(line) + r" \\")
+            if setting == "strict":  # the table prints rho = 0 only; the rho = 0.1 rows are in t28_oracle.csv and their medians in the caption
+                tex.append(" & ".join(line) + r" \\")
             rows_csv.append([state, setting, len(cs), len(cs_o), len(se), len(se_o), f"{cs.mean():.4g}", f"{cs_o.mean():.4g}", f"{se.mean():.4g}", f"{se_o.mean():.4g}",
                              *(f"{v:.3f}" for v in (*learn_cs, *learn_se, *gain, *gain_o)), "" if np.isnan(frac) else f"{frac:.3f}", "" if ok else "budget",
                              f"{np.mean([x['wall_seconds'] for x in o['SG_SE_CS_O']]):.0f}"])
@@ -590,17 +597,21 @@ def oracle() -> None:
                 summary[setting]["gain"].append(gain[0])
                 summary[setting]["gain_oracle"].append(gain_o[0])
                 summary[setting]["cs_o_over_se_o"].append(1.0 / gain_o[0])
-                if not np.isnan(frac):
-                    summary[setting]["fraction"].append(frac)
-        if block and setting == "strict":
-            tex.append(r"\midrule")
+                summary[setting]["learn_cs_hi"].append(learn_cs[2])  # upper end of the interval, to count the states where the data-only arm is cheaper
+                summary[setting]["learn_se_hi"].append(learn_se[2])
+                # the share of the log gain (frac, written to the CSV) is not summarized: it diverges when the exact-covariance gain is near one
+    from scipy.stats import spearmanr
     for setting, q in summary.items():
-        line = {k: summarize(v) for k, v in q.items()}
-        FACTS[f"oracle.{setting}"] = line
+        line = {k: summarize(v) for k, v in q.items() if not k.endswith("_hi")}
         gain, gain_o = np.array(q["gain"]), np.array(q["gain_oracle"])
+        rank = float(spearmanr(gain, gain_o)[0])
+        below = int(sum(h < 1.0 for h in q["learn_cs_hi"])), int(sum(h < 1.0 for h in q["learn_se_hi"]))  # states where the data-only arm is cheaper, interval below one
+        line["spearman_gain_vs_oracle_gain"] = round(rank, 2)
+        line["states_data_only_cheaper_CS_SE"] = list(below)
+        FACTS[f"oracle.{setting}"] = line
         print(f"[oracle] {setting}: {len(gain)} states | learning cost CS median {np.median(q['learn_cs']):.2f} ({min(q['learn_cs']):.2f}-{max(q['learn_cs']):.2f}), SE median "
               f"{np.median(q['learn_se']):.2f} ({min(q['learn_se']):.2f}-{max(q['learn_se']):.2f}) | gain realized median {np.median(gain):.2f}, oracle {np.median(gain_o):.2f} "
-              f"| realized/oracle median {np.median(gain / gain_o):.2f} | share of log gain median {np.median(q['fraction']) if q['fraction'] else float('nan'):.2f}")
+              f"| realized/oracle median {np.median(gain / gain_o):.2f} | Spearman of the two gains {rank:.2f} | data-only cheaper (interval below one): CS {below[0]}, SE {below[1]} states")
     (GEN / "gs_oracle_body.tex").write_text(chr(10).join(tex) + chr(10) + chr(92) + "bottomrule" + chr(10), newline=chr(10))
     OUT.mkdir(parents=True, exist_ok=True)
     with open(OUT / "t28_oracle.csv", "w", newline="") as h:
