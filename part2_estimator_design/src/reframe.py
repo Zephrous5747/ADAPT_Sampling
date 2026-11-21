@@ -63,9 +63,9 @@ def epsilon_round(r: int) -> float:
     return (5.0 - 0.4 * r) * EPS_BASE if r <= 10 else EPS_BASE * 2.0 ** (-(r - 10))
 
 
-def rounded_total(plan: np.ndarray) -> int:
+def rounded_total(plan: np.ndarray, floor: int = FLOOR) -> int:
     positive = plan > 1e-9
-    return int(np.maximum(FLOOR, np.ceil(plan[positive] - 1e-9)).sum())
+    return int(np.maximum(floor, np.ceil(plan[positive] - 1e-9)).sum())
 
 
 class Counts:
@@ -197,6 +197,7 @@ class ReframeSelector:
         self.dist = distributions
         self.prior = prior
         self.truth_moments = None  # OracleMoments of the true state, set by the runner for the *_ORACLE methods only
+        self.floor = FLOOR  # shots per active context below which a plan is rounded up; run(floor=...) sets it for the trial (JCTC: floor sensitivity of the prior)
         self.cap = float(cap)
         self.truth = np.asarray(problem.gradients, dtype=float)
         self.split_coords = split_coords
@@ -245,7 +246,7 @@ class ReframeSelector:
             for a, p, x in self.x0[i]:
                 sigmas[row, a] = math.sqrt(max(float(x @ covariance(a, p) @ x), 0.0))
         fixed_plan = allocate(sigmas, epsilon)
-        fixed_cost = rounded_total(fixed_plan)
+        fixed_cost = rounded_total(fixed_plan, self.floor)
         stats["plan_seconds"] += time.perf_counter() - clock
         designs, plan, cost, choice = self._fixed_designs(requested), fixed_plan, fixed_cost, "fixed"
         if method in ("FC_SE_CS", "FC_SE_CS_DATA", "FC_SE_CS_ORACLE"):
@@ -257,7 +258,7 @@ class ReframeSelector:
                 p.x[p.reference] = p.pauli_target
                 p.update_blocks(covariance)
             solution = DesignSet(problems, self.n_contexts).solve(requested, epsilon)
-            optimized_cost = rounded_total(solution.shots)
+            optimized_cost = rounded_total(solution.shots, self.floor)
             candidate = {}
             valid = True
             for i in requested:
@@ -303,7 +304,7 @@ class ReframeSelector:
 
     def run(self, rng: np.random.Generator, method: str, rho: float, delta: float, schedule: str = "literal", *,
             restart_ratio: float = 1.0, batch_fix: bool = False, full_dominance: bool = False, growth: float = 2.0,
-            leader_out: bool = False) -> dict:
+            leader_out: bool = False, floor: int = FLOOR) -> dict:
         """``leader_out`` (task T25): the relative certificate compares the leader's lower bound with the largest upper bound of the OTHER
         survivors, L_k >= (1 - rho) max_{i != k} U_i, instead of the maximum over all survivors including k (GS-1.0 as run so far).  Both
         certify the rho-good event; the default form also needs the leader's own half-width to shrink to rho / (2 - rho) of |g_k|.
@@ -317,6 +318,9 @@ class ReframeSelector:
         the planned allocation when more than 128 contexts are active)."""
         if method not in METHODS:
             raise ValueError(f"unknown method {method}")
+        if floor < 2:
+            raise ValueError("the floor must be at least 2 outcomes per active context (a sample variance needs two)")
+        self.floor = int(floor)
         started = time.perf_counter()
         full = method == "FC_FULL"
         sparse_prior = self.prior if method in ("FC_SE_CS",) else None
@@ -338,7 +342,7 @@ class ReframeSelector:
         record = {"schedule": schedule, "status": None, "selected_index": None, "block_shots": [], "design_choices": [], "blocks": [],
                   "block_failures": 0, "history_failures": 0, "maximizer_eliminated": False, "checkpoints": 0,
                   "fallback_designs": 0, "rounds_reached": 1, "restart_ratio": restart_ratio, "batch_fix": batch_fix,
-                  "full_dominance": full_dominance, "growth": growth, "leader_out": leader_out}
+                  "full_dominance": full_dominance, "growth": growth, "leader_out": leader_out, "floor": self.floor}
         stats = {"plan_seconds": 0.0, "solve_seconds": 0.0, "sample_seconds": 0.0, "interval_seconds": 0.0}
         if not self.candidates:
             record.update(status="stationary", selected_index=None)
@@ -397,8 +401,8 @@ class ReframeSelector:
                 # at the floor and the first checkpoint is uniform.
                 while True:
                     q[:] = 0
-                    q[active] = np.maximum(FLOOR, np.ceil(plan[active] / 2.0 ** k - 1e-9)).astype(np.int64)
-                    if q.sum() < (max(FIRST_CHECK, 64 * int(active.size)) if batch_fix else FIRST_CHECK) or (q[active] == FLOOR).all():
+                    q[active] = np.maximum(self.floor, np.ceil(plan[active] / 2.0 ** k - 1e-9)).astype(np.int64)
+                    if q.sum() < (max(FIRST_CHECK, 64 * int(active.size)) if batch_fix else FIRST_CHECK) or (q[active] == self.floor).all():
                         break
                     k += 1
             else:
@@ -407,7 +411,7 @@ class ReframeSelector:
                 while np.maximum(1.0, np.ceil(plan[active] / 2.0 ** k - 1e-9)).sum() >= FIRST_CHECK and plan[active].max() / 2.0 ** k > 1.0:
                     k += 1
                 q[:] = 0
-                q[active] = np.maximum(FLOOR, np.ceil(plan[active] / 2.0 ** k - 1e-9)).astype(np.int64)
+                q[active] = np.maximum(self.floor, np.ceil(plan[active] / 2.0 ** k - 1e-9)).astype(np.int64)
             residuals = {i: self._residual(i, designs[i]) for i in requested}
             by_context = self._by_context(designs)
             blk = Counts(self.n_contexts)

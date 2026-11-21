@@ -309,7 +309,7 @@ def to_stalled_target(x: dict) -> dict:
 
 def traj() -> None:
     recs: dict = defaultdict(dict)  # (system, setting) -> arm -> trajectories
-    for folder in ("runs/reframe_traj", "runs/reframe_traj_lih", "runs/reframe_traj_fix", "runs/reframe_traj_h4"):
+    for folder in ("runs/reframe_traj", "runs/reframe_traj_lih", "runs/reframe_traj_fix", "runs/reframe_traj_h4", "runs/reframe_traj_h2o"):
         for key, rows in load(folder).items():
             system, method, setting = key.split("__")
             arm = {"FC_SE": "SG_SE", "FC_SE_CS": "SG_SE_CS+P", "FC_SE_CS_DATA": "SG_SE_CS"}.get(method)

@@ -373,6 +373,8 @@ bound, fresh blocks at doubling checkpoints and a relative certificate. Developm
 | Measured ADAPT trajectories (selection from sampled outcomes, exact reoptimization) | `scripts/reframe_traj_run.py` |
 | Injected selection errors in exact-gradient ADAPT | `scripts/energy_trajectory_policies.py`, `scripts/energy_policies_report.py` (run it without `--cases`: it rewrites `report/policies_all.csv`) |
 | Tables, ratios, intervals and the facts quoted in the paper | `scripts/reframe_summary.py` (writes `reports/prior/*.csv` and the `generated/*.tex` bodies of the paper folder), `scripts/reframe_paper_results.py` (figures and the injected-error facts), `scripts/reframe_state_gaps.py` (gaps, contexts per product, CZ counts; needs the cached problems), `scripts/reframe_context_sizes.py` |
+| Hierarchy of the methods (gain of every step, Fig. 2 and Table II of the paper; needs `runs/reframe_v10_oracle`) | `scripts/reframe_hierarchy.py` (writes `generated/gs_hierarchy_body.tex`, `figures/fig_gs_hierarchy.pdf`, facts in `generated/gs_facts.json`) |
+| Sensitivity of the classical-prior arm to the shot floor and to the block policy (SI Sec. S12; needs `runs/reframe_v11_floor` and `runs/reframe_v12_restart`) | `scripts/reframe_floor_restart.py` (writes `reports/prior/t29_floor.csv`, `t30_restart.csv`, `generated/gs_floor_body.tex`, `gs_restart_body.tex`, facts in `generated/gs_facts.json`); the runs use `scripts/reframe_run.py --floor N` and `--restart-ratio 1` (job files `cluster/jobs/rt10*.txt`, `rt11*.txt`); `tests/test_reframe_floor.py` |
 | Snapshots of the summary tables and facts at the commit of the paper | `reframe/summaries/` |
 | Tests | `tests/test_reframe_intervals.py`, `test_reframe_t24.py`, `test_reframe_t25.py`, `test_review_stage1.py`, `test_pivot.py`, `test_design.py`, `test_energy_policies.py` |
 
@@ -388,7 +390,9 @@ pool and context hashes):
 | `reframe_v2`, `reframe_v2_cas_a/b/c` | the matrix at rho = 0 and 0.1 (the three CAS folders hold trials 5-29 of one cell, merged by the summary script) |
 | `reframe_v4`, `reframe_v4_ig`, `reframe_v4_growth`, `reframe_v7_growth` | full pool with the dominance rule, individual grouping, checkpoint spacing 1.25 (v4: two H4 and two LiH states; v7: two BeH2 and two water states, SG-SE and SG-SE-CS only) |
 | `reframe_v2_grp` | qubit-wise and pivot contexts |
-| `reframe_traj`, `reframe_traj_lih`, `reframe_traj_fix`, `reframe_traj_cas`, `reframe_traj_cas_fix` | measured trajectories |
+| `reframe_traj`, `reframe_traj_lih`, `reframe_traj_fix`, `reframe_traj_cas`, `reframe_traj_cas_fix`, `reframe_traj_h4`, `reframe_traj_h2o` | measured trajectories (BeH2, LiH, square H4, STO-3G water at equilibrium and stretched, cc-pVDZ active space; the classical-prior arm `FC_SE_CS` is on all of them except the cc-pVDZ ones, where it is one trajectory) |
+| `reframe_v11_floor` | shot-floor sensitivity: floors 8, 128, 400 on nine fixed states, rho 0, 30 trials (floor 32 is the matrix); record names carry `__f<floor>` |
+| `reframe_v12_restart` | restart-policy test: a new block after every elimination (`--restart-ratio 1`) on eight cells, 30 trials, record names carry `__rs`; paired with the matrix trials 0-29 |
 | `reframe_v5_lo`, `reframe_traj_lo`, `reframe_traj_h4_lo` | leader-out certificate (fixed states; trajectories of BeH2 and LiH; trajectories of square H4 at 1.0 and 2.0 A, run on the cluster in one job paired with the stored `reframe_traj_h4` records, 30 trajectories per series) |
 | `reframe_v10_oracle` | bounds with the exact covariance of the true state (`FC_SE_ORACLE`, `FC_SE_CS_ORACLE`; 17 STO-3G states at rho 0 and 0.1, 100 trials, and the two active-space states at rho 0, 30 trials). Records are marked `used_exact_moments_for_design = true`: they are bounds on the design program, not methods, so `reframe/validate_records.py` must not be run on them |
 | `reframe_v6_delta` | rho = 0.1 together with delta = 0.2 |

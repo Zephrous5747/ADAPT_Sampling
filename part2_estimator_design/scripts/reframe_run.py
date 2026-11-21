@@ -61,7 +61,7 @@ DELTAS = {"rho010risk020": 0.2,  # setting id -> delta where it differs from the
 
 def task_list(protocol: dict, digest: str, state_id: str, method: str, trials: int, start: int, schedule: str = "literal",
               setting_id: str = "strict", restart_ratio: float = 1.0, batch_fix: bool = False, full_dominance: bool = False,
-              growth: float = 2.0, grouping: str = "fc", leader_out: bool = False) -> list[dict]:
+              growth: float = 2.0, grouping: str = "fc", leader_out: bool = False, floor: int = 32) -> list[dict]:
     stage = stage_of(state_id, protocol)
     system = next(s for s in protocol["fixed_states"] if s["id"] == state_id)["system"]
     setting = {"id": setting_id, "rho": SETTINGS[setting_id], "delta": DELTAS.get(setting_id, 0.05)}
@@ -81,7 +81,9 @@ def task_list(protocol: dict, digest: str, state_id: str, method: str, trials: i
             key += f"|{grouping}"
         if leader_out:  # T25: same seed, a different record id
             key += "|leaderout1"
-        tasks.append(dict(restart_ratio=restart_ratio, batch_fix=batch_fix, full_dominance=full_dominance, growth=growth, leader_out=leader_out, task_id=hashlib.sha256(key.encode()).hexdigest()[:20], schedule=schedule, stage=stage, system_id=system,
+        if floor != 32:  # floor sensitivity: same seed (paired with the floor-32 records), a different record id
+            key += f"|floor{floor}"
+        tasks.append(dict(restart_ratio=restart_ratio, batch_fix=batch_fix, full_dominance=full_dominance, growth=growth, leader_out=leader_out, floor=floor, task_id=hashlib.sha256(key.encode()).hexdigest()[:20], schedule=schedule, stage=stage, system_id=system,
                           state_id=state_id, method=method, setting_id=setting["id"], rho=setting["rho"], delta=setting["delta"],
                           trial=trial, seed=seed))
     return tasks
@@ -219,7 +221,7 @@ def _one(task: dict) -> dict:
     result = _SELECTOR.run(rng, task["method"], task["rho"], task["delta"], task.get("schedule", "literal"),
                            restart_ratio=task.get("restart_ratio", 1.0), batch_fix=task.get("batch_fix", False),
                            full_dominance=task.get("full_dominance", False), growth=task.get("growth", 2.0),
-                           leader_out=task.get("leader_out", False))
+                           leader_out=task.get("leader_out", False), floor=task.get("floor", 32))
     record = dict(
         record_id=task["task_id"], protocol_version=_CONTEXT["protocol"]["protocol_version"], protocol_sha256=_CONTEXT["digest"],
         code_commit=_CONTEXT["commit"], environment_file="part2_estimator_design/requirements.txt",
@@ -231,7 +233,7 @@ def _one(task: dict) -> dict:
         **_CONTEXT["hashes"],
     )
     record.update(setting_id=task["setting_id"], restart_ratio=task.get("restart_ratio", 1.0), batch_fix=task.get("batch_fix", False),
-                  full_dominance=task.get("full_dominance", False), growth=task.get("growth", 2.0), leader_out=task.get("leader_out", False),
+                  full_dominance=task.get("full_dominance", False), growth=task.get("growth", 2.0), leader_out=task.get("leader_out", False), floor=task.get("floor", 32),
                   grouping=_CONTEXT.get("grouping", "fc"), n_contexts=int(_SELECTOR.n_contexts))
     for key in ("correct", "rho_good", "tied_maximizers", "rounds_reached", "n_blocks", "checkpoints", "block_failures", "history_failures",
                 "maximizer_eliminated", "fallback_designs", "n_survivors", "peak_context_count", "plan_seconds", "solve_seconds",
@@ -264,6 +266,7 @@ def main() -> None:
     parser.add_argument("--growth", type=float, default=2.0, help="T24: factor between consecutive checkpoints of a block (2 = the doubling schedule)")
     parser.add_argument("--leader-out", action="store_true",
                         help="T25: the relative certificate takes the maximum upper bound over the other survivors only (leader excluded)")
+    parser.add_argument("--floor", type=int, default=32, help="shots per active context below which a plan is rounded up (default 32, the protocol; JCTC floor sensitivity of the prior)")
     parser.add_argument("--suffix", default="", help="appended to the record file names")
     parser.add_argument("--grouping", choices=GROUPINGS, default="fc",
                         help="measurement contexts: fc (GS-1.0 shared FC library), qwc, pivot (Anastasiou et al.), pivot_merged (task T7); use --suffix and --out to keep the files apart")
@@ -300,7 +303,7 @@ def main() -> None:
                 done = {json.loads(line)["record_id"] for line in path.read_text().splitlines() if line.strip()}
             tasks = [t for t in task_list(protocol, digest, state_id, method, args.trials, args.trial_start, args.schedule,
                                                  args.setting, args.restart_ratio, args.batch_fix, args.full_dominance, args.growth,
-                                                 args.grouping, args.leader_out) if t["task_id"] not in done]
+                                                 args.grouping, args.leader_out, args.floor) if t["task_id"] not in done]
             if not tasks:
                 print(f"{state_id} {method}: complete", flush=True)
                 continue
